@@ -62,11 +62,12 @@ Ver [`docs/PRIVACIDAD.md`](docs/PRIVACIDAD.md).
 Hace falta un Mac con Xcode. No hay otra forma de instalar nada en un iPhone.
 
 ```bash
-brew install xcodegen
-cd ios
-xcodegen generate
-open FocusDhikr.xcodeproj
+git clone https://github.com/mahamedsillah2-cloud/Focus-Dhikr.git
+open Focus-Dhikr/ios/FocusDhikr.xcodeproj
 ```
+
+El proyecto está commiteado: se abre directamente con **Open Existing
+Project**, sin generarlo y sin instalar nada. No hay `.xcworkspace`.
 
 Los pasos completos —firma, App Group, entitlement de Family Controls y qué
 pedirle a Apple— están en [`docs/IOS_APP.md`](docs/IOS_APP.md).

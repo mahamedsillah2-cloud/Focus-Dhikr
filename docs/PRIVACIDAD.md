@@ -14,7 +14,7 @@ puedes comprobar tú, sin fiarte de esta página.
 grep -rn "URLSession\|URLRequest\|Network\.\|CFStream\|NWConnection" ios/
 ```
 
-No devuelve nada. Tampoco hay dependencias externas: `ios/project.yml` no
+No devuelve nada. Tampoco hay dependencias externas: el proyecto no
 declara ni un paquete de Swift Package Manager, así que no existe código de
 nadie más dentro de la app que pudiera abrir una conexión por su cuenta.
 

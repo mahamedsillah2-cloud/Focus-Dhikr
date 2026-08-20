@@ -334,7 +334,7 @@ que conste.
 
 | Fase que pediste | Estado | Nota |
 |---|---|---|
-| 1. Proyecto iOS en SwiftUI | ✅ | `ios/project.yml`, cinco targets |
+| 1. Proyecto iOS en SwiftUI | ✅ | `ios/FocusDhikr.xcodeproj`, cinco targets |
 | 2–3. Family Controls y autorización | ✅ | Onboarding con Face ID |
 | 4–5. Selector y guardado | ✅ | `FamilyActivityPicker` → App Group |
 | 6. Límites diarios **por app** | ✅ | Uno por token, no un límite global |

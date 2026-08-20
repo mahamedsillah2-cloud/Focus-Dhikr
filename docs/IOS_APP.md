@@ -11,7 +11,7 @@ nada. Esta es la de verdad: el bloqueo lo aplica iOS, no se descarta deslizando.
 
 | | |
 |---|---|
-| **Un Mac con Xcode 15 o superior** | Sin esto no hay app de iOS. No existe forma de compilar para iPhone sin un Mac |
+| **Un Mac con Xcode 16.4 o superior** | Sin esto no hay app de iOS. No existe forma de compilar para iPhone sin un Mac. El proyecto está fijado a iOS 16 como mínimo, así que Xcode 15 también vale |
 | **El entitlement `com.apple.developer.family-controls`** | Se le pide a Apple. Para **desarrollo** lo tienes al momento; para **distribuir** hay que esperar su aprobación |
 | **Una cuenta de desarrollador** | Con la gratuita la app **caduca a los 7 días** y hay que reinstalarla. Con la de pago dura un año |
 
@@ -32,15 +32,18 @@ nada. Esta es la de verdad: el bloqueo lo aplica iOS, no se descarta deslizando.
 ## Compilar
 
 ```bash
-brew install xcodegen
-cd ios
-xcodegen generate
+git clone https://github.com/mahamedsillah2-cloud/Focus-Dhikr.git
+cd Focus-Dhikr/ios
 open FocusDhikr.xcodeproj
 ```
 
-El `.xcodeproj` **no está en el repositorio**: se genera desde
-[`ios/project.yml`](../ios/project.yml). Un `project.pbxproj` escrito a mano son
-mil líneas de UUIDs que nadie puede revisar y que se rompen en silencio.
+O sin terminal: descarga el repositorio como ZIP, descomprímelo, y en Xcode
+**File → Open…** → `Focus-Dhikr/ios/FocusDhikr.xcodeproj`.
+
+`FocusDhikr.xcodeproj` **está en el repositorio** y es el fichero de verdad: no
+hay que generarlo, no hace falta XcodeGen ni Homebrew, y **no hay ningún
+`.xcworkspace`** — no hay CocoaPods ni Swift Packages que lo justifiquen. El
+único fichero que se abre es el `.xcodeproj`.
 
 En Xcode, en cada uno de los cinco *targets*:
 
@@ -132,7 +135,7 @@ se cumpla un límite.
 > tiene un caso `.openParentalControlsApp` que abre tu app directamente. Y desde
 > iOS 26.4 el botón secundario admite un submenú de hasta tres opciones. Ambas
 > cosas están escritas y desactivadas: necesitan el SDK de iOS 26.4+, así que
-> viven detrás de `FOCUSDHIKR_MODERN_SHIELD` en `ios/project.yml` y CI no las
+> viven detrás de `FOCUSDHIKR_MODERN_SHIELD` en los ajustes del proyecto y CI no las
 > compila. Ver `docs/AUDITORIA_IOS.md`, sección 3c.
 
 ## Lo que iOS no deja hacer
