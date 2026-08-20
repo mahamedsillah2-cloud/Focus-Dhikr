@@ -53,11 +53,17 @@ de producto, sino porque técnicamente no es posible.
 Hay una comprobación en CI que falla la compilación si alguien añade ese
 permiso alguna vez. Ver [`docs/PRIVACIDAD.md`](docs/PRIVACIDAD.md).
 
-## Instalar
+## ¿iPhone o Android?
 
-El APK lo compila GitHub Actions; tú lo descargas desde la pestaña **Actions**
-y lo instalas. Instrucciones paso a paso, incluido el ajuste restringido de
-accesibilidad en Android 13+:
+**Si tienes iPhone**, la app de este repositorio no te sirve: es un APK de
+Android. Lo que sí funciona hoy, sin Mac y sin cuenta de desarrollador, es la
+versión con Atajos + Tiempo de uso — la pausa de seis fases, el dhikr y las
+citas, con «dejarlo por ahora» sacándote de verdad de la app:
+**[`docs/IOS_ATAJO.md`](docs/IOS_ATAJO.md)**.
+
+**Si tienes Android**, el APK lo compila GitHub Actions; lo descargas desde la
+pestaña **Actions** y lo instalas. Instrucciones paso a paso, incluido el ajuste
+restringido de accesibilidad en Android 13+:
 [`docs/INSTALACION.md`](docs/INSTALACION.md).
 
 ## Citas religiosas
@@ -98,7 +104,8 @@ ejecuta en el momento más impulsivo del día se prueba en la JVM, sin emulador.
 |---|---|
 | [Arquitectura](docs/ARQUITECTURA.md) | Decisiones técnicas y por qué Android |
 | [Límites de plataforma](docs/LIMITES_PLATAFORMA.md) | Qué permite y qué no cada sistema, API por API |
-| [Instalación](docs/INSTALACION.md) | Cómo ponerlo en tu móvil |
+| [Instalación (Android)](docs/INSTALACION.md) | Cómo ponerlo en tu móvil |
+| [Atajo para iPhone](docs/IOS_ATAJO.md) | La versión que funciona hoy en iOS |
 | [Privacidad](docs/PRIVACIDAD.md) | Qué se guarda y dónde |
 | [Citas](docs/CITAS.md) | Fuente y grado de cada texto religioso |
 
