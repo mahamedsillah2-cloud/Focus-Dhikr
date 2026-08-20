@@ -11,7 +11,9 @@ struct SettingsView: View {
     @State private var dayResetHour = DayBoundary.defaultResetHour
     @State private var keepWrittenReasons = true
     @State private var emergencyPerWeek = 3
+    @State private var denyAppRemoval = false
     @State private var confirmErase = false
+    @State private var confirmRemovalLock = false
 
     private var store: SharedStore { appState.store }
 
@@ -19,12 +21,29 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("Activar modo estricto", isOn: $strictMode)
-                        .onChange(of: strictMode) { store.strictMode = $0 }
+                    Toggle("Activar Modo Disciplina", isOn: $strictMode)
+                        .onChange(of: strictMode) { value in
+                            store.strictMode = value
+                            appState.applyShields()
+                        }
+
+                    if strictMode {
+                        Toggle("Impedir desinstalar aplicaciones", isOn: $denyAppRemoval)
+                            .onChange(of: denyAppRemoval) { value in
+                                if value {
+                                    confirmRemovalLock = true
+                                } else {
+                                    store.denyAppRemoval = false
+                                    appState.applyShields()
+                                }
+                            }
+                    }
                 } header: {
-                    Text("Modo «no me dejes entrar»")
+                    Text("Modo Disciplina")
                 } footer: {
-                    Text("Todas las fases, esperas más largas y confirmación escrita siempre.")
+                    Text(strictMode
+                         ? "Todas las fases, esperas más largas y confirmación escrita siempre. Impedir la desinstalación afecta a TODAS las apps del iPhone, incluida esta: es lo único aquí que iOS aplica de verdad contra ti mismo."
+                         : "Todas las fases, esperas más largas y confirmación escrita siempre. El modo normal es más corto y perdona más.")
                 }
 
                 Section {
@@ -87,6 +106,14 @@ struct SettingsView: View {
                         .onChange(of: emergencyPerWeek) { store.emergencyPerWeek = $0 }
                 } header: {
                     Text("Emergencias")
+                } footer: {
+                    Text("Un bloqueo sin salida se desinstala el primer día que impide algo que de verdad importaba.")
+                }
+
+                Section {
+                    NavigationLink("Recordatorios") { RemindersView() }
+                } footer: {
+                    Text("La app no envía ninguna notificación que no le hayas pedido.")
                 }
 
                 Section {
@@ -123,6 +150,15 @@ struct SettingsView: View {
             } message: {
                 Text("Se borrará el historial, las estadísticas y los ajustes de este iPhone. No se puede deshacer.")
             }
+            .alert("Impedir desinstalar aplicaciones", isPresented: $confirmRemovalLock) {
+                Button("Cancelar", role: .cancel) { denyAppRemoval = false }
+                Button("Activar") {
+                    store.denyAppRemoval = true
+                    appState.applyShields()
+                }
+            } message: {
+                Text("iOS bloqueará la desinstalación de cualquier aplicación de este iPhone mientras el Modo Disciplina esté activo, incluida Focus Dhikr. Puedes desactivarlo desde aquí en cualquier momento.")
+            }
         }
         .onAppear(perform: load)
     }
@@ -136,6 +172,7 @@ struct SettingsView: View {
         dayResetHour = store.dayResetHour
         keepWrittenReasons = store.keepWrittenReasons
         emergencyPerWeek = store.emergencyPerWeek
+        denyAppRemoval = store.denyAppRemoval
     }
 }
 

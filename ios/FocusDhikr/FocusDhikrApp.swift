@@ -38,10 +38,23 @@ final class AppState: ObservableObject {
     func refresh() {
         #if canImport(FamilyControls)
         if #available(iOS 16.0, *) {
-            authorized = AuthorizationCenter.shared.authorizationStatus == .approved
+            // `.approved` and, on iOS 26.4+ in the EU, `.approvedWithDataAccess`
+            // both mean the app may do its job.
+            authorized = AuthorizationCenter.shared.authorizationStatus != .notDetermined
+                && AuthorizationCenter.shared.authorizationStatus != .denied
             ScreenTimeController.shared.clearGrantIfExpired()
+            // A shield that outlived the rule that justified it is the single
+            // most confusing thing this app could do, so every foreground
+            // recomputes them from the rules.
+            ScreenTimeController.shared.applyShields()
         }
         #endif
+
+        // Wording is chosen when a reminder is scheduled, so rewriting them on
+        // every foreground is what keeps a daily nudge from reading like a
+        // recording of itself.
+        Task { await ReminderScheduler.reschedule(from: store) }
+        Task { await AppNames.refresh(store: store) }
 
         if let pending = store.pendingGate, pending.isFresh {
             pendingGate = pending
@@ -55,6 +68,41 @@ final class AppState: ObservableObject {
         store.pendingGate = nil
         pendingGate = nil
     }
+
+    /// Every app the user is currently limiting, by token key.
+    func allAppKeys() -> [String] {
+        #if canImport(FamilyControls)
+        if #available(iOS 16.0, *) {
+            return Array(ScreenTimeController.shared.tokensByKey().keys)
+        }
+        #endif
+        return []
+    }
+
+    /// Recomputes the shields after a rule changed.
+    func applyShields() {
+        #if canImport(FamilyControls)
+        if #available(iOS 16.0, *) {
+            ScreenTimeController.shared.applyShields()
+        }
+        #endif
+    }
+
+    /// Re-registers everything with DeviceActivity after a rule changed.
+    @discardableResult
+    func restartMonitoring() -> String? {
+        #if canImport(FamilyControls)
+        if #available(iOS 16.0, *) {
+            do {
+                try ScreenTimeController.shared.startMonitoring()
+                return nil
+            } catch {
+                return error.localizedDescription
+            }
+        }
+        #endif
+        return nil
+    }
 }
 
 struct RootView: View {
@@ -65,7 +113,7 @@ struct RootView: View {
         Group {
             if let pending = appState.pendingGate {
                 // A pause the user asked for takes priority over everything.
-                GateView(appName: pending.appName) { appState.finishGate() }
+                GateView(pending: pending) { appState.finishGate() }
             } else if !appState.store.onboardingComplete {
                 OnboardingView()
             } else {

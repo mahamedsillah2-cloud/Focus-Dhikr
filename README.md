@@ -1,7 +1,7 @@
 # Focus Dhikr
 
-Una aplicación Android que convierte el gesto automático de abrir Instagram en
-una decisión consciente.
+Una aplicación para iPhone que convierte el gesto automático de abrir Instagram
+en una decisión consciente.
 
 No te castiga, no te llama débil y no te encierra. Te pone unos segundos
 delante, te enseña lo que tú mismo decidiste, y si después de todo sigues
@@ -11,121 +11,81 @@ queriendo entrar, **te deja entrar**.
 
 ---
 
-## Qué hace
+## Qué hace, con las APIs oficiales de Apple
 
-- Eliges **cualquier** aplicación instalada y le pones un límite diario.
-- Cuenta el tiempo real de uso con las APIs oficiales de Android
-  (`UsageStatsManager`), no con estimaciones.
-- Al alcanzar el límite, aparece una pausa progresiva de hasta seis fases:
-  lo que decidiste → qué ibas a hacer → una espera → uno de tus objetivos →
-  escribirlo con tus palabras → tu decisión.
-- Componente islámico **opcional y desactivable**: un dhikr breve en el momento
-  del impulso, y citas del Corán y hadices con referencia y grado de
-  autenticidad, nunca inventadas.
-- Modo «no me dejes entrar», franjas horarias (22:00–08:00), acceso de
-  emergencia con su propia fricción.
+- Eliges tus aplicaciones con el **selector del sistema** (`FamilyActivityPicker`)
+  y le pones a cada una **su propio límite diario**: Instagram 1 h, TikTok 30 min.
+- **Franjas horarias** propias — «de 22:00 a 08:00, de lunes a viernes» — con
+  una actividad de `DeviceActivity` por franja.
+- Cuando llegas al límite, el bloqueo lo aplica **iOS**, no una pantalla falsa:
+  `ManagedSettings` pone el escudo del sistema y el icono se apaga.
+- El escudo lleva **tu** texto y, si quieres, un dhikr
+  (`ShieldConfigurationExtension`).
+- El botón «Quiero entrar igualmente» te trae a la app, donde ocurre la pausa
+  progresiva de hasta seis fases: lo que decidiste → qué ibas a hacer → una
+  espera → uno de tus objetivos → escribirlo con tus palabras → tu decisión.
+- Componente islámico **opcional y desactivable**: dhikr en el momento del
+  impulso, y aleyas y hadices **con referencia y grado de autenticidad**,
+  verificados en CI contra su fuente. Nunca inventados.
+- **Modo Disciplina**, franjas, acceso de emergencia con su propia fricción, y
+  la opción real de impedir desinstalar aplicaciones (`denyAppRemoval`).
 - Estadísticas de hoy, 7 y 30 días, con el foco en el **tiempo recuperado**.
 
-## Lo que NO hace, y por qué
+## Lo que iOS no permite, dicho claro
 
-Esto importa tanto como lo anterior.
+Esto importa tanto como lo anterior, y está detallado API por API en
+[`docs/AUDITORIA_IOS.md`](docs/AUDITORIA_IOS.md).
 
-- **No puede impedir que la desinstales.** Ninguna app normal de Android puede.
-  Lo que sí hace es ponértelo incómodo, y ofrece activar un administrador de
-  dispositivo (opcional, desactivado por defecto) que obliga a pasar por
-  Ajustes → Seguridad antes de poder desinstalar.
-- **No existe para iPhone**, y no por pereza: el bloqueo de iOS lo dibuja el
-  sistema y solo admite un título, un subtítulo y dos botones. Las fases 2 a 5
-  son literalmente imposibles ahí.
-- **No manda nada a ningún servidor.** No puede: no tiene el permiso
-  `INTERNET`.
-
-El detalle completo, API por API, está en
-[`docs/LIMITES_PLATAFORMA.md`](docs/LIMITES_PLATAFORMA.md).
+- **El escudo no es tu pantalla.** Apple solo deja poner fondo, icono, título,
+  subtítulo y dos botones. Las fases 2 a 5 no caben ahí: viven en la app, a un
+  toque de distancia (automático desde iOS 26.5).
+- **No hay API de minutos.** iOS avisa al cruzar un umbral; no dice «45 min».
+  La app registra umbrales escalonados y siempre escribe «al menos 45 min».
+  Los minutos exactos existen en la pantalla de historial, dibujados por una
+  extensión del sistema que **no puede** pasárselos a la app.
+- **No sabe qué apps has elegido.** Los tokens son opacos a propósito. (Con
+  iOS 26.4, en la UE y con permiso aparte, hay una excepción documentada.)
+- **Puedes desinstalarla.** En modo `.individual` Apple garantiza que puedas.
+  La app crea fricción psicológica, no una cárcel — que es justamente el
+  encargo.
 
 ## Privacidad
 
-El `AndroidManifest.xml` **no declara `android.permission.INTERNET`**. El
-sistema operativo impide al proceso abrir un socket. No hay analítica, ni
-anuncios, ni rastreadores, ni cuentas, ni copia en la nube — y no por decisión
-de producto, sino porque técnicamente no es posible.
+Sin cuentas, sin analítica, sin anuncios, sin servidores. Todo vive en el App
+Group del propio iPhone. La extensión que ve tus minutos reales corre en un
+sandbox que le impide hacer peticiones de red, por diseño de Apple.
 
-Hay una comprobación en CI que falla la compilación si alguien añade ese
-permiso alguna vez. Ver [`docs/PRIVACIDAD.md`](docs/PRIVACIDAD.md).
+Ver [`docs/PRIVACIDAD.md`](docs/PRIVACIDAD.md).
 
-## ¿iPhone o Android?
+## Cómo compilarla
 
-Hay tres versiones, y la que te sirve depende de tu móvil y de si tienes un Mac.
-
-| | Para quién | Qué necesitas |
-|---|---|---|
-| **[App de Android](docs/INSTALACION.md)** | Móvil Android | Nada. Descargas el APK de la pestaña *Actions* |
-| **[Atajo de iOS](docs/IOS_ATAJO.md)** | iPhone, hoy mismo | Nada. Media hora montándolo en la app Atajos |
-| **[App nativa de iOS](docs/IOS_APP.md)** | iPhone, bien hecho | Un Mac, y que Apple te apruebe el entitlement |
-
-Las tres comparten la misma pausa de seis fases, los mismos adhkar y las mismas
-citas verificadas. Cambia cuánto puede bloquear cada sistema operativo, no la
-idea.
-
-## Citas religiosas
-
-Ninguna se ha escrito de memoria. Cada aleya lleva sura y número; cada hadiz,
-colección, número, narrador y grado de autenticidad.
-
-Un validador (`tools/verify_citations.py`) descarga cada aleya de la API de
-Quran.com y la compara carácter a carácter, y comprueba cada referencia de
-hadiz en sunnah.com. **Corre en CI y falla la build si algo no coincide.**
-
-Ver [`docs/CITAS.md`](docs/CITAS.md).
-
-## Estructura
-
-```
-ios/
-├── Shared/      lógica pura y contenido verificado (compartido con las extensiones)
-│   ├── Domain/  la misma máquina de estados que en Android, portada
-│   ├── Content/ generado desde el Kotlin: el árabe es idéntico byte a byte
-│   └── Store/   App Group y Screen Time
-├── FocusDhikr/  la app SwiftUI y las seis fases
-├── FocusDhikrMonitor/       pone el escudo al cruzar el límite
-├── FocusDhikrShield/        dibuja el escudo del sistema
-└── FocusDhikrShieldAction/  responde a sus dos botones
-
-app/src/main/java/com/focusdhikr/
-├── core/        tiempo, día lógico, permisos
-├── data/        Room, DataStore, repositorios
-├── domain/      lógica pura, sin Android, con pruebas
-│   ├── gate/    la máquina de estados de la pausa
-│   └── usage/   contabilidad de sesiones y límites
-├── content/     adhkar, Corán y hadices verificados
-├── service/     seguimiento, accesibilidad, overlay, arranque
-└── ui/          Compose
-```
-
-`domain/` y `content/` no importan nada de `android.*`, así que la lógica que se
-ejecuta en el momento más impulsivo del día se prueba en la JVM, sin emulador.
+Hace falta un Mac con Xcode. No hay otra forma de instalar nada en un iPhone.
 
 ```bash
-./gradlew testDebugUnitTest              # Android: 69 pruebas
-cd ios && xcodegen generate              # iOS: genera el proyecto
-xcodebuild test -scheme FocusDhikr ...   # y ejecuta las mismas, portadas
+brew install xcodegen
+cd ios
+xcodegen generate
+open FocusDhikr.xcodeproj
 ```
+
+Los pasos completos —firma, App Group, entitlement de Family Controls y qué
+pedirle a Apple— están en [`docs/IOS_APP.md`](docs/IOS_APP.md).
 
 ## Documentación
 
 | | |
 |---|---|
-| [Arquitectura](docs/ARQUITECTURA.md) | Decisiones técnicas y por qué Android |
-| [Límites de plataforma](docs/LIMITES_PLATAFORMA.md) | Qué permite y qué no cada sistema, API por API |
-| [Instalación (Android)](docs/INSTALACION.md) | Cómo ponerlo en tu móvil |
-| [Atajo para iPhone](docs/IOS_ATAJO.md) | La versión que funciona hoy en iOS |
-| [App nativa de iOS](docs/IOS_APP.md) | Compilarla, el entitlement de Apple y sus límites |
-| [Privacidad](docs/PRIVACIDAD.md) | Qué se guarda y dónde |
-| [Citas](docs/CITAS.md) | Fuente y grado de cada texto religioso |
+| [`docs/AUDITORIA_IOS.md`](docs/AUDITORIA_IOS.md) | Qué permite cada API de Apple, comprobado contra su documentación |
+| [`docs/IOS_APP.md`](docs/IOS_APP.md) | Compilar, firmar, entitlements y arquitectura de los cinco targets |
+| [`docs/CITAS.md`](docs/CITAS.md) | De dónde sale cada aleya y cada hadiz, y cómo se verifican |
+| [`docs/PRIVACIDAD.md`](docs/PRIVACIDAD.md) | Qué datos existen y dónde viven |
+| [`docs/LIMITES_PLATAFORMA.md`](docs/LIMITES_PLATAFORMA.md) | Los límites del sistema, plataforma por plataforma |
+| [`docs/IOS_ATAJO.md`](docs/IOS_ATAJO.md) | Una versión con Atajos que funciona hoy, sin Mac y sin esperar a Apple |
 
-## Estado
+## Sobre la carpeta `app/`
 
-Primera versión funcional. Todo lo descrito arriba está implementado.
-Lo siguiente sería probarlo unos días de uso real y ajustar los tiempos de
-espera a partir de lo que se sienta bien, no de lo que parezca razonable sobre
-el papel.
+El repositorio contiene también una implementación anterior para Android
+(`app/`, Kotlin). **No es el producto**: la app es la de iPhone. Se conserva
+porque de ahí vienen el motor de fricción y las citas verificadas, que la
+versión de iOS reimplementa una a una y prueba con la misma batería de tests.
+Si quieres que desaparezca, se borra en un commit.

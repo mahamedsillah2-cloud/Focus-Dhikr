@@ -10,6 +10,11 @@ final class GateViewModel: ObservableObject {
 
     @Published private(set) var state: GateState
     @Published private(set) var appName: String
+    /// What the user has used today and what they set, in their own numbers.
+    @Published private(set) var usedLine: String
+    /// When this app becomes available again, when iOS lets us know.
+    @Published private(set) var availableLine: String
+    @Published private(set) var reason: ShieldReason
     @Published private(set) var goal: Goal?
     @Published private(set) var dhikr: Dhikr?
     @Published private(set) var quran: QuranCitation?
@@ -21,6 +26,8 @@ final class GateViewModel: ObservableObject {
     @Published private(set) var emergencyWaitRemaining = 0
 
     private let store: SharedStore
+    /// Which app the earned minutes should apply to, when the shield told us.
+    private(set) var grantAppKey: String?
     private var attempt: GateAttempt
     /// The furthest phase actually reached, for honest statistics.
     private var deepestPhase: GatePhase = .pause
@@ -29,19 +36,65 @@ final class GateViewModel: ObservableObject {
 
     var onResolved: ((GateOutcome, Int) -> Void)?
 
-    init(appName: String, store: SharedStore = .shared) {
+    convenience init(pending: SharedStore.PendingGate, store: SharedStore = .shared) {
+        self.init(
+            appName: pending.appName,
+            appKey: pending.appKey,
+            reason: pending.reason.flatMap(ShieldReason.init(rawValue:)) ?? .limitReached,
+            store: store
+        )
+    }
+
+    init(
+        appName: String,
+        appKey: String? = nil,
+        reason: ShieldReason = .limitReached,
+        store: SharedStore = .shared
+    ) {
         self.store = store
-        self.appName = appName
+        // The shield action extension is denied the app's name by iOS. On the
+        // devices where the name is knowable at all, use it; elsewhere the
+        // neutral wording is the whole truth.
+        self.appName = AppNames.name(forKey: appKey, store: store) ?? appName
+        self.reason = reason
 
         let now = Date()
         let dayKey = DayBoundary.dayKey(for: now, resetHour: store.dayResetHour)
         let attemptsToday = store.attemptsToday(dayKey: dayKey)
+        let clock = DayBoundary.clock(for: now)
+
+        // Phase 1 promised the user three numbers: what they used, what they
+        // set, and when it comes back. iOS gives us the first only as a floor
+        // and the third only for schedule windows, so both are worded as what
+        // they are rather than dressed up as precision.
+        if let appKey {
+            let limit = store.limitMinutes[appKey] ?? store.defaultLimitMinutes
+            self.usedLine = UsageFloor.describe(
+                minutes: store.usageFloor(dayKey: dayKey, appKey: appKey),
+                limit: limit
+            )
+            let minutesLeft = ShieldDecision.minutesUntilAllowed(
+                key: appKey,
+                windows: store.scheduleWindows,
+                minuteOfDay: clock.minuteOfDay,
+                isoDayOfWeek: clock.isoDayOfWeek
+            )
+            self.availableLine = minutesLeft.map {
+                "Vuelve a estar disponible dentro de \(Durations.format(minutes: $0))"
+            } ?? "Tu día se reinicia a las \(String(format: "%02d:00", store.dayResetHour))"
+        } else {
+            self.usedLine = ""
+            self.availableLine = reason.isWindow
+                ? "Estás dentro de una franja que tú fijaste"
+                : "Tu día se reinicia a las \(String(format: "%02d:00", store.dayResetHour))"
+        }
+        self.grantAppKey = appKey
         let seed = abs(appName.hashValue &+ Int(now.timeIntervalSince1970))
 
         let config = GateConfig.forAttempt(
             strict: store.strictMode,
             attemptsToday: attemptsToday,
-            inScheduleWindow: Self.insideWindow(store.scheduleWindows, at: now),
+            inScheduleWindow: reason.isWindow || Self.insideWindow(store.scheduleWindows, at: now),
             sentence: store.acknowledgementSentence
         )
         self.state = GateStateMachine.initial(config)
@@ -165,10 +218,9 @@ final class GateViewModel: ObservableObject {
     }
 
     private static func insideWindow(_ windows: [ScheduleWindow], at date: Date) -> Bool {
-        let parts = Calendar.current.dateComponents([.hour, .minute, .weekday], from: date)
-        let minuteOfDay = (parts.hour ?? 0) * 60 + (parts.minute ?? 0)
-        // Calendar.weekday is 1 = Sunday; the model uses ISO 1 = Monday.
-        let iso = ((parts.weekday ?? 1) + 5) % 7 + 1
-        return windows.contains { $0.contains(minuteOfDay: minuteOfDay, isoDayOfWeek: iso) }
+        let clock = DayBoundary.clock(for: date)
+        return windows.contains {
+            $0.contains(minuteOfDay: clock.minuteOfDay, isoDayOfWeek: clock.isoDayOfWeek)
+        }
     }
 }

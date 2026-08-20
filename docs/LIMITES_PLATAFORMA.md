@@ -157,77 +157,26 @@ No hay API de "bloqueo programado" en Android. Se implementa en la propia app:
 
 ---
 
-## iOS — por qué no, y qué se haría si algún día sí
+## iOS
 
-### I1. Screen Time / Family Controls
+Esta sección se quedó obsoleta cuando la app de iPhone dejó de ser hipotética.
+El análisis completo, API por API y comprobado contra la documentación de
+Apple, está en **[`AUDITORIA_IOS.md`](AUDITORIA_IOS.md)**. Aquí solo queda el
+resumen.
 
-| | |
-|---|---|
-| **Frameworks** | `FamilyControls`, `ManagedSettings`, `DeviceActivity` (iOS 15+/16+) |
-| **Entitlement** | `com.apple.developer.family-controls`. **Hay que pedirlo a Apple** mediante formulario y lo aprueban caso por caso. Sin él no se compila para dispositivo |
-| **Autorización en runtime** | `AuthorizationCenter.shared.requestAuthorization(for: .individual)` |
-
-### I2. Lo que rompe tus requisitos
-
-**El selector de apps devuelve tokens opacos.**
-`FamilyActivityPicker` → `FamilyActivitySelection` contiene `ApplicationToken`
-y `ActivityCategoryToken`. Son **opacos por diseño**, por privacidad: tu app no
-puede saber que uno de ellos es Instagram, ni obtener su nombre o icono. Solo
-puedes pintarlos con `Label(token)`, que renderiza el sistema. Tu pantalla
-principal no podría decir "Instagram — 1 h 04 min / 1 h".
-
-**No puedes leer minutos de uso.**
-`DeviceActivity` no te da "45 minutos hoy". Te deja registrar un
-`DeviceActivityEvent` con un `threshold` (p. ej. 1 hora) y te avisa *cuando se
-cruza*. Puedes aproximar con umbrales escalonados, pero es un sucedáneo.
-`DeviceActivityReport` sí muestra datos, pero **solo dentro de una extensión de
-SwiftUI cuya salida tu app no puede leer** — es una vista sellada.
-
-**El shield no es tu UI.**
-`ManagedSettingsStore.shield.applications = tokens` hace que el sistema muestre
-su propia pantalla. La personalizas con `ShieldConfigurationExtension`
-devolviendo un `ShieldConfiguration(backgroundBlurStyle:backgroundColor:icon:
-title:subtitle:primaryButtonLabel:secondaryButtonLabel:)`. Eso es todo:
-**dos botones y texto estático.** No hay temporizador, ni campo de texto, ni
-navegación.
-
-`ShieldActionExtension.handle(action:for:completionHandler:)` recibe
-`.primaryButtonPressed` o `.secondaryButtonPressed` y solo puede responder
-`.close`, `.defer` o `.none`.
-
-**Conclusión:** las fases 2, 3, 4 y 5 (opciones de intención, cuenta atrás,
-objetivo, texto escrito) **no son implementables** dentro del bloqueo de iOS.
-
-### I3. Arquitectura viable en iOS, si se hiciera
-
-La única forma honesta sería invertir el flujo:
-
-1. El shield del sistema muestra el título y un botón "Pausar y reflexionar".
-2. Ese botón responde `.defer`, y la extensión escribe una bandera en un
-   **App Group** compartido.
-3. La app principal, al abrirse, lee la bandera y ejecuta ahí el flujo
-   progresivo completo.
-4. Al terminar, la app retira el token del `ManagedSettingsStore` durante N
-   minutos con un `DeviceActivitySchedule`.
-
-Funciona, pero el usuario tiene que **saltar manualmente** a tu app. Es una
-experiencia claramente peor y no es lo que pediste. Por eso: Android primero.
-
----
-
-## Resumen ejecutivo
-
-| Requisito tuyo | Android | iOS |
+| | Android | iOS |
 |---|---|---|
-| Elegir apps por nombre e icono | ✅ | ⚠️ tokens opacos |
-| Límite diario por app | ✅ exacto | ⚠️ por umbrales |
-| Bloquear al agotar | ✅ | ✅ (shield del sistema) |
-| Pantalla de pausa propia | ✅ | ❌ |
-| 5 fases de reflexión | ✅ | ❌ |
-| Cuenta atrás dentro del bloqueo | ✅ | ❌ |
-| Texto escrito para desbloquear | ✅ | ❌ |
-| Dhikr en el momento del impulso | ✅ | ⚠️ como subtítulo estático |
-| Franja horaria 22:00–08:00 | ✅ | ✅ |
-| Estadísticas 7/30 días | ✅ | ❌ no legibles por la app |
-| Todo local, sin red | ✅ (sin permiso `INTERNET`) | ✅ |
-| Instalarlo hoy en tu móvil | ✅ APK | ❌ entitlement de Apple |
+| Elegir apps por nombre e icono | ✅ | ⚠️ tokens opacos; el sistema los dibuja |
+| Límite diario distinto por app | ✅ exacto | ✅ por umbrales |
+| Bloquear al agotar | ✅ | ✅ escudo del sistema |
+| Franja horaria 22:00–08:00 | ✅ | ✅ una actividad por franja |
+| Días concretos | ✅ | ✅ filtrando en la extensión |
+| Pantalla de pausa propia sobre la app | ✅ | ❌ el escudo lo dibuja iOS |
+| Las 6 fases | ✅ encima de la app | ✅ dentro de la app, a un toque |
+| Cuenta atrás y texto escrito en el bloqueo | ✅ | ❌ en la app |
+| Minutos exactos legibles por la app | ✅ | ❌ solo umbrales |
+| Minutos exactos en pantalla | ✅ | ✅ vía extensión de informes |
+| Estadísticas 7/30 días | ✅ | ✅ |
+| Impedir que la desinstales | ⚠️ device admin | ⚠️ `denyAppRemoval`, o cuenta `.child` |
+| Todo local, sin red | ✅ sin permiso `INTERNET` | ✅ sandbox |
+| Instalarlo hoy en tu móvil | ✅ APK | ✅ con Mac; publicar necesita permiso de Apple |

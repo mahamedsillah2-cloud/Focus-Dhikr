@@ -10,8 +10,8 @@ struct GateView: View {
     @Environment(\.scenePhase) private var scenePhase
     let onDone: () -> Void
 
-    init(appName: String, onDone: @escaping () -> Void) {
-        _model = StateObject(wrappedValue: GateViewModel(appName: appName))
+    init(pending: SharedStore.PendingGate, onDone: @escaping () -> Void) {
+        _model = StateObject(wrappedValue: GateViewModel(pending: pending))
         self.onDone = onDone
     }
 
@@ -106,9 +106,14 @@ struct GateView: View {
             case .choseToContinue, .emergencyAccess:
                 // The decision is respected. This is the promise the whole app
                 // rests on: after all the friction, you still get to choose.
-                ScreenTimeController.shared.grantTemporaryAccess(minutes: grantMinutes)
+                // The minutes apply to the app that was shielded, not to every
+                // app the user ever limited.
+                ScreenTimeController.shared.grantTemporaryAccess(
+                    minutes: grantMinutes,
+                    appKey: model.grantAppKey
+                )
             case .turnedBack, .abandoned:
-                ScreenTimeController.shared.shieldAll()
+                ScreenTimeController.shared.applyShields()
             }
         }
         #endif
@@ -120,12 +125,38 @@ struct GateView: View {
 private struct PausePhase: View {
     @ObservedObject var model: GateViewModel
 
+    private var headline: String {
+        model.reason.isWindow
+            ? "Estás dentro de la franja en la que decidiste no entrar aquí."
+            : "Has alcanzado el tiempo que tú mismo decidiste para esta aplicación."
+    }
+
     var body: some View {
         VStack(spacing: Spacing.lg) {
-            Text("Has alcanzado el tiempo que tú mismo decidiste para esta aplicación.")
+            Text(headline)
                 .font(.focusHeadline)
                 .foregroundStyle(FocusColor.textOnInk)
                 .multilineTextAlignment(.center)
+
+            // The three numbers, plainly: what you used, what you set, and
+            // when it comes back.
+            VStack(spacing: Spacing.xs) {
+                if !model.usedLine.isEmpty {
+                    Text(model.usedLine)
+                        .font(.focusTitle)
+                        .foregroundStyle(FocusColor.gold)
+                }
+                Text(model.availableLine)
+                    .font(.focusCaption)
+                    .foregroundStyle(FocusColor.textMuted)
+            }
+            .multilineTextAlignment(.center)
+
+            Text("¿De verdad necesitas entrar ahora?")
+                .font(.focusTitle)
+                .foregroundStyle(FocusColor.textOnInk)
+                .multilineTextAlignment(.center)
+                .padding(.top, Spacing.sm)
 
             Text(model.pauseLine)
                 .font(.focusBody)

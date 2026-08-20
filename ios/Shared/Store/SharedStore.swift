@@ -45,8 +45,15 @@ public final class SharedStore: @unchecked Sendable {
         static let onboardingComplete = "onboardingComplete"
         static let pendingGate = "pendingGate"
         static let grantExpiry = "grantExpiry"
+        static let grantAppKey = "grantAppKey"
         static let emergencyUses = "emergencyUses"
         static let emergencyPerWeek = "emergencyPerWeek"
+        static let usageFloors = "usageFloorsByDay"
+        static let reminders = "reminders"
+        static let denyAppRemoval = "denyAppRemoval"
+        static let lastShieldReasons = "lastShieldReasons"
+        static let detailedUsage = "detailedUsageTracking"
+        static let appNames = "appDisplayNames"
     }
 
     // MARK: - Codable helpers
@@ -199,10 +206,23 @@ public final class SharedStore: @unchecked Sendable {
     public struct PendingGate: Codable, Equatable, Sendable {
         public var appName: String
         public var requestedAt: Date
+        /// `ShieldReason.rawValue`, when the shield knew it.
+        public var reason: String?
+        /// The token key of the shielded app. The shield *action* extension
+        /// receives the token even though it is denied the display name, so
+        /// this is how the gate knows which limit it is talking about.
+        public var appKey: String?
 
-        public init(appName: String, requestedAt: Date = Date()) {
+        public init(
+            appName: String,
+            requestedAt: Date = Date(),
+            reason: String? = nil,
+            appKey: String? = nil
+        ) {
             self.appName = appName
             self.requestedAt = requestedAt
+            self.reason = reason
+            self.appKey = appKey
         }
 
         /// Requests go stale: picking up a pause you asked for yesterday would
@@ -226,9 +246,97 @@ public final class SharedStore: @unchecked Sendable {
         set { defaults.set(newValue, forKey: Key.grantExpiry) }
     }
 
+    /// Which app the live grant belongs to. Nil means "the shield could not
+    /// tell us", and the grant then lifts everything.
+    public var grantAppKey: String? {
+        get { defaults.string(forKey: Key.grantAppKey) }
+        set { defaults.set(newValue, forKey: Key.grantAppKey) }
+    }
+
     public var hasLiveGrant: Bool {
         guard let expiry = grantExpiry else { return false }
         return expiry > Date()
+    }
+
+    // MARK: - Per-app usage floors
+
+    /// "How many minutes has this app had today", as far as iOS will say.
+    ///
+    /// Written only by the monitor extension, when a threshold is crossed, and
+    /// therefore always a *floor*: the real number is somewhere between this
+    /// and the next threshold. Every screen that shows it says "al menos".
+    public var usageFloors: [String: Int] {
+        get { decode([String: Int].self, Key.usageFloors) ?? [:] }
+        set { encode(newValue, Key.usageFloors) }
+    }
+
+    public func usageFloor(dayKey: String, appKey: String) -> Int {
+        usageFloors[TokenKey.usageKey(dayKey: dayKey, appKey: appKey)] ?? 0
+    }
+
+    /// Thresholds can arrive out of order after a device restart, so this only
+    /// ever moves the floor up.
+    public func recordUsageFloor(dayKey: String, appKey: String, minutes: Int) {
+        var all = usageFloors
+        let key = TokenKey.usageKey(dayKey: dayKey, appKey: appKey)
+        guard minutes > (all[key] ?? 0) else { return }
+        all[key] = minutes
+        // Two months is more than the 30-day screen needs and keeps the
+        // extension's tiny memory budget out of trouble.
+        let horizon = Set(DayBoundary.recentDayKeys(count: 60, resetHour: dayResetHour))
+        usageFloors = all.filter { entry in
+            horizon.contains(String(entry.key.split(separator: "|").first ?? ""))
+        }
+    }
+
+    public func usageFloorsToday(dayKey: String) -> [String: Int] {
+        let prefix = "\(dayKey)|"
+        return usageFloors.reduce(into: [String: Int]()) { result, entry in
+            guard entry.key.hasPrefix(prefix) else { return }
+            result[String(entry.key.dropFirst(prefix.count))] = entry.value
+        }
+    }
+
+    /// Whether to register the intermediate 50 % and 80 % thresholds.
+    ///
+    /// Off with many apps selected: `startMonitoring` throws when asked to
+    /// watch too much at once, and Apple does not document where the ceiling
+    /// is, so the app gives up resolution rather than monitoring.
+    public var detailedUsageTracking: Bool {
+        get { defaults.object(forKey: Key.detailedUsage) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Key.detailedUsage) }
+    }
+
+    /// Token key to display name, on the devices where iOS 26.4 allows it.
+    /// Empty everywhere else, and every screen is written to cope with that.
+    public var appNames: [String: String] {
+        get { decode([String: String].self, Key.appNames) ?? [:] }
+        set { encode(newValue, Key.appNames) }
+    }
+
+    // MARK: - Why an app is shielded
+
+    /// Written by whoever last applied the shields, read by the gate so it can
+    /// say "tu franja de 22:00 a 08:00" instead of a generic sentence.
+    public var shieldReasons: [String: String] {
+        get { decode([String: String].self, Key.lastShieldReasons) ?? [:] }
+        set { encode(newValue, Key.lastShieldReasons) }
+    }
+
+    // MARK: - Reminders
+
+    public var reminders: [Reminder] {
+        get { decode([Reminder].self, Key.reminders) ?? [] }
+        set { encode(newValue, Key.reminders) }
+    }
+
+    // MARK: - Discipline mode extras
+
+    /// Opt-in, and off by default: it blocks removing *any* app on the device,
+    /// not only the limited ones.
+    public var denyAppRemoval: Bool {
+        get { defaults.bool(forKey: Key.denyAppRemoval) }
+        set { defaults.set(newValue, forKey: Key.denyAppRemoval) }
     }
 
     // MARK: - Privacy
@@ -248,6 +356,8 @@ public final class SharedStore: @unchecked Sendable {
             Key.enabledDhikr, Key.showTranslations, Key.acknowledgementSentence,
             Key.dayResetHour, Key.keepWrittenReasons, Key.onboardingComplete,
             Key.pendingGate, Key.grantExpiry, Key.emergencyUses, Key.emergencyPerWeek,
+            Key.usageFloors, Key.reminders, Key.denyAppRemoval, Key.lastShieldReasons,
+            Key.detailedUsage, Key.grantAppKey, Key.appNames,
         ].forEach(defaults.removeObject(forKey:))
     }
 }

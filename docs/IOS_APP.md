@@ -34,13 +34,13 @@ El `.xcodeproj` **no está en el repositorio**: se genera desde
 [`ios/project.yml`](../ios/project.yml). Un `project.pbxproj` escrito a mano son
 mil líneas de UUIDs que nadie puede revisar y que se rompen en silencio.
 
-En Xcode, en cada uno de los cuatro *targets*:
+En Xcode, en cada uno de los cinco *targets*:
 
 1. **Signing & Capabilities → Team** → tu cuenta.
-2. Cambia los *bundle identifiers* — `com.focusdhikr.app` y sus tres
+2. Cambia los *bundle identifiers* — `com.focusdhikr.app` y sus cuatro
    extensiones — por unos tuyos. Los míos estarán cogidos.
 3. Cambia el App Group `group.com.focusdhikr.shared` por uno tuyo, **en los
-   cuatro sitios**, y actualiza `SharedStore.appGroupID` para que coincida.
+   cinco sitios**, y actualiza `SharedStore.appGroupID` para que coincida.
    Si no coinciden, la app y las extensiones dejan de verse y el bloqueo se
    queda a medias sin dar ningún error.
 
@@ -56,7 +56,7 @@ tu propio iPhone con el entitlement de desarrollo.
 
 ## Cómo está montado, y por qué así
 
-iOS reparte el trabajo entre cuatro procesos. No es una decisión de diseño mía:
+iOS reparte el trabajo entre cinco procesos. No es una decisión de diseño mía:
 es la única forma que permite el sistema.
 
 ```
@@ -90,19 +90,42 @@ como TURNED_BACK           + .defer (el shield sigue)
                     └──────────────────────────┘
 ```
 
-### Los cuatro targets
+### Los cinco targets
 
 | Target | Qué hace | Por qué está separado |
 |---|---|---|
-| `FocusDhikr` | La app: elegir apps, límites, objetivos, ajustes y **las seis fases** | — |
-| `FocusDhikrMonitor` | Pone el escudo al cruzar un límite | `DeviceActivityMonitor` corre en su propio proceso, con ~6 MB de memoria y sin interfaz |
+| `FocusDhikr` | La app: elegir apps, límites por aplicación, franjas, objetivos, recordatorios, ajustes y **las seis fases** | — |
+| `FocusDhikrMonitor` | Anota los umbrales cruzados y recalcula los escudos | `DeviceActivityMonitor` corre en su propio proceso, con muy poca memoria y sin interfaz |
 | `FocusDhikrShield` | Dibuja el contenido del escudo | `ShieldConfigurationDataSource` |
 | `FocusDhikrShieldAction` | Responde a los dos botones | `ShieldActionDelegate` |
+| `FocusDhikrReport` | Dibuja tus **minutos reales** dentro de la app | `DeviceActivityReportExtension`, en un sandbox que le impide sacar esos datos de ahí |
 
-Todos comparten `ios/Shared` y un **App Group**, que es lo único que los cuatro
-procesos pueden ver.
+Todos comparten `ios/Shared` y un **App Group**, que es lo único que los cinco
+procesos pueden ver. Si el identificador del App Group no coincide en los cinco,
+la app y las extensiones dejan de verse **sin dar ningún error**.
+
+### Cómo se decide qué está bloqueado
+
+Los escudos no se ponen y se quitan uno a uno según llegan los avisos: se
+**recalculan enteros** desde las reglas (`ShieldDecision.evaluate`) cada vez que
+pasa algo — un umbral cruzado, una franja que empieza, la app que vuelve a
+primer plano. Una llamada perdida o un reinicio dejarían un token escudado para
+siempre sin que nadie supiera por qué; recalculando, lo peor que puede pasar es
+que una pantalla esté mal un rato, no para siempre.
+
+Esa función es pura y no conoce Family Controls: recibe claves, límites,
+minutos y franjas, y devuelve qué bloquear. Por eso se puede probar en
+`ios/Tests/EnforcementTests.swift` sin entitlement y sin esperar una hora a que
+se cumpla un límite.
 
 ---
+
+> Desde iOS 26.5 el traspaso deja de necesitar el toque: `ShieldActionResponse`
+> tiene un caso `.openParentalControlsApp` que abre tu app directamente. Y desde
+> iOS 26.4 el botón secundario admite un submenú de hasta tres opciones. Ambas
+> cosas están escritas y desactivadas: necesitan el SDK de iOS 26.4+, así que
+> viven detrás de `FOCUSDHIKR_MODERN_SHIELD` en `ios/project.yml` y CI no las
+> compila. Ver `docs/AUDITORIA_IOS.md`, sección 3c.
 
 ## Lo que iOS no deja hacer
 
@@ -114,9 +137,10 @@ desenfoque, icono, título, subtítulo y **dos botones**. Y
 hay cuenta atrás, ni campo de texto, ni navegación. **Las fases 2 a 5 no caben
 ahí**, y por eso viven en la app.
 
-**La extensión no puede abrir tu app.** De ahí la notificación: convierte el
-salto en un toque en vez de en «ahora búscate la app». Es lo más fluido que
-permite iOS.
+**Hasta iOS 26.4, la extensión no puede abrir tu app.** De ahí la notificación:
+convierte el salto en un toque en vez de en «ahora búscate la app». Desde
+iOS 26.5 hay una respuesta oficial que sí la abre, y está implementada tras la
+bandera de compilación de arriba.
 
 **No sabes qué apps ha elegido el usuario.** `FamilyActivitySelection` devuelve
 tokens opacos, a propósito. La app no puede escribir «Instagram — 1 h 04 min»;
@@ -127,12 +151,22 @@ solo puede pintar `Label(token)`, que dibuja el sistema.
 > decidido limitar Instagram» y la app no.
 
 **No hay minutos.** `DeviceActivity` avisa cuando se **cruza un umbral**; no
-existe API que devuelva «45 minutos usados hoy». Por eso los límites son
-umbrales y el «tiempo recuperado» del historial es una estimación declarada
-como tal en pantalla, no un dato.
+existe API que devuelva «45 minutos usados hoy». La app registra umbrales
+escalonados (50 %, 80 % y 100 % del límite) y por eso siempre escribe «al menos
+48 min», nunca «48 min».
 
-**El usuario puede desinstalarla.** Igual que en Android. Ninguna app normal
-puede impedirlo en ninguna de las dos plataformas.
+Los minutos exactos sí existen, en `FocusDhikrReport`, y Apple documenta que esa
+extensión corre en un sandbox que le impide sacarlos de su propio proceso. Se
+pueden **ver**; no se pueden **leer**. La pantalla de historial separa las dos
+cosas en dos bloques, con su explicación.
+
+**El usuario puede desinstalarla.** Con autorización `.individual`, Apple
+documenta que el sistema *retira* las restricciones que impedirían borrar la
+app: es tu dispositivo y tu decisión. Hay dos matices reales: el Modo Disciplina
+puede activar `denyAppRemoval`, que impide desinstalar cualquier app del iPhone
+mientras esté puesto (y se quita desde la propia app), y una autorización
+`.child` en Compartir en familia sí impide borrarla — a cambio de necesitar a
+otra persona para revocarla.
 
 ---
 
@@ -140,11 +174,11 @@ puede impedirlo en ninguna de las dos plataformas.
 
 | | Android | iOS |
 |---|---|---|
-| La pausa aparece sobre la app | ✅ automática | ⚠️ un toque en la notificación |
+| La pausa aparece sobre la app | ✅ automática | ⚠️ un toque (automático en iOS 26.5) |
 | Elegir apps por nombre e icono | ✅ | ⚠️ tokens opacos |
 | Minutos exactos por app | ✅ | ❌ solo umbrales |
 | Las 6 fases | ✅ | ✅ pero dentro de la app |
-| Estadísticas reales | ✅ | ⚠️ estimadas |
+| Estadísticas reales | ✅ | ✅ visibles, no legibles por la app |
 | Instalarla sin permiso de nadie | ✅ | ❌ entitlement de Apple |
 | Que no caduque | ✅ | ⚠️ 7 días con cuenta gratuita |
 
@@ -153,9 +187,9 @@ puede impedirlo en ninguna de las dos plataformas.
 ## Qué está probado y qué no
 
 **Probado en CI** ([`.github/workflows/ios.yml`](../.github/workflows/ios.yml)):
-que compila, y las pruebas unitarias de la máquina de estados, las franjas
-horarias, el día lógico y las citas — las mismas que en Android, portadas, para
-que las dos plataformas se comporten igual.
+que compila, y las pruebas unitarias de la máquina de estados, las reglas de
+bloqueo (límites por app, franjas, días de la semana, permisos temporales), los
+umbrales de uso, las rachas, el día lógico y las citas.
 
 **No probado:** nada de lo que necesita un iPhone real. Nadie ha ejecutado esta
 app. En concreto, sin verificar: que la autorización de Tiempo de uso se
