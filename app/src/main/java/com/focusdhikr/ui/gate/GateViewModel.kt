@@ -73,6 +73,9 @@ class GateViewModel(application: Application) : AndroidViewModel(application) {
     val state: StateFlow<GateUiState> = _state.asStateFlow()
 
     private var attemptId: Long = 0
+
+    /** The furthest phase actually reached, for honest statistics. */
+    private var deepestPhase: GatePhase = GatePhase.PAUSE
     private var ticker: Job? = null
     private var emergencyTicker: Job? = null
 
@@ -156,6 +159,12 @@ class GateViewModel(application: Application) : AndroidViewModel(application) {
 
         _state.update { it.copy(gate = next) }
 
+        if (next.phase != GatePhase.RESOLVED &&
+            next.activePhases.indexOf(next.phase) > next.activePhases.indexOf(deepestPhase)
+        ) {
+            deepestPhase = next.phase
+        }
+
         if (next.phase == GatePhase.WAIT && current.phase != GatePhase.WAIT) {
             startTicker()
         }
@@ -197,9 +206,7 @@ class GateViewModel(application: Application) : AndroidViewModel(application) {
             repository.finishAttempt(
                 id = attemptId,
                 endedAt = now,
-                reachedPhase = resolved.activePhases
-                    .getOrNull(resolved.activePhases.size - 1)?.name
-                    ?: GatePhase.PAUSE.name,
+                reachedPhase = deepestPhase.name,
                 outcome = outcome,
                 intentReason = resolved.intent?.name,
                 writtenReason = resolved.freeText,

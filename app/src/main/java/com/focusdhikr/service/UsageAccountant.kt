@@ -43,6 +43,10 @@ class UsageAccountant(
      * @return foreground time today for each tracked app, after this sync.
      */
     suspend fun sync(now: Long = System.currentTimeMillis()): Map<String, Long> = mutex.withLock {
+        syncLocked(now)
+    }
+
+    private suspend fun syncLocked(now: Long): Map<String, Long> {
         if (!Permissions.hasUsageAccess(context)) return emptyMap()
 
         val manager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager

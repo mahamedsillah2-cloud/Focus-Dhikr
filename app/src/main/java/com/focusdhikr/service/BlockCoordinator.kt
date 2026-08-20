@@ -49,6 +49,14 @@ class BlockCoordinator(
         now: Long = System.currentTimeMillis(),
         usedMillisOverride: Long? = null,
     ): BlockDecision = mutex.withLock {
+        decideLocked(packageName, now, usedMillisOverride)
+    }
+
+    private suspend fun decideLocked(
+        packageName: String,
+        now: Long,
+        usedMillisOverride: Long?,
+    ): BlockDecision {
         if (packageName == context.packageName) return BlockDecision.Allow
 
         // Leaving and re-entering the app resets the debounce immediately, so a

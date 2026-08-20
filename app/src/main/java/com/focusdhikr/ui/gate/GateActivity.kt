@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
@@ -42,9 +43,13 @@ class GateActivity : ComponentActivity() {
             windowLabel = intent.getStringExtra(EXTRA_WINDOW_LABEL).orEmpty(),
         )
 
-        onBackPressedDispatcher.addCallback(this) {
-            // Intentionally inert. See the class comment.
-        }
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(enabled = true) {
+                // Intentionally inert. See the class comment.
+                override fun handleOnBackPressed() = Unit
+            },
+        )
 
         setContent {
             FocusDhikrTheme(forceDark = true) {
@@ -118,14 +123,4 @@ class GateActivity : ComponentActivity() {
             putExtra(EXTRA_WINDOW_LABEL, windowLabel)
         }
     }
-}
-
-/** Small helper so the back callback reads cleanly above. */
-private fun androidx.activity.OnBackPressedDispatcher.addCallback(
-    owner: androidx.lifecycle.LifecycleOwner,
-    handler: () -> Unit,
-) {
-    addCallback(owner, object : androidx.activity.OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() = handler()
-    })
 }

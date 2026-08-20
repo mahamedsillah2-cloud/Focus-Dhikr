@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -56,19 +55,19 @@ interface UsageDao {
     suspend fun range(dayKeys: List<String>): List<UsageDayEntity>
 
     /**
-     * Adds [millis] to an app's day total, creating the row if needed.
-     *
-     * A single upsert rather than read-modify-write, so two accounting passes
-     * racing each other cannot lose time.
+     * Deliberately INSERT OR IGNORE + UPDATE rather than a single upsert:
+     * SQLite only learned ON CONFLICT ... DO UPDATE in 3.24, which ships with
+     * Android 11. minSdk here is 26, so an upsert would compile fine and then
+     * fail at runtime on older phones. FocusRepository.addUsage runs the pair
+     * inside a transaction, so two accounting passes racing each other still
+     * cannot lose time.
      */
-    @Query(
-        """
-        INSERT INTO usage_days (packageName, dayKey, millis)
-        VALUES (:packageName, :dayKey, :millis)
-        ON CONFLICT(packageName, dayKey) DO UPDATE SET millis = millis + :millis
-        """
-    )
-    suspend fun addMillis(packageName: String, dayKey: String, millis: Long)
+    @Query("INSERT OR IGNORE INTO usage_days (packageName, dayKey, millis) VALUES (:packageName, :dayKey, 0)")
+    suspend fun ensureRow(packageName: String, dayKey: String)
+
+    @Query("UPDATE usage_days SET millis = millis + :millis WHERE packageName = :packageName AND dayKey = :dayKey")
+    suspend fun incrementMillis(packageName: String, dayKey: String, millis: Long)
+
 
     @Query("DELETE FROM usage_days WHERE dayKey < :oldestDayKeyToKeep")
     suspend fun pruneBefore(oldestDayKeyToKeep: String)
@@ -89,11 +88,6 @@ interface OpenSessionDao {
     @Query("DELETE FROM open_sessions")
     suspend fun clear()
 
-    @Transaction
-    suspend fun replaceAll(sessions: List<OpenSessionEntity>) {
-        clear()
-        if (sessions.isNotEmpty()) upsertAll(sessions)
-    }
 }
 
 @Dao

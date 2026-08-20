@@ -1,5 +1,6 @@
 package com.focusdhikr.data.repo
 
+import androidx.room.withTransaction
 import com.focusdhikr.core.DayBoundary
 import com.focusdhikr.data.db.EmergencyUseEntity
 import com.focusdhikr.data.db.FocusDatabase
@@ -95,14 +96,23 @@ class FocusRepository(
         db.usage().millisFor(dayKey, packageName) ?: 0L
 
     suspend fun addUsage(packageName: String, dayKey: String, millis: Long) {
-        if (millis > 0) db.usage().addMillis(packageName, dayKey, millis)
+        if (millis <= 0) return
+        db.withTransaction {
+            db.usage().ensureRow(packageName, dayKey)
+            db.usage().incrementMillis(packageName, dayKey, millis)
+        }
     }
 
     suspend fun openSessions(): Map<String, Long> =
         db.openSessions().all().associate { it.packageName to it.startedAt }
 
     suspend fun replaceOpenSessions(sessions: Map<String, Long>) {
-        db.openSessions().replaceAll(sessions.map { OpenSessionEntity(it.key, it.value) })
+        db.withTransaction {
+            db.openSessions().clear()
+            if (sessions.isNotEmpty()) {
+                db.openSessions().upsertAll(sessions.map { OpenSessionEntity(it.key, it.value) })
+            }
+        }
     }
 
     // --- gate attempts ----------------------------------------------------

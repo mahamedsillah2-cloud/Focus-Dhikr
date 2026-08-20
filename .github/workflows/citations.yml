@@ -1,0 +1,39 @@
+name: Verify citations
+
+# Requirement 5: no invented scripture, ever.
+#
+# Every Qur'anic citation is downloaded from the Quran.com API and compared
+# against what the app ships, character by character on the normalised Arabic
+# skeleton. Every hadith reference must resolve and contain the Arabic quoted.
+# A citation that cannot be verified fails the build rather than shipping.
+
+on:
+  push:
+    paths:
+      - "app/src/main/java/com/focusdhikr/content/**"
+      - "tools/verify_citations.py"
+      - ".github/workflows/citations.yml"
+  pull_request:
+    paths:
+      - "app/src/main/java/com/focusdhikr/content/**"
+      - "tools/verify_citations.py"
+  schedule:
+    # Weekly, so an upstream correction is noticed even without a code change.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Structural check
+        run: python3 tools/verify_citations.py --offline
+
+      - name: Verify against primary sources
+        run: python3 tools/verify_citations.py
