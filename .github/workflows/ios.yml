@@ -4,6 +4,10 @@ name: Build iOS
 # the development environment has no Mac. This is what proves the Swift
 # actually compiles rather than merely looking right.
 #
+# It builds the committed FocusDhikr.xcodeproj - the same file you open with
+# "Open Existing Project" - so a project that breaks in Xcode breaks here too,
+# and it is pinned to Xcode 16.4 for the same reason.
+#
 # Note it builds for the Simulator with signing disabled. The Family Controls
 # entitlement is applied at signing time, so this verifies the code, not the
 # entitlement - that part only becomes real once Apple approves the request.
@@ -30,15 +34,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Select Xcode 16.4
+        run: |
+          if [ -d /Applications/Xcode_16.4.app ]; then
+            sudo xcode-select -s /Applications/Xcode_16.4.app
+          else
+            echo "::warning::Xcode 16.4 is not on this runner; using the default."
+            ls -d /Applications/Xcode*.app
+          fi
+          xcodebuild -version
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
-
-      - name: Generate the Xcode project
+      - name: Show the targets Xcode reads from the committed project
         working-directory: ios
-        run: xcodegen generate
+        run: xcodebuild -list -project FocusDhikr.xcodeproj
 
       - name: Build the app
         working-directory: ios
@@ -49,6 +57,24 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
+
+      - name: Check the extensions really got embedded
+        working-directory: ios
+        run: |
+          set -e
+          APP=$(xcodebuild -project FocusDhikr.xcodeproj -scheme FocusDhikr \
+                  -destination 'generic/platform=iOS Simulator' \
+                  -showBuildSettings 2>/dev/null \
+                | awk -F' = ' '/ BUILT_PRODUCTS_DIR /{print $2; exit}')/FocusDhikr.app
+          echo "app bundle: $APP"
+          for ext in FocusDhikrMonitor FocusDhikrShield FocusDhikrShieldAction; do
+            test -d "$APP/PlugIns/$ext.appex" || { echo "missing PlugIns/$ext.appex"; exit 1; }
+            echo "  ok  PlugIns/$ext.appex"
+          done
+          # The report extension is ExtensionKit: it lands in Extensions/, not PlugIns/.
+          test -d "$APP/Extensions/FocusDhikrReport.appex" || {
+            echo "missing Extensions/FocusDhikrReport.appex"; exit 1; }
+          echo "  ok  Extensions/FocusDhikrReport.appex"
 
       - name: Run unit tests
         working-directory: ios

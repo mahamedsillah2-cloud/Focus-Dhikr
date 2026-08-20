@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Requested from Apple: development works as soon as the request is
+	     approved for your team; shipping needs the distribution approval too.
+	     See docs/IOS_APP.md. -->
+	<key>com.apple.developer.family-controls</key>
+	<true/>
+	<!-- The app and every extension read and write the same container. This is
+	     the only channel between them: extensions cannot call back into the
+	     app. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.focusdhikr.shared</string>
+	</array>
+</dict>
+</plist>

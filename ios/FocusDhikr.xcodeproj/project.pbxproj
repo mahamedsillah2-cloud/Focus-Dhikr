@@ -1,0 +1,1767 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01E5CF235A3F48EA6927F1FB /* ContentModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9D9B716326DD5CF16671422A /* ContentModel.swift */";
+		};
+		0583C190242D11142109CD44 /* SharedStore.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "17EB9A1095DA608D7DA07091 /* SharedStore.swift */";
+		};
+		099F5A2CE9D2CCA6EC765F3A /* SharedStore.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "17EB9A1095DA608D7DA07091 /* SharedStore.swift */";
+		};
+		0D2136605E1331F401EC873D /* FocusDhikrShield.appex in Embed Extensions */ = {
+			isa = PBXBuildFile;
+			fileRef = "A79D0DE9EEA5212D0FED5244 /* FocusDhikrShield.appex */";
+			settings = {
+				ATTRIBUTES = (
+					RemoveHeadersOnCopy,
+				);
+			};
+		};
+		0DE3CCF23BC3D62D035C2707 /* HadithLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */";
+		};
+		0E8B88E61214990E9CA1CF88 /* HadithLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */";
+		};
+		11CC6A0AE26D54B37DA6CB1D /* AppNames.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "2F64BB39528D26C2D9EDF42B /* AppNames.swift */";
+		};
+		17220729BC3E3871573C895B /* ContentModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9D9B716326DD5CF16671422A /* ContentModel.swift */";
+		};
+		1A82F13A77839D7FAECE5449 /* ShieldDecision.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3ED1787FA072BA71098AC81A /* ShieldDecision.swift */";
+		};
+		1BC6CBB13DACC8A4C987D624 /* TokenKey.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */";
+		};
+		1BEA5A70C351B428968ABBF4 /* HadithLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */";
+		};
+		1CEC7F23E107F12DA663360C /* Models.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3CE3C83F70542549412734F1 /* Models.swift */";
+		};
+		20034BBDB2FCFF979D148836 /* SharedStore.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "17EB9A1095DA608D7DA07091 /* SharedStore.swift */";
+		};
+		25006FA0D6932B5CF0DE16EE /* EnforcementTests.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "07670CB7E9EE7578C6FE90FA /* EnforcementTests.swift */";
+		};
+		2625DB60879614EF406E918D /* GateModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "A1D27B25855160F20BA33183 /* GateModel.swift */";
+		};
+		26B45882FF053979C67F65CC /* Theme.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "B54CD06B6990F05A0A147E75 /* Theme.swift */";
+		};
+		26FDC0DCD337FD964FB2B970 /* DhikrLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */";
+		};
+		38B48E391C2D9EE6819AB3BA /* HadithLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */";
+		};
+		3962264B4BA6F6F1D486178B /* GateView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "97597292BE15F997BABB9048 /* GateView.swift */";
+		};
+		3D00FE63B1C39E013E043BD2 /* ContentModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9D9B716326DD5CF16671422A /* ContentModel.swift */";
+		};
+		3E7CEE476E5C0988CF9AC7FA /* TokenKey.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */";
+		};
+		41CB8D4919D9FD16EB0A6130 /* ScreenTimeController.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */";
+		};
+		42F00B19926B81A0D01649B2 /* RemindersView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "5ECB5EC33C373E8BA24A9B1F /* RemindersView.swift */";
+		};
+		44B4A2888BDCFFB135E0A96F /* Reflections.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "077E8AEFB534AF0BE1D420D5 /* Reflections.swift */";
+		};
+		4621980295A847C6973192C2 /* QuranLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */";
+		};
+		470BCA1692A367A5131019D1 /* ScreenTimeController.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */";
+		};
+		4A10A04D0DD06CC38A815AD6 /* QuranLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */";
+		};
+		55B9E3255A429544BE7DB747 /* QuranLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */";
+		};
+		57EC4528F0B8973048C10701 /* SchedulesView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "841D4236F7BEBEE5AFBF9004 /* SchedulesView.swift */";
+		};
+		58FD786842F1E085B90F1D8A /* GateModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "A1D27B25855160F20BA33183 /* GateModel.swift */";
+		};
+		5AFDB27ECB18A7711C9378D9 /* SettingsView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9038237F38E946B643FBBF6A /* SettingsView.swift */";
+		};
+		5C853C238D280B9F1F850FF2 /* DeviceActivityMonitorExtension.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "BD23E15C1B62C9CEEF9F8252 /* DeviceActivityMonitorExtension.swift */";
+		};
+		5DCD0C1E23B86961002373B6 /* ShieldDecision.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3ED1787FA072BA71098AC81A /* ShieldDecision.swift */";
+		};
+		643D589933E3ADDB493893AD /* GateStateMachine.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "235BFCE6A2E547778741A849 /* GateStateMachine.swift */";
+		};
+		6CC0D081D5E5F461483BAC0C /* GateStateMachine.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "235BFCE6A2E547778741A849 /* GateStateMachine.swift */";
+		};
+		6E46C4DF910028129DC4357E /* GateModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "A1D27B25855160F20BA33183 /* GateModel.swift */";
+		};
+		70155892D742F3FE773765E2 /* GateViewModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "40783A3FEDD86BFB2F7A1069 /* GateViewModel.swift */";
+		};
+		72C3ADA363B902E68A194C5D /* FocusDhikrMonitor.appex in Embed Extensions */ = {
+			isa = PBXBuildFile;
+			fileRef = "B3E80AF044838E8761D315E0 /* FocusDhikrMonitor.appex */";
+			settings = {
+				ATTRIBUTES = (
+					RemoveHeadersOnCopy,
+				);
+			};
+		};
+		7686C72B0B1E603A1254C859 /* GateStateMachine.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "235BFCE6A2E547778741A849 /* GateStateMachine.swift */";
+		};
+		7C7B86E1ECA078521056A9DD /* GateModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "A1D27B25855160F20BA33183 /* GateModel.swift */";
+		};
+		81DFE81F7EB3A5A12189A88B /* DhikrLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */";
+		};
+		843EBB674CCA843BB2DA4E30 /* ScreenTimeController.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */";
+		};
+		86143BC211F5953F83FFA1A3 /* Reflections.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "077E8AEFB534AF0BE1D420D5 /* Reflections.swift */";
+		};
+		86742767E65CBDA37AB37331 /* OnboardingView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "B2F3712068C0450D3D016278 /* OnboardingView.swift */";
+		};
+		889BD55E2BC5E5AF077EDF50 /* ReportExtension.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "0C6E6A584D132BCD22C7CD84 /* ReportExtension.swift */";
+		};
+		8AC76DA722135C182A10689F /* ShieldActionExtension.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "AFDDFE9F1361EE3480362D26 /* ShieldActionExtension.swift */";
+		};
+		8B592FBDFCA233C0AA66D636 /* FocusDhikrApp.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "2B22BE99F58D449BEA208B3C /* FocusDhikrApp.swift */";
+		};
+		8D85C4812132BAE57B94B2E4 /* ContentModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9D9B716326DD5CF16671422A /* ContentModel.swift */";
+		};
+		8E40D88457BF785D0AF820E1 /* ScreenTimeController.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */";
+		};
+		90C5BA80446F06326FE7B5F2 /* SharedStore.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "17EB9A1095DA608D7DA07091 /* SharedStore.swift */";
+		};
+		93C1665FBC7156FBAA6143EA /* ShieldDecision.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3ED1787FA072BA71098AC81A /* ShieldDecision.swift */";
+		};
+		95749DA6FFDFDFB424451DB7 /* SharedStore.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "17EB9A1095DA608D7DA07091 /* SharedStore.swift */";
+		};
+		989FC4962AD0456A05447983 /* GateModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "A1D27B25855160F20BA33183 /* GateModel.swift */";
+		};
+		9C25B4A4A43168EFB2AC9694 /* TokenKey.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */";
+		};
+		9CD552A2C71C7A5B4E69334F /* SharedStore.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "17EB9A1095DA608D7DA07091 /* SharedStore.swift */";
+		};
+		A284666F7CC11872FB96CE97 /* TokenKey.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */";
+		};
+		A650258ED81C3FC4410AACA9 /* HomeView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "895DA828447A239B63EB5633 /* HomeView.swift */";
+		};
+		A8291CC2A5D1021DF8498C99 /* Models.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3CE3C83F70542549412734F1 /* Models.swift */";
+		};
+		A8CAD57E35B791A4F7735F80 /* ShieldConfigurationExtension.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3E3497F5E2CED216871930F9 /* ShieldConfigurationExtension.swift */";
+		};
+		AB51CB733CB1069295C4CAEC /* DhikrLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */";
+		};
+		B1B32082CD7BAFD211F29396 /* HadithLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */";
+		};
+		B535F152929D7F7C049D1AE8 /* ScreenTimeController.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */";
+		};
+		B6C8DD63D85404086E9999DA /* ReminderScheduler.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "B232B116DBED5997ACA6E51C /* ReminderScheduler.swift */";
+		};
+		B75A2E055C8B502169433B92 /* FocusDhikrShieldAction.appex in Embed Extensions */ = {
+			isa = PBXBuildFile;
+			fileRef = "20B2C65D01E6342EDB99D3DD /* FocusDhikrShieldAction.appex */";
+			settings = {
+				ATTRIBUTES = (
+					RemoveHeadersOnCopy,
+				);
+			};
+		};
+		B8CC2EB8C4C572823178E5E1 /* FocusDhikrReport.appex in Embed Extensions */ = {
+			isa = PBXBuildFile;
+			fileRef = "F956CADAB525E959E1F120A0 /* FocusDhikrReport.appex */";
+			settings = {
+				ATTRIBUTES = (
+					RemoveHeadersOnCopy,
+				);
+			};
+		};
+		BA55787190DBFAF843BD84B7 /* GateStateMachine.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "235BFCE6A2E547778741A849 /* GateStateMachine.swift */";
+		};
+		C12C46D7567D9CC5926F5445 /* HadithLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */";
+		};
+		C476CEE638322FE559F31505 /* TokenKey.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */";
+		};
+		C533EFCE71668EF100227E3E /* Reflections.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "077E8AEFB534AF0BE1D420D5 /* Reflections.swift */";
+		};
+		C839826132043F8F57BC0EA6 /* GateModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "A1D27B25855160F20BA33183 /* GateModel.swift */";
+		};
+		CB43E8082B2E73AB8F86E320 /* DhikrLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */";
+		};
+		CBA668F7818D7C3C90C85319 /* StatsView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "43B2526569D3A46C720211C7 /* StatsView.swift */";
+		};
+		CBEE9BDADAB52691D6B4E687 /* ShieldDecision.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3ED1787FA072BA71098AC81A /* ShieldDecision.swift */";
+		};
+		CD43343A02E5D6C1AF8C90BF /* QuranLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */";
+		};
+		CED5544FE53C600742494858 /* AppsView.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "45C3E93EAE74BA1E712FCF4D /* AppsView.swift */";
+		};
+		D3552F3D87BEB25196EAD190 /* GateStateMachineTests.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "F9A0EE36329C6DBEF7533270 /* GateStateMachineTests.swift */";
+		};
+		D817132687C4C6766D4C93D6 /* ContentAndModelTests.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "2152278B9D9DE74B875C483F /* ContentAndModelTests.swift */";
+		};
+		DF6257A24CFC31EE3B0D8369 /* GateStateMachine.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "235BFCE6A2E547778741A849 /* GateStateMachine.swift */";
+		};
+		DFEE1586B25D3979C979C012 /* ScreenTimeController.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */";
+		};
+		E03C8285DA99D9D1130B3702 /* ShieldDecision.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3ED1787FA072BA71098AC81A /* ShieldDecision.swift */";
+		};
+		E0D72EAF20524F07A4541BE9 /* ContentModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9D9B716326DD5CF16671422A /* ContentModel.swift */";
+		};
+		E1AFD16E6065A8DA846A92DC /* Models.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3CE3C83F70542549412734F1 /* Models.swift */";
+		};
+		E373123566D996830A9C58F7 /* Reflections.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "077E8AEFB534AF0BE1D420D5 /* Reflections.swift */";
+		};
+		E388CAB4BC27EFCDD453DA2F /* DhikrLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */";
+		};
+		E6E3D294B1D915D3EDD81CBC /* GateStateMachine.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "235BFCE6A2E547778741A849 /* GateStateMachine.swift */";
+		};
+		ED2C648B420DEB2D1E45ED73 /* TokenKey.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */";
+		};
+		EEA1935A046BA26E02FC4A18 /* Models.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3CE3C83F70542549412734F1 /* Models.swift */";
+		};
+		EF8B423F3F50F9BB8A8C837E /* QuranLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */";
+		};
+		EFC086140E40CD6F2D101B99 /* Models.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3CE3C83F70542549412734F1 /* Models.swift */";
+		};
+		F08C2B4653660C8A7EC5F7E5 /* ContentModel.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9D9B716326DD5CF16671422A /* ContentModel.swift */";
+		};
+		F2B93E434EC10A2F6BC219DB /* Models.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3CE3C83F70542549412734F1 /* Models.swift */";
+		};
+		F3AEC5E95B51C2A581123F08 /* QuranLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */";
+		};
+		F8449C17ECFCB9C1D22D1288 /* Theme.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "B54CD06B6990F05A0A147E75 /* Theme.swift */";
+		};
+		F8DA6F87B35020F5B14FA047 /* ShieldDecision.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "3ED1787FA072BA71098AC81A /* ShieldDecision.swift */";
+		};
+		F9A3C49050F58F6A6AC12F9A /* DhikrLibrary.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */";
+		};
+		F9D05B0D9E2FAE7DF329B457 /* Reflections.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "077E8AEFB534AF0BE1D420D5 /* Reflections.swift */";
+		};
+		FBD395F4DBB73D74D2252E82 /* Reflections.swift in Sources */ = {
+			isa = PBXBuildFile;
+			fileRef = "077E8AEFB534AF0BE1D420D5 /* Reflections.swift */";
+		};
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		471762BD2BCD3F812EF9094F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = "46F86FAA6BBF9AC94A7E4595 /* Project object */";
+			proxyType = 1;
+			remoteGlobalIDString = FC8DCBC9950768F0C60DE97A;
+			remoteInfo = FocusDhikrMonitor;
+		};
+		4F9B9684A142701D927F02F2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = "46F86FAA6BBF9AC94A7E4595 /* Project object */";
+			proxyType = 1;
+			remoteGlobalIDString = 88399E4535AA08EEACF29476;
+			remoteInfo = FocusDhikrShield;
+		};
+		60573FC63A43C3332A0799CF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = "46F86FAA6BBF9AC94A7E4595 /* Project object */";
+			proxyType = 1;
+			remoteGlobalIDString = 4C4634F147CB2B1D60601496;
+			remoteInfo = FocusDhikrReport;
+		};
+		72DB6245F7B0F4741D9ED6F9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = "46F86FAA6BBF9AC94A7E4595 /* Project object */";
+			proxyType = 1;
+			remoteGlobalIDString = 0B3CEECDACBB7C11318DE808;
+			remoteInfo = FocusDhikrShieldAction;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B6DA10BEDCEE40F4C2657293 /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				"B8CC2EB8C4C572823178E5E1 /* FocusDhikrReport.appex in Embed Extensions */",
+			);
+			name = "Embed ExtensionKit Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B91C82DE1B851B4AA71993B2 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				"72C3ADA363B902E68A194C5D /* FocusDhikrMonitor.appex in Embed Extensions */",
+				"0D2136605E1331F401EC873D /* FocusDhikrShield.appex in Embed Extensions */",
+				"B75A2E055C8B502169433B92 /* FocusDhikrShieldAction.appex in Embed Extensions */",
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		07670CB7E9EE7578C6FE90FA /* EnforcementTests.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = EnforcementTests.swift;
+			sourceTree = "<group>";
+		};
+		077E8AEFB534AF0BE1D420D5 /* Reflections.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Reflections.swift;
+			sourceTree = "<group>";
+		};
+		0C6E6A584D132BCD22C7CD84 /* ReportExtension.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ReportExtension.swift;
+			sourceTree = "<group>";
+		};
+		17EB9A1095DA608D7DA07091 /* SharedStore.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SharedStore.swift;
+			sourceTree = "<group>";
+		};
+		1AF9E6C1AB46AEAFE17F48FB /* Info.plist */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		20B2C65D01E6342EDB99D3DD /* FocusDhikrShieldAction.appex */ = {
+			isa = PBXFileReference;
+			explicitFileType = "wrapper.app-extension";
+			includeInIndex = 0;
+			path = FocusDhikrShieldAction.appex;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2152278B9D9DE74B875C483F /* ContentAndModelTests.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ContentAndModelTests.swift;
+			sourceTree = "<group>";
+		};
+		235BFCE6A2E547778741A849 /* GateStateMachine.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = GateStateMachine.swift;
+			sourceTree = "<group>";
+		};
+		23AA2E69CEA9102422C6635B /* FocusDhikrShield.entitlements */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			path = FocusDhikrShield.entitlements;
+			sourceTree = "<group>";
+		};
+		293A54D8C668FD2235642ED2 /* FocusDhikrMonitor.entitlements */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			path = FocusDhikrMonitor.entitlements;
+			sourceTree = "<group>";
+		};
+		2B22BE99F58D449BEA208B3C /* FocusDhikrApp.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = FocusDhikrApp.swift;
+			sourceTree = "<group>";
+		};
+		2F64BB39528D26C2D9EDF42B /* AppNames.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = AppNames.swift;
+			sourceTree = "<group>";
+		};
+		335B15D5BAC68307991DB877 /* Info.plist */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		3CE3C83F70542549412734F1 /* Models.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Models.swift;
+			sourceTree = "<group>";
+		};
+		3DF561CE5BA664E1D84C2C06 /* FocusDhikrTests.xctest */ = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.cfbundle;
+			includeInIndex = 0;
+			path = FocusDhikrTests.xctest;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3E3497F5E2CED216871930F9 /* ShieldConfigurationExtension.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ShieldConfigurationExtension.swift;
+			sourceTree = "<group>";
+		};
+		3ED1787FA072BA71098AC81A /* ShieldDecision.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ShieldDecision.swift;
+			sourceTree = "<group>";
+		};
+		40783A3FEDD86BFB2F7A1069 /* GateViewModel.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = GateViewModel.swift;
+			sourceTree = "<group>";
+		};
+		43B2526569D3A46C720211C7 /* StatsView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = StatsView.swift;
+			sourceTree = "<group>";
+		};
+		45C3E93EAE74BA1E712FCF4D /* AppsView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = AppsView.swift;
+			sourceTree = "<group>";
+		};
+		5ECB5EC33C373E8BA24A9B1F /* RemindersView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = RemindersView.swift;
+			sourceTree = "<group>";
+		};
+		67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = TokenKey.swift;
+			sourceTree = "<group>";
+		};
+		74C21E1A2101E01B3C7D3B52 /* FocusDhikr.app */ = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			path = FocusDhikr.app;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		841D4236F7BEBEE5AFBF9004 /* SchedulesView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SchedulesView.swift;
+			sourceTree = "<group>";
+		};
+		8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = HadithLibrary.swift;
+			sourceTree = "<group>";
+		};
+		895DA828447A239B63EB5633 /* HomeView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = HomeView.swift;
+			sourceTree = "<group>";
+		};
+		9038237F38E946B643FBBF6A /* SettingsView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SettingsView.swift;
+			sourceTree = "<group>";
+		};
+		925AEED3123F5139E6CFC31C /* FocusDhikr.entitlements */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			path = FocusDhikr.entitlements;
+			sourceTree = "<group>";
+		};
+		930EA18AC146A56CA8C2EB8A /* FocusDhikrShieldAction.entitlements */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			path = FocusDhikrShieldAction.entitlements;
+			sourceTree = "<group>";
+		};
+		9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = QuranLibrary.swift;
+			sourceTree = "<group>";
+		};
+		97597292BE15F997BABB9048 /* GateView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = GateView.swift;
+			sourceTree = "<group>";
+		};
+		9D9B716326DD5CF16671422A /* ContentModel.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ContentModel.swift;
+			sourceTree = "<group>";
+		};
+		A1D27B25855160F20BA33183 /* GateModel.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = GateModel.swift;
+			sourceTree = "<group>";
+		};
+		A79D0DE9EEA5212D0FED5244 /* FocusDhikrShield.appex */ = {
+			isa = PBXFileReference;
+			explicitFileType = "wrapper.app-extension";
+			includeInIndex = 0;
+			path = FocusDhikrShield.appex;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AFDDFE9F1361EE3480362D26 /* ShieldActionExtension.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ShieldActionExtension.swift;
+			sourceTree = "<group>";
+		};
+		B232B116DBED5997ACA6E51C /* ReminderScheduler.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ReminderScheduler.swift;
+			sourceTree = "<group>";
+		};
+		B2F3712068C0450D3D016278 /* OnboardingView.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = OnboardingView.swift;
+			sourceTree = "<group>";
+		};
+		B3E80AF044838E8761D315E0 /* FocusDhikrMonitor.appex */ = {
+			isa = PBXFileReference;
+			explicitFileType = "wrapper.app-extension";
+			includeInIndex = 0;
+			path = FocusDhikrMonitor.appex;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B54CD06B6990F05A0A147E75 /* Theme.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Theme.swift;
+			sourceTree = "<group>";
+		};
+		BD23E15C1B62C9CEEF9F8252 /* DeviceActivityMonitorExtension.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = DeviceActivityMonitorExtension.swift;
+			sourceTree = "<group>";
+		};
+		BF67B8EA510232CBA13BF331 /* Info.plist */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = DhikrLibrary.swift;
+			sourceTree = "<group>";
+		};
+		E3C7271DBBCE8228AB3C6618 /* Info.plist */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = Info.plist;
+			sourceTree = "<group>";
+		};
+		E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ScreenTimeController.swift;
+			sourceTree = "<group>";
+		};
+		F956CADAB525E959E1F120A0 /* FocusDhikrReport.appex */ = {
+			isa = PBXFileReference;
+			explicitFileType = "wrapper.app-extension";
+			includeInIndex = 0;
+			path = FocusDhikrReport.appex;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F9A0EE36329C6DBEF7533270 /* GateStateMachineTests.swift */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = GateStateMachineTests.swift;
+			sourceTree = "<group>";
+		};
+		FE4935D8E4BE8869DE369630 /* FocusDhikrReport.entitlements */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.entitlements;
+			path = FocusDhikrReport.entitlements;
+			sourceTree = "<group>";
+		};
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		48A682155F681617B18A10EC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DC9404AF9B72E01D0CF155C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A914A1580E52A6AB03E16B15 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C574B4E2BD6D2A311F0D5BFB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F14D53AB404D163F7E99BEA4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F1F774E90C147BA4425E429E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		21E893B83EF9BAC2C70F38FB /* FocusDhikrShieldAction */ = {
+			isa = PBXGroup;
+			children = (
+				"AFDDFE9F1361EE3480362D26 /* ShieldActionExtension.swift */",
+				"E3C7271DBBCE8228AB3C6618 /* Info.plist */",
+				"930EA18AC146A56CA8C2EB8A /* FocusDhikrShieldAction.entitlements */",
+			);
+			path = FocusDhikrShieldAction;
+			sourceTree = "<group>";
+		};
+		26EE03475FBC43B7D0761AAE /* FocusDhikrReport */ = {
+			isa = PBXGroup;
+			children = (
+				"0C6E6A584D132BCD22C7CD84 /* ReportExtension.swift */",
+				"BF67B8EA510232CBA13BF331 /* Info.plist */",
+				"FE4935D8E4BE8869DE369630 /* FocusDhikrReport.entitlements */",
+			);
+			path = FocusDhikrReport;
+			sourceTree = "<group>";
+		};
+		2F3A6B1E78F896718625FF06 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				"74C21E1A2101E01B3C7D3B52 /* FocusDhikr.app */",
+				"B3E80AF044838E8761D315E0 /* FocusDhikrMonitor.appex */",
+				"A79D0DE9EEA5212D0FED5244 /* FocusDhikrShield.appex */",
+				"20B2C65D01E6342EDB99D3DD /* FocusDhikrShieldAction.appex */",
+				"F956CADAB525E959E1F120A0 /* FocusDhikrReport.appex */",
+				"3DF561CE5BA664E1D84C2C06 /* FocusDhikrTests.xctest */",
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		35EA91781B329EEFF24FA293 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				"2F64BB39528D26C2D9EDF42B /* AppNames.swift */",
+				"B232B116DBED5997ACA6E51C /* ReminderScheduler.swift */",
+				"B54CD06B6990F05A0A147E75 /* Theme.swift */",
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		43A9AE2D2E6AD7748D3FA83C /* FocusDhikr */ = {
+			isa = PBXGroup;
+			children = (
+				"2B22BE99F58D449BEA208B3C /* FocusDhikrApp.swift */",
+				"925AEED3123F5139E6CFC31C /* FocusDhikr.entitlements */",
+				"35EA91781B329EEFF24FA293 /* Support */",
+				"DD1A30637345AD28D4174D0C /* Views */",
+			);
+			path = FocusDhikr;
+			sourceTree = "<group>";
+		};
+		4470C721CFB2C023A365FFD2 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				"A1D27B25855160F20BA33183 /* GateModel.swift */",
+				"235BFCE6A2E547778741A849 /* GateStateMachine.swift */",
+				"3CE3C83F70542549412734F1 /* Models.swift */",
+				"3ED1787FA072BA71098AC81A /* ShieldDecision.swift */",
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		518DA81DB9B99529C0C0AEBE = {
+			isa = PBXGroup;
+			children = (
+				"43A9AE2D2E6AD7748D3FA83C /* FocusDhikr */",
+				"B46A6AFB1DC88CE23F6E63F1 /* Shared */",
+				"C61486863EAF128AF3F75999 /* FocusDhikrMonitor */",
+				"DB6C6103D68C0A42A45CA20F /* FocusDhikrShield */",
+				"21E893B83EF9BAC2C70F38FB /* FocusDhikrShieldAction */",
+				"26EE03475FBC43B7D0761AAE /* FocusDhikrReport */",
+				"74C0354F987B4FC0FDE2C044 /* Tests */",
+				"2F3A6B1E78F896718625FF06 /* Products */",
+			);
+			name = "";
+			sourceTree = "<group>";
+		};
+		74C0354F987B4FC0FDE2C044 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				"2152278B9D9DE74B875C483F /* ContentAndModelTests.swift */",
+				"07670CB7E9EE7578C6FE90FA /* EnforcementTests.swift */",
+				"F9A0EE36329C6DBEF7533270 /* GateStateMachineTests.swift */",
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		8B6D2EBBF1B13B8E2259A7A9 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				"E5A45AA9170E42FA36F75D4F /* ScreenTimeController.swift */",
+				"17EB9A1095DA608D7DA07091 /* SharedStore.swift */",
+				"67AF4AEBEDE9DF3E5B4A8575 /* TokenKey.swift */",
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		B46A6AFB1DC88CE23F6E63F1 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				"F566A384FFDF61BF7A06D84D /* Content */",
+				"4470C721CFB2C023A365FFD2 /* Domain */",
+				"8B6D2EBBF1B13B8E2259A7A9 /* Store */",
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		C61486863EAF128AF3F75999 /* FocusDhikrMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				"BD23E15C1B62C9CEEF9F8252 /* DeviceActivityMonitorExtension.swift */",
+				"335B15D5BAC68307991DB877 /* Info.plist */",
+				"293A54D8C668FD2235642ED2 /* FocusDhikrMonitor.entitlements */",
+			);
+			path = FocusDhikrMonitor;
+			sourceTree = "<group>";
+		};
+		DB6C6103D68C0A42A45CA20F /* FocusDhikrShield */ = {
+			isa = PBXGroup;
+			children = (
+				"3E3497F5E2CED216871930F9 /* ShieldConfigurationExtension.swift */",
+				"1AF9E6C1AB46AEAFE17F48FB /* Info.plist */",
+				"23AA2E69CEA9102422C6635B /* FocusDhikrShield.entitlements */",
+			);
+			path = FocusDhikrShield;
+			sourceTree = "<group>";
+		};
+		DD1A30637345AD28D4174D0C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				"45C3E93EAE74BA1E712FCF4D /* AppsView.swift */",
+				"97597292BE15F997BABB9048 /* GateView.swift */",
+				"40783A3FEDD86BFB2F7A1069 /* GateViewModel.swift */",
+				"895DA828447A239B63EB5633 /* HomeView.swift */",
+				"B2F3712068C0450D3D016278 /* OnboardingView.swift */",
+				"5ECB5EC33C373E8BA24A9B1F /* RemindersView.swift */",
+				"841D4236F7BEBEE5AFBF9004 /* SchedulesView.swift */",
+				"9038237F38E946B643FBBF6A /* SettingsView.swift */",
+				"43B2526569D3A46C720211C7 /* StatsView.swift */",
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F566A384FFDF61BF7A06D84D /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				"9D9B716326DD5CF16671422A /* ContentModel.swift */",
+				"E04CE8F8C9AE30515C4B7951 /* DhikrLibrary.swift */",
+				"8648BEAFC7C5695BB736B8A6 /* HadithLibrary.swift */",
+				"9410C9DADCCDE9D4A649E19D /* QuranLibrary.swift */",
+				"077E8AEFB534AF0BE1D420D5 /* Reflections.swift */",
+			);
+			path = Content;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0B3CEECDACBB7C11318DE808 /* FocusDhikrShieldAction */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = "E1392BC7A160B0E706525D83 /* Build configuration list for PBXNativeTarget \"FocusDhikrShieldAction\" */";
+			buildPhases = (
+				"B744FF432DF0F0967512290B /* Sources */",
+				"C574B4E2BD6D2A311F0D5BFB /* Frameworks */",
+				"2437881F432FA7CB79FF5871 /* Resources */",
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusDhikrShieldAction;
+			productName = FocusDhikrShieldAction;
+			productReference = "20B2C65D01E6342EDB99D3DD /* FocusDhikrShieldAction.appex */";
+			productType = "com.apple.product-type.app-extension";
+		};
+		1E52F0E56E354807BCE1DD28 /* FocusDhikrTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = "5208D211B175FDCD01D79022 /* Build configuration list for PBXNativeTarget \"FocusDhikrTests\" */";
+			buildPhases = (
+				"759CC871D427D1F46D1EC1EF /* Sources */",
+				"F14D53AB404D163F7E99BEA4 /* Frameworks */",
+				"3801551B7B20E04B868D86F5 /* Resources */",
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusDhikrTests;
+			productName = FocusDhikrTests;
+			productReference = "3DF561CE5BA664E1D84C2C06 /* FocusDhikrTests.xctest */";
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		4C4634F147CB2B1D60601496 /* FocusDhikrReport */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = "FDF31E425F296AB37D20FB06 /* Build configuration list for PBXNativeTarget \"FocusDhikrReport\" */";
+			buildPhases = (
+				"D224AED1A4E2EBA82B37C7A1 /* Sources */",
+				"4DC9404AF9B72E01D0CF155C /* Frameworks */",
+				"B30478A77E408D666262F16F /* Resources */",
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusDhikrReport;
+			productName = FocusDhikrReport;
+			productReference = "F956CADAB525E959E1F120A0 /* FocusDhikrReport.appex */";
+			productType = "com.apple.product-type.extensionkit-extension";
+		};
+		7A81907F1DFE4A7E45FEED29 /* FocusDhikr */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = "6CF1988B10ACA0686AA93D54 /* Build configuration list for PBXNativeTarget \"FocusDhikr\" */";
+			buildPhases = (
+				"67D732FF2EAEA691AC645521 /* Sources */",
+				"F1F774E90C147BA4425E429E /* Frameworks */",
+				"670994B6A9DFF3705A7C0426 /* Resources */",
+				"B91C82DE1B851B4AA71993B2 /* Embed Foundation Extensions */",
+				"B6DA10BEDCEE40F4C2657293 /* Embed ExtensionKit Extensions */",
+			);
+			buildRules = (
+			);
+			dependencies = (
+				"FE22BDE077004021D2EBE308 /* PBXTargetDependency */",
+				"DE64FCF51FF117FDBD61FE9F /* PBXTargetDependency */",
+				"2E26AA3E72E61A0CA017B395 /* PBXTargetDependency */",
+				"9F5F552EF1AE8185F40A6EED /* PBXTargetDependency */",
+			);
+			name = FocusDhikr;
+			productName = FocusDhikr;
+			productReference = "74C21E1A2101E01B3C7D3B52 /* FocusDhikr.app */";
+			productType = "com.apple.product-type.application";
+		};
+		88399E4535AA08EEACF29476 /* FocusDhikrShield */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = "078932CE834F17016EBA7812 /* Build configuration list for PBXNativeTarget \"FocusDhikrShield\" */";
+			buildPhases = (
+				"1357B5F46AF4DC4EA650F43B /* Sources */",
+				"48A682155F681617B18A10EC /* Frameworks */",
+				"5574D8BFA91C25707FD89A4C /* Resources */",
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusDhikrShield;
+			productName = FocusDhikrShield;
+			productReference = "A79D0DE9EEA5212D0FED5244 /* FocusDhikrShield.appex */";
+			productType = "com.apple.product-type.app-extension";
+		};
+		FC8DCBC9950768F0C60DE97A /* FocusDhikrMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = "6DA377DF5E616A764AE2AACF /* Build configuration list for PBXNativeTarget \"FocusDhikrMonitor\" */";
+			buildPhases = (
+				"056DA8240D088957814F6660 /* Sources */",
+				"A914A1580E52A6AB03E16B15 /* Frameworks */",
+				"77D2B7E0F22845BF95A34B6E /* Resources */",
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FocusDhikrMonitor;
+			productName = FocusDhikrMonitor;
+			productReference = "B3E80AF044838E8761D315E0 /* FocusDhikrMonitor.appex */";
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					FocusDhikr = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					FocusDhikrMonitor = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					FocusDhikrShield = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					FocusDhikrShieldAction = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					FocusDhikrReport = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					FocusDhikrTests = {
+						CreatedOnToolsVersion = 16.4;
+					};
+				};
+			};
+			buildConfigurationList = "C32B2656E1C4D358394CD985 /* Build configuration list for PBXProject \"PROJECT\" */";
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 518DA81DB9B99529C0C0AEBE;
+			productRefGroup = "2F3A6B1E78F896718625FF06 /* Products */";
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				"7A81907F1DFE4A7E45FEED29 /* FocusDhikr */",
+				"FC8DCBC9950768F0C60DE97A /* FocusDhikrMonitor */",
+				"88399E4535AA08EEACF29476 /* FocusDhikrShield */",
+				"0B3CEECDACBB7C11318DE808 /* FocusDhikrShieldAction */",
+				"4C4634F147CB2B1D60601496 /* FocusDhikrReport */",
+				"1E52F0E56E354807BCE1DD28 /* FocusDhikrTests */",
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2437881F432FA7CB79FF5871 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3801551B7B20E04B868D86F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5574D8BFA91C25707FD89A4C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		670994B6A9DFF3705A7C0426 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		77D2B7E0F22845BF95A34B6E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B30478A77E408D666262F16F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		056DA8240D088957814F6660 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				"5C853C238D280B9F1F850FF2 /* DeviceActivityMonitorExtension.swift in Sources */",
+				"17220729BC3E3871573C895B /* ContentModel.swift in Sources */",
+				"CB43E8082B2E73AB8F86E320 /* DhikrLibrary.swift in Sources */",
+				"C12C46D7567D9CC5926F5445 /* HadithLibrary.swift in Sources */",
+				"4A10A04D0DD06CC38A815AD6 /* QuranLibrary.swift in Sources */",
+				"FBD395F4DBB73D74D2252E82 /* Reflections.swift in Sources */",
+				"6E46C4DF910028129DC4357E /* GateModel.swift in Sources */",
+				"DF6257A24CFC31EE3B0D8369 /* GateStateMachine.swift in Sources */",
+				"A8291CC2A5D1021DF8498C99 /* Models.swift in Sources */",
+				"93C1665FBC7156FBAA6143EA /* ShieldDecision.swift in Sources */",
+				"8E40D88457BF785D0AF820E1 /* ScreenTimeController.swift in Sources */",
+				"90C5BA80446F06326FE7B5F2 /* SharedStore.swift in Sources */",
+				"ED2C648B420DEB2D1E45ED73 /* TokenKey.swift in Sources */",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1357B5F46AF4DC4EA650F43B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				"A8CAD57E35B791A4F7735F80 /* ShieldConfigurationExtension.swift in Sources */",
+				"8D85C4812132BAE57B94B2E4 /* ContentModel.swift in Sources */",
+				"E388CAB4BC27EFCDD453DA2F /* DhikrLibrary.swift in Sources */",
+				"B1B32082CD7BAFD211F29396 /* HadithLibrary.swift in Sources */",
+				"EF8B423F3F50F9BB8A8C837E /* QuranLibrary.swift in Sources */",
+				"C533EFCE71668EF100227E3E /* Reflections.swift in Sources */",
+				"2625DB60879614EF406E918D /* GateModel.swift in Sources */",
+				"643D589933E3ADDB493893AD /* GateStateMachine.swift in Sources */",
+				"1CEC7F23E107F12DA663360C /* Models.swift in Sources */",
+				"5DCD0C1E23B86961002373B6 /* ShieldDecision.swift in Sources */",
+				"470BCA1692A367A5131019D1 /* ScreenTimeController.swift in Sources */",
+				"95749DA6FFDFDFB424451DB7 /* SharedStore.swift in Sources */",
+				"A284666F7CC11872FB96CE97 /* TokenKey.swift in Sources */",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		67D732FF2EAEA691AC645521 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				"8B592FBDFCA233C0AA66D636 /* FocusDhikrApp.swift in Sources */",
+				"11CC6A0AE26D54B37DA6CB1D /* AppNames.swift in Sources */",
+				"B6C8DD63D85404086E9999DA /* ReminderScheduler.swift in Sources */",
+				"F8449C17ECFCB9C1D22D1288 /* Theme.swift in Sources */",
+				"CED5544FE53C600742494858 /* AppsView.swift in Sources */",
+				"3962264B4BA6F6F1D486178B /* GateView.swift in Sources */",
+				"70155892D742F3FE773765E2 /* GateViewModel.swift in Sources */",
+				"A650258ED81C3FC4410AACA9 /* HomeView.swift in Sources */",
+				"86742767E65CBDA37AB37331 /* OnboardingView.swift in Sources */",
+				"42F00B19926B81A0D01649B2 /* RemindersView.swift in Sources */",
+				"57EC4528F0B8973048C10701 /* SchedulesView.swift in Sources */",
+				"5AFDB27ECB18A7711C9378D9 /* SettingsView.swift in Sources */",
+				"CBA668F7818D7C3C90C85319 /* StatsView.swift in Sources */",
+				"E0D72EAF20524F07A4541BE9 /* ContentModel.swift in Sources */",
+				"F9A3C49050F58F6A6AC12F9A /* DhikrLibrary.swift in Sources */",
+				"0DE3CCF23BC3D62D035C2707 /* HadithLibrary.swift in Sources */",
+				"F3AEC5E95B51C2A581123F08 /* QuranLibrary.swift in Sources */",
+				"E373123566D996830A9C58F7 /* Reflections.swift in Sources */",
+				"989FC4962AD0456A05447983 /* GateModel.swift in Sources */",
+				"BA55787190DBFAF843BD84B7 /* GateStateMachine.swift in Sources */",
+				"F2B93E434EC10A2F6BC219DB /* Models.swift in Sources */",
+				"F8DA6F87B35020F5B14FA047 /* ShieldDecision.swift in Sources */",
+				"843EBB674CCA843BB2DA4E30 /* ScreenTimeController.swift in Sources */",
+				"0583C190242D11142109CD44 /* SharedStore.swift in Sources */",
+				"3E7CEE476E5C0988CF9AC7FA /* TokenKey.swift in Sources */",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		759CC871D427D1F46D1EC1EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				"D817132687C4C6766D4C93D6 /* ContentAndModelTests.swift in Sources */",
+				"25006FA0D6932B5CF0DE16EE /* EnforcementTests.swift in Sources */",
+				"D3552F3D87BEB25196EAD190 /* GateStateMachineTests.swift in Sources */",
+				"3D00FE63B1C39E013E043BD2 /* ContentModel.swift in Sources */",
+				"81DFE81F7EB3A5A12189A88B /* DhikrLibrary.swift in Sources */",
+				"38B48E391C2D9EE6819AB3BA /* HadithLibrary.swift in Sources */",
+				"4621980295A847C6973192C2 /* QuranLibrary.swift in Sources */",
+				"86143BC211F5953F83FFA1A3 /* Reflections.swift in Sources */",
+				"C839826132043F8F57BC0EA6 /* GateModel.swift in Sources */",
+				"E6E3D294B1D915D3EDD81CBC /* GateStateMachine.swift in Sources */",
+				"EEA1935A046BA26E02FC4A18 /* Models.swift in Sources */",
+				"CBEE9BDADAB52691D6B4E687 /* ShieldDecision.swift in Sources */",
+				"B535F152929D7F7C049D1AE8 /* ScreenTimeController.swift in Sources */",
+				"20034BBDB2FCFF979D148836 /* SharedStore.swift in Sources */",
+				"C476CEE638322FE559F31505 /* TokenKey.swift in Sources */",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B744FF432DF0F0967512290B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				"8AC76DA722135C182A10689F /* ShieldActionExtension.swift in Sources */",
+				"01E5CF235A3F48EA6927F1FB /* ContentModel.swift in Sources */",
+				"26FDC0DCD337FD964FB2B970 /* DhikrLibrary.swift in Sources */",
+				"1BEA5A70C351B428968ABBF4 /* HadithLibrary.swift in Sources */",
+				"CD43343A02E5D6C1AF8C90BF /* QuranLibrary.swift in Sources */",
+				"F9D05B0D9E2FAE7DF329B457 /* Reflections.swift in Sources */",
+				"7C7B86E1ECA078521056A9DD /* GateModel.swift in Sources */",
+				"7686C72B0B1E603A1254C859 /* GateStateMachine.swift in Sources */",
+				"EFC086140E40CD6F2D101B99 /* Models.swift in Sources */",
+				"E03C8285DA99D9D1130B3702 /* ShieldDecision.swift in Sources */",
+				"41CB8D4919D9FD16EB0A6130 /* ScreenTimeController.swift in Sources */",
+				"9CD552A2C71C7A5B4E69334F /* SharedStore.swift in Sources */",
+				"1BC6CBB13DACC8A4C987D624 /* TokenKey.swift in Sources */",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D224AED1A4E2EBA82B37C7A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				"889BD55E2BC5E5AF077EDF50 /* ReportExtension.swift in Sources */",
+				"F08C2B4653660C8A7EC5F7E5 /* ContentModel.swift in Sources */",
+				"AB51CB733CB1069295C4CAEC /* DhikrLibrary.swift in Sources */",
+				"0E8B88E61214990E9CA1CF88 /* HadithLibrary.swift in Sources */",
+				"55B9E3255A429544BE7DB747 /* QuranLibrary.swift in Sources */",
+				"44B4A2888BDCFFB135E0A96F /* Reflections.swift in Sources */",
+				"58FD786842F1E085B90F1D8A /* GateModel.swift in Sources */",
+				"6CC0D081D5E5F461483BAC0C /* GateStateMachine.swift in Sources */",
+				"E1AFD16E6065A8DA846A92DC /* Models.swift in Sources */",
+				"1A82F13A77839D7FAECE5449 /* ShieldDecision.swift in Sources */",
+				"DFEE1586B25D3979C979C012 /* ScreenTimeController.swift in Sources */",
+				"099F5A2CE9D2CCA6EC765F3A /* SharedStore.swift in Sources */",
+				"9C25B4A4A43168EFB2AC9694 /* TokenKey.swift in Sources */",
+				"26B45882FF053979C67F65CC /* Theme.swift in Sources */",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2E26AA3E72E61A0CA017B395 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "0B3CEECDACBB7C11318DE808 /* FocusDhikrShieldAction */";
+			targetProxy = "72DB6245F7B0F4741D9ED6F9 /* PBXContainerItemProxy */";
+		};
+		9F5F552EF1AE8185F40A6EED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "4C4634F147CB2B1D60601496 /* FocusDhikrReport */";
+			targetProxy = "60573FC63A43C3332A0799CF /* PBXContainerItemProxy */";
+		};
+		DE64FCF51FF117FDBD61FE9F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "88399E4535AA08EEACF29476 /* FocusDhikrShield */";
+			targetProxy = "4F9B9684A142701D927F02F2 /* PBXContainerItemProxy */";
+		};
+		FE22BDE077004021D2EBE308 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = "FC8DCBC9950768F0C60DE97A /* FocusDhikrMonitor */";
+			targetProxy = "471762BD2BCD3F812EF9094F /* PBXContainerItemProxy */";
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0A9464BB3FBD19EAD59C9BF0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrMonitor/FocusDhikrMonitor.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrMonitor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.monitor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		0B76ABD4E95D1F2FAB8C6DBD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrReport/FocusDhikrReport.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrReport/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.report;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		13D21544273E02CA5D39DB6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrShieldAction/FocusDhikrShieldAction.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrShieldAction/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.shieldaction;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		3D789B6FFA1C74B9CEACEAAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Release;
+		};
+		3D9FF203842AA255D94E484A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrReport/FocusDhikrReport.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrReport/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.report;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		512A0C3461439AAA422A5870 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 0.1.0;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
+					DEBUG,
+					"$(inherited)",
+				);
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5B654016E013FCB09A4381B4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Debug;
+		};
+		64B2943D41E5272FDD468F16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikr/FocusDhikr.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Focus Dhikr";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		75124CA5274F52DBAAA1836F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrShield/FocusDhikrShield.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrShield/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.shield;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		821E428B136D8F3DD90EB902 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikr/FocusDhikr.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Focus Dhikr";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		8514B3372613D03DB73C4372 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrMonitor/FocusDhikrMonitor.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrMonitor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.monitor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		939CE8DC5684C89A2AD4075D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrShieldAction/FocusDhikrShieldAction.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrShieldAction/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.shieldaction;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+		B1948C0643E49473416E9394 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 0.1.0;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B9B5B2AC7365CCEEA6049BDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FocusDhikrShield/FocusDhikrShield.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FocusDhikrShield/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.focusdhikr.app.shield;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		078932CE834F17016EBA7812 /* Build configuration list for PBXNativeTarget "FocusDhikrShield" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"75124CA5274F52DBAAA1836F /* Debug */",
+				"B9B5B2AC7365CCEEA6049BDE /* Release */",
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5208D211B175FDCD01D79022 /* Build configuration list for PBXNativeTarget "FocusDhikrTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"5B654016E013FCB09A4381B4 /* Debug */",
+				"3D789B6FFA1C74B9CEACEAAE /* Release */",
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6CF1988B10ACA0686AA93D54 /* Build configuration list for PBXNativeTarget "FocusDhikr" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"821E428B136D8F3DD90EB902 /* Debug */",
+				"64B2943D41E5272FDD468F16 /* Release */",
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6DA377DF5E616A764AE2AACF /* Build configuration list for PBXNativeTarget "FocusDhikrMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"0A9464BB3FBD19EAD59C9BF0 /* Debug */",
+				"8514B3372613D03DB73C4372 /* Release */",
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C32B2656E1C4D358394CD985 /* Build configuration list for PBXProject "PROJECT" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"512A0C3461439AAA422A5870 /* Debug */",
+				"B1948C0643E49473416E9394 /* Release */",
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1392BC7A160B0E706525D83 /* Build configuration list for PBXNativeTarget "FocusDhikrShieldAction" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"13D21544273E02CA5D39DB6B /* Debug */",
+				"939CE8DC5684C89A2AD4075D /* Release */",
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FDF31E425F296AB37D20FB06 /* Build configuration list for PBXNativeTarget "FocusDhikrReport" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"3D9FF203842AA255D94E484A /* Debug */",
+				"0B76ABD4E95D1F2FAB8C6DBD /* Release */",
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+}
