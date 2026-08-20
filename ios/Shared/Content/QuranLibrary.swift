@@ -9,13 +9,10 @@ import Foundation
 ///  2. `tools/verify_citations.py` runs in CI, downloads every ayah below from
 ///     the Quran.com API and compares the Arabic character by character after
 ///     removing diacritics and presentation marks. A mismatch fails the build.
-///     It checks THIS file and the Kotlin one, so the two cannot drift apart.
+///     This file is the only source of citations, so it is the one CI reads.
 ///  3. `translationEs` is a translation of the meaning, not a replacement for
 ///     the Arabic, and the UI labels it as such.
 ///  4. If you are not certain about a citation, do not add it.
-///
-/// Generated from the Android `QuranLibrary.kt` so the Arabic is byte-identical
-/// on both platforms; transcribing it by hand is how drift creeps in.
 public enum QuranLibrary {
 
     public static let all: [QuranCitation] = [

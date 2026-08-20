@@ -1,10 +1,9 @@
 import XCTest
 
-/// A port of the Android `GateStateMachineTest`.
+/// The gate is the whole product: everything else is settings around it.
 ///
-/// The two platforms share no code, so the only way to know they behave the
-/// same at the moment the user is most impulsive is to assert the same things
-/// on both.
+/// It also runs at the moment the user is least patient and most impulsive, so
+/// every phase transition is asserted here rather than trusted.
 final class GateStateMachineTests: XCTestCase {
 
     private func state(strict: Bool = false, attemptsToday: Int = 0, inWindow: Bool = false) -> GateState {

@@ -22,7 +22,7 @@ Funcionando esta tarde.
   Por eso se combina con Tiempo de uso: él pone el límite, el atajo pone la
   reflexión. (Abajo tienes cómo hacer que solo salte de noche, si prefieres.)
 - **Puedes saltártelo.** Deslizas hacia arriba y el atajo muere. Es fricción
-  honesta, no un muro. Igual que en Android: si de verdad quieres entrar, entras.
+  honesta, no un muro: si de verdad quieres entrar, entras.
 - No hay estadísticas propias. Las de Tiempo de uso son las que hay.
 
 ---
@@ -263,8 +263,7 @@ de verdad —`FamilyControls` + `ManagedSettings`— donde el bloqueo lo aplica 
 sistema y no se puede descartar deslizando.
 
 Aun así, ojo: en iOS las fases 2 a 5 **no caben** en la pantalla de bloqueo del
-sistema (solo admite título, subtítulo y dos botones). El botón te mandaría a
-Focus Dhikr y la reflexión ocurriría dentro de la app. El detalle está en
-[`LIMITES_PLATAFORMA.md`](LIMITES_PLATAFORMA.md), sección iOS.
-
-Y si algún día pasas a Android, la app completa ya está hecha y compilando.
+sistema (solo admite título, subtítulo y dos botones). El botón te manda a
+Focus Dhikr y la reflexión ocurre dentro de la app — que es exactamente cómo
+está construida. El detalle está en [`AUDITORIA_IOS.md`](AUDITORIA_IOS.md),
+sección 3b, y los pasos para compilarla en [`IOS_APP.md`](IOS_APP.md).

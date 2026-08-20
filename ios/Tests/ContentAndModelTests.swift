@@ -1,12 +1,11 @@
 import XCTest
 
-/// Structural guarantees for the citation libraries, and proof that the Swift
-/// copy has not drifted from the Kotlin one.
+/// Structural guarantees for the citation libraries.
 ///
 /// These do not verify that a citation is *correct* - only a primary source can
-/// do that, which is what `tools/verify_citations.py` does in CI against both
-/// files. What they guarantee is that no entry can reach a screen without its
-/// reference, and no hadith without a grading.
+/// do that, which is what `tools/verify_citations.py` does in CI. What they
+/// guarantee is that no entry can reach a screen without its reference, and no
+/// hadith without a grading.
 final class ContentIntegrityTests: XCTestCase {
 
     func testEveryQuranCitationCarriesAFullReference() {

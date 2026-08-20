@@ -2,12 +2,13 @@
 """Verify every religious citation in the app against a primary source.
 
 This is the mechanical half of requirement 5: no invented scripture. The
-editorial half is that nothing gets written into the Kotlin libraries from
+editorial half is that nothing gets written into the citation libraries from
 memory in the first place; this script is what stops that rule from quietly
 eroding over time.
 
 What it does:
-  * parses QuranLibrary.kt and HadithLibrary.kt (no Kotlin runtime needed),
+  * parses QuranLibrary.swift and HadithLibrary.swift (no Swift toolchain
+    needed, so this runs on Linux CI without a Mac),
   * downloads each ayah from the Quran.com API v4,
   * normalises both sides - strips Arabic diacritics, tatweel, Qur'anic
     annotation marks and presentation variants - and compares,
@@ -36,20 +37,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Both platforms are checked. The Swift copy is generated from the Kotlin one,
-# but generated files get edited by hand eventually, so CI verifies both against
-# the primary sources rather than trusting that they still agree.
-QURAN_SOURCES = [
-    ROOT / "app/src/main/java/com/focusdhikr/content/QuranLibrary.kt",
-    ROOT / "ios/Shared/Content/QuranLibrary.swift",
-]
-HADITH_SOURCES = [
-    ROOT / "app/src/main/java/com/focusdhikr/content/HadithLibrary.kt",
-    ROOT / "ios/Shared/Content/HadithLibrary.swift",
-]
-
-QURAN_KT = QURAN_SOURCES[0]
-HADITH_KT = HADITH_SOURCES[0]
+QURAN_SWIFT = ROOT / "ios/Shared/Content/QuranLibrary.swift"
+HADITH_SWIFT = ROOT / "ios/Shared/Content/HadithLibrary.swift"
 
 QURAN_API = (
     "https://api.quran.com/api/v4/verses/by_key/{key}"
@@ -140,15 +129,15 @@ def matches_as_excerpt(ours: str, candidates: list[str]) -> bool:
     )
 
 
-def unescape_kotlin(value: str) -> str:
+def unescape_swift(value: str) -> str:
     return value.replace('\\"', '"').replace("\\\\", "\\").replace("\\n", "\n")
 
 
 def parse_entries(path: Path, ctor: str) -> list[dict]:
-    """Extract constructor calls from a Kotlin source file.
+    """Extract initialiser calls from a Swift source file.
 
-    A small hand-rolled parser rather than a Kotlin dependency: this has to run
-    in CI before (and independently of) the Android build.
+    A hand-rolled parser rather than a Swift dependency: this has to run in CI
+    before (and independently of) the Xcode build, on a Linux runner.
     """
     source = path.read_text(encoding="utf-8")
     entries = []
@@ -175,7 +164,7 @@ def parse_entries(path: Path, ctor: str) -> list[dict]:
 
         entry = {}
         for key, value in re.findall(r'(\w+)\s*[:=]\s*"((?:[^"\\]|\\.)*)"', body):
-            entry[key] = unescape_kotlin(value)
+            entry[key] = unescape_swift(value)
         for key, value in re.findall(r"(\w+)\s*[:=]\s*(\d+)", body):
             entry.setdefault(key, int(value))
         for key, value in re.findall(r"(\w+)\s*[:=]\s*(true|false)", body):
@@ -211,36 +200,29 @@ def fetch_text(url: str, retries: int = 3) -> str:
     raise RuntimeError(f"could not fetch {url}: {last}")
 
 
-def cross_check(sources: list[Path], ctor: str) -> list[str]:
-    """The Arabic must be byte-identical across platforms.
+def structural_check(path: Path, ctor: str) -> list[str]:
+    """The file must exist and still parse into citations.
 
-    A citation that is right on Android and subtly wrong on iOS is worse than
-    one that is wrong on both: the mistake hides behind a passing check.
+    Zero entries means either the library was emptied or the parser stopped
+    understanding the file. Both must fail loudly: a citation check that
+    silently verifies nothing is worse than no check at all.
     """
-    failures = []
-    baseline = None
-    for path in sources:
-        if not path.exists():
-            failures.append(f"{path.name}: missing")
-            continue
-        arabic = [e.get("arabic", "") for e in parse_entries(path, ctor)]
-        if baseline is None:
-            baseline = (path, arabic)
-        elif arabic != baseline[1]:
-            failures.append(
-                f"{path.name} and {baseline[0].name} disagree: "
-                f"{len(arabic)} vs {len(baseline[1])} entries, or different Arabic"
-            )
-    return failures
+    if not path.exists():
+        return [f"{path.relative_to(ROOT)}: missing"]
+    count = len(parse_entries(path, ctor))
+    print(f"  {count:>3} {ctor} in {path.relative_to(ROOT)}")
+    if count == 0:
+        return [f"{path.relative_to(ROOT)}: parsed zero citations"]
+    return []
 
 
 def verify_quran() -> list[str]:
-    failures = cross_check(QURAN_SOURCES, "QuranCitation")
-    entries = parse_entries(QURAN_KT, "QuranCitation")
+    entries = parse_entries(QURAN_SWIFT, "QuranCitation")
     if not entries:
-        return failures + ["QuranLibrary.kt: parsed zero citations - the parser or the file changed"]
+        return ["QuranLibrary.swift: parsed zero citations - the parser or the file changed"]
 
-    print(f"Qur'an: {len(entries)} citations to verify (across {len(QURAN_SOURCES)} platforms)")
+    failures: list[str] = []
+    print(f"Qur'an: {len(entries)} citations to verify")
 
     for entry in entries:
         surah = entry.get("surah")
@@ -295,12 +277,12 @@ def verify_quran() -> list[str]:
 
 
 def verify_hadith() -> list[str]:
-    failures = cross_check(HADITH_SOURCES, "HadithCitation")
-    entries = parse_entries(HADITH_KT, "HadithCitation")
+    entries = parse_entries(HADITH_SWIFT, "HadithCitation")
     if not entries:
-        return failures + ["HadithLibrary.kt: parsed zero citations - the parser or the file changed"]
+        return ["HadithLibrary.swift: parsed zero citations - the parser or the file changed"]
 
-    print(f"\nHadith: {len(entries)} citations to verify (across {len(HADITH_SOURCES)} platforms)")
+    failures: list[str] = []
+    print(f"\nHadith: {len(entries)} citations to verify")
 
     for entry in entries:
         label = f"{entry.get('collection')} {entry.get('reference')}"
@@ -347,22 +329,14 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.offline:
-        problems = cross_check(QURAN_SOURCES, "QuranCitation")
-        problems += cross_check(HADITH_SOURCES, "HadithCitation")
-        for path, ctor in (
-            *[(p, "QuranCitation") for p in QURAN_SOURCES],
-            *[(p, "HadithCitation") for p in HADITH_SOURCES],
-        ):
-            count = len(parse_entries(path, ctor)) if path.exists() else 0
-            print(f"  {count:>3} {ctor} in {path.relative_to(ROOT)}")
-            if count == 0:
-                problems.append(f"{path}: parsed zero citations")
+        problems = structural_check(QURAN_SWIFT, "QuranCitation")
+        problems += structural_check(HADITH_SWIFT, "HadithCitation")
         if problems:
             print("\nStructural problems:")
             for problem in problems:
                 print(f"  - {problem}")
             return 1
-        print("\nBoth platforms carry identical Arabic.")
+        print("\nEvery citation library parses.")
         return 0
 
     failures = verify_quran()

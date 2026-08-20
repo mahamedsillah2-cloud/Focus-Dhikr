@@ -1,9 +1,8 @@
 name: Build iOS
 
-# Compiles the iOS app and runs the Swift unit tests on a macOS runner, for the
-# same reason the Android APK is built in CI: the development environment has
-# neither an Android SDK nor a Mac. This is what proves the Swift actually
-# compiles rather than merely looking right.
+# Compiles the iOS app and runs the Swift unit tests on a macOS runner, because
+# the development environment has no Mac. This is what proves the Swift
+# actually compiles rather than merely looking right.
 #
 # Note it builds for the Simulator with signing disabled. The Family Controls
 # entitlement is applied at signing time, so this verifies the code, not the

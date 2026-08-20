@@ -79,13 +79,14 @@ pedirle a Apple— están en [`docs/IOS_APP.md`](docs/IOS_APP.md).
 | [`docs/IOS_APP.md`](docs/IOS_APP.md) | Compilar, firmar, entitlements y arquitectura de los cinco targets |
 | [`docs/CITAS.md`](docs/CITAS.md) | De dónde sale cada aleya y cada hadiz, y cómo se verifican |
 | [`docs/PRIVACIDAD.md`](docs/PRIVACIDAD.md) | Qué datos existen y dónde viven |
-| [`docs/LIMITES_PLATAFORMA.md`](docs/LIMITES_PLATAFORMA.md) | Los límites del sistema, plataforma por plataforma |
 | [`docs/IOS_ATAJO.md`](docs/IOS_ATAJO.md) | Una versión con Atajos que funciona hoy, sin Mac y sin esperar a Apple |
 
-## Sobre la carpeta `app/`
+## Estado
 
-El repositorio contiene también una implementación anterior para Android
-(`app/`, Kotlin). **No es el producto**: la app es la de iPhone. Se conserva
-porque de ahí vienen el motor de fricción y las citas verificadas, que la
-versión de iOS reimplementa una a una y prueba con la misma batería de tests.
-Si quieres que desaparezca, se borra en un commit.
+Compila y pasa sus pruebas en CI ([`.github/workflows/ios.yml`](.github/workflows/ios.yml)):
+la máquina de estados de la pausa, las reglas de bloqueo, los umbrales, las
+rachas y las citas.
+
+Lo que todavía no ha ocurrido: nadie la ha ejecutado en un iPhone. Compilar no
+es funcionar, y [`docs/IOS_APP.md`](docs/IOS_APP.md) dice exactamente qué cinco
+cosas hay que comprobar el primer día que la instales.

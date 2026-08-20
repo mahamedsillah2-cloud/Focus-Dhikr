@@ -9,7 +9,7 @@ Tres capas, no una:
 
 1. **Ninguna cita se escribe de memoria.** Cada entrada se comprobó contra una
    fuente primaria antes de escribirla en el código.
-2. **Pruebas estructurales** (`ContentIntegrityTest`): ninguna aleya puede
+2. **Pruebas estructurales** (`ContentIntegrityTests`): ninguna aleya puede
    llegar a una pantalla sin sura y número; ningún hadiz sin colección, número
    y grado. Si alguien edita el archivo y se deja un campo, falla la build.
 3. **Validador contra la fuente** (`tools/verify_citations.py`, que corre en CI
@@ -17,12 +17,10 @@ Tres capas, no una:
    compara el árabe carácter a carácter sobre el esqueleto normalizado, y
    comprueba que cada referencia de hadiz resuelve en sunnah.com y contiene el
    árabe citado. **Si una cita no coincide, la build falla.**
-4. **Contraste entre plataformas.** El árabe de Android (Kotlin) y el de iOS
-   (Swift) tiene que ser **idéntico byte a byte**. El fichero de Swift se genera
-   desde el de Kotlin precisamente para eso, y el validador comprueba que sigan
-   coincidiendo: una cita correcta en Android y sutilmente mal en iOS es peor
-   que una mal en las dos, porque el error se esconde detrás de una comprobación
-   que pasa.
+4. **El validador falla si no encuentra citas.** Si alguien vacía el fichero, o
+   cambia su formato de forma que el analizador deje de entenderlo, la build
+   falla. Una comprobación que pasa porque no ha comprobado nada es peor que no
+   tener comprobación.
 
 El validador acepta las dos ortografías estándar (uthmani e imla'i), porque
 escriben la misma palabra de forma distinta —por ejemplo `مَسْـُٔولًا` frente a

@@ -25,8 +25,8 @@ public enum GateEvent: Equatable, Sendable {
 /// unit-testable, which matters because this is the one piece that absolutely
 /// must not misbehave at the moment the user is most impulsive.
 ///
-/// Mirrors `GateStateMachine.kt` in the Android app one-for-one; the shared
-/// test suite in `ios/Tests` is a port of the Kotlin one for that reason.
+/// Pure logic with no UIKit, no SwiftUI and no I/O, so `ios/Tests` can drive
+/// every transition without a simulator.
 public enum GateStateMachine {
 
     public static func initial(_ config: GateConfig) -> GateState {

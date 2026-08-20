@@ -75,7 +75,7 @@ public final class SharedStore: @unchecked Sendable {
     ///
     /// iOS deliberately never tells the app which apps these are - the tokens
     /// carry no name or icon. Only the shield extension, at block time, learns
-    /// the display name. See docs/LIMITES_PLATAFORMA.md.
+    /// the display name. See docs/AUDITORIA_IOS.md, section 5.
     public var selectionData: Data? {
         get { defaults.data(forKey: Key.selection) }
         set { defaults.set(newValue, forKey: Key.selection) }

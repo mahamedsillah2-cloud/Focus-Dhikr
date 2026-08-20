@@ -2,9 +2,9 @@ import Foundation
 
 /// The phases of the progressive pause, in order.
 ///
-/// A direct port of the Kotlin `GatePhase` in the Android app, so the two
-/// platforms behave identically. Every phase has a way forward: the app adds
-/// seconds and attention, never a dead end.
+/// Every phase has a way forward: the app adds seconds and attention, never a
+/// dead end. The order is fixed, and the state machine below is the only thing
+/// allowed to move between them.
 public enum GatePhase: String, CaseIterable, Sendable {
     /// 1. What you decided, and what you have used.
     case pause

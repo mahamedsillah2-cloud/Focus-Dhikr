@@ -2,9 +2,9 @@ import SwiftUI
 
 /// The progressive pause, running inside the app.
 ///
-/// On Android this screen appears over the app you just opened. On iOS the
-/// system shield appears there instead, and hands off to here - the one place
-/// iOS lets us draw a countdown, a menu and a text field.
+/// iOS draws its own shield over the app you just opened, and hands off to
+/// here - the one place iOS lets us draw a countdown, a menu and a text field.
+/// See docs/AUDITORIA_IOS.md, section 3b.
 struct GateView: View {
     @StateObject private var model: GateViewModel
     @Environment(\.scenePhase) private var scenePhase

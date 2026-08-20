@@ -5,8 +5,6 @@ import Foundation
 /// Same rules as `QuranLibrary`, plus one more: the grading is stated in the UI
 /// every single time, with the authority who gave it. A report whose
 /// authenticity could not be stated plainly is simply not here.
-///
-/// Generated from the Android `HadithLibrary.kt`; CI verifies both copies.
 public enum HadithLibrary {
 
     public static let all: [HadithCitation] = [

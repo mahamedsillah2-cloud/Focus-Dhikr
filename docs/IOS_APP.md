@@ -170,17 +170,19 @@ otra persona para revocarla.
 
 ---
 
-## Diferencias reales con la versión de Android
+## Lo que iOS te da y lo que te cobra
 
-| | Android | iOS |
-|---|---|---|
-| La pausa aparece sobre la app | ✅ automática | ⚠️ un toque (automático en iOS 26.5) |
-| Elegir apps por nombre e icono | ✅ | ⚠️ tokens opacos |
-| Minutos exactos por app | ✅ | ❌ solo umbrales |
-| Las 6 fases | ✅ | ✅ pero dentro de la app |
-| Estadísticas reales | ✅ | ✅ visibles, no legibles por la app |
-| Instalarla sin permiso de nadie | ✅ | ❌ entitlement de Apple |
-| Que no caduque | ✅ | ⚠️ 7 días con cuenta gratuita |
+| | En iOS |
+|---|---|
+| La pausa aparece sobre la app | ⚠️ a un toque desde el escudo (automática en iOS 26.5) |
+| Elegir apps por nombre e icono | ⚠️ el sistema los dibuja; los tokens son opacos |
+| Minutos exactos por app | ❌ solo umbrales — visibles en pantalla, no legibles por la app |
+| Las 6 fases | ✅ dentro de la app |
+| Bloqueo que el sistema aplica de verdad | ✅ `ManagedSettings` |
+| Instalarla sin permiso de nadie | ❌ hace falta el entitlement de Apple |
+| Que no caduque | ⚠️ 7 días con cuenta gratuita; un año con cuenta de pago |
+
+El detalle, API por API, está en [`AUDITORIA_IOS.md`](AUDITORIA_IOS.md).
 
 ---
 
@@ -205,5 +207,4 @@ cuál de esas cinco cosas falla — porque alguna fallará.
 
 - **Apple deniega el entitlement**, o tarda demasiado → te quedas con el atajo
   de [`IOS_ATAJO.md`](IOS_ATAJO.md), que no depende de nadie.
-- **No consigues Mac** → igual.
-- **Cambias a Android** → la app completa ya está hecha y compilando.
+- **No consigues Mac** → igual. El atajo se monta desde el propio iPhone.
