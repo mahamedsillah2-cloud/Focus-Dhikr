@@ -15,9 +15,17 @@ nada. Esta es la de verdad: el bloqueo lo aplica iOS, no se descarta deslizando.
 | **El entitlement `com.apple.developer.family-controls`** | Se le pide a Apple. Para **desarrollo** lo tienes al momento; para **distribuir** hay que esperar su aprobación |
 | **Una cuenta de desarrollador** | Con la gratuita la app **caduca a los 7 días** y hay que reinstalarla. Con la de pago dura un año |
 
-> Sobre si el entitlement exige además cuenta de pago: no he podido confirmarlo
-> en la documentación de Apple, así que no te lo doy por seguro. Lo que sí es
-> seguro es lo de los 7 días.
+> Sobre si el entitlement exige además cuenta de pago: la tabla de
+> [capacidades compatibles en iOS](https://developer.apple.com/help/account/reference/supported-capabilities-ios/)
+> de Apple lista **Family Controls** y **App Groups** también en la columna de
+> la cuenta gratuita, y marca Family Controls como *«development only»*. Es
+> decir: sobre el papel, con cuenta gratuita puedes compilarla e instalarla en
+> tu iPhone. Lo que **no** he podido confirmar es que la firma automática de
+> Xcode con un *Personal Team* provisione de verdad el entitlement de Family
+> Controls, que es donde suele romperse. Pruébalo gratis primero; si la firma
+> falla ahí, la cuenta de pago es el arreglo.
+>
+> Lo que sí es seguro es lo de los 7 días.
 
 ---
 
