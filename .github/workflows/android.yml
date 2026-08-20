@@ -71,11 +71,20 @@ jobs:
           APK=app/build/outputs/apk/debug/app-debug.apk
           echo "Permissions declared by the APK:"
           "$AAPT" dump permissions "$APK" | tee /tmp/perms.txt
+
+          # Positive control first. Without this the check would pass vacuously
+          # if aapt2 ever changed its output format or printed nothing at all -
+          # an empty file contains no INTERNET either.
+          if ! grep -q "android.permission.PACKAGE_USAGE_STATS" /tmp/perms.txt; then
+            echo "::error::Could not read permissions from the APK, so the INTERNET check proves nothing."
+            exit 1
+          fi
+
           if grep -q "android.permission.INTERNET" /tmp/perms.txt; then
             echo "::error::The APK declares INTERNET. Focus Dhikr must not be able to open a socket."
             exit 1
           fi
-          echo "Confirmed: no INTERNET permission."
+          echo "Confirmed: permissions readable, and INTERNET is not among them."
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
