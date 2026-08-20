@@ -352,7 +352,10 @@ final class StreakTests: XCTestCase {
 }
 
 /// Windows are stored, so they have to survive the app gaining fields.
-final class ScheduleWindowTests: XCTestCase {
+///
+/// The matching rules themselves live in `ScheduleWindowTests`; this covers
+/// only what the new fields added.
+final class ScheduleWindowStorageTests: XCTestCase {
 
     func testDecodingAWindowSavedBeforeAppKeysExisted() throws {
         let legacy = """
