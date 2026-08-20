@@ -45,6 +45,11 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.focusdhikr.app
+        # Required for the INFOPLIST_KEY_* settings below to produce an actual
+        # Info.plist. Without it the app builds and links, then fails at
+        # ValidateEmbeddedBinary because the extensions are validated against a
+        # plist that was never written.
+        GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Focus Dhikr
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark

@@ -44,18 +44,12 @@ jobs:
       - name: Build the app
         working-directory: ios
         run: |
-          set -o pipefail
           xcodebuild build \
             -project FocusDhikr.xcodeproj \
             -scheme FocusDhikr \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            | xcbeautify || xcodebuild build \
-                -project FocusDhikr.xcodeproj \
-                -scheme FocusDhikr \
-                -destination 'generic/platform=iOS Simulator' \
-                CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Run unit tests
         working-directory: ios
