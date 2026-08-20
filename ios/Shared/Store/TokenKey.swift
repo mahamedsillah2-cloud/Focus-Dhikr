@@ -3,6 +3,10 @@ import Foundation
 #if canImport(FamilyControls)
 import FamilyControls
 import DeviceActivity
+// ApplicationToken is a ManagedSettings type, not a FamilyControls one. Without
+// this import it is simply not in scope in the shield extensions, which do not
+// import ManagedSettings on their own account.
+import ManagedSettings
 #endif
 
 /// The one naming scheme for apps, shared by the app and all four extensions.

@@ -3,6 +3,7 @@ import SwiftUI
 #if canImport(FamilyControls)
 import FamilyControls
 import DeviceActivity
+import ManagedSettings
 #endif
 
 /// The numbers, framed positively and split by how much we actually know.
