@@ -55,16 +55,17 @@ permiso alguna vez. Ver [`docs/PRIVACIDAD.md`](docs/PRIVACIDAD.md).
 
 ## ¿iPhone o Android?
 
-**Si tienes iPhone**, la app de este repositorio no te sirve: es un APK de
-Android. Lo que sí funciona hoy, sin Mac y sin cuenta de desarrollador, es la
-versión con Atajos + Tiempo de uso — la pausa de seis fases, el dhikr y las
-citas, con «dejarlo por ahora» sacándote de verdad de la app:
-**[`docs/IOS_ATAJO.md`](docs/IOS_ATAJO.md)**.
+Hay tres versiones, y la que te sirve depende de tu móvil y de si tienes un Mac.
 
-**Si tienes Android**, el APK lo compila GitHub Actions; lo descargas desde la
-pestaña **Actions** y lo instalas. Instrucciones paso a paso, incluido el ajuste
-restringido de accesibilidad en Android 13+:
-[`docs/INSTALACION.md`](docs/INSTALACION.md).
+| | Para quién | Qué necesitas |
+|---|---|---|
+| **[App de Android](docs/INSTALACION.md)** | Móvil Android | Nada. Descargas el APK de la pestaña *Actions* |
+| **[Atajo de iOS](docs/IOS_ATAJO.md)** | iPhone, hoy mismo | Nada. Media hora montándolo en la app Atajos |
+| **[App nativa de iOS](docs/IOS_APP.md)** | iPhone, bien hecho | Un Mac, y que Apple te apruebe el entitlement |
+
+Las tres comparten la misma pausa de seis fases, los mismos adhkar y las mismas
+citas verificadas. Cambia cuánto puede bloquear cada sistema operativo, no la
+idea.
 
 ## Citas religiosas
 
@@ -80,6 +81,16 @@ Ver [`docs/CITAS.md`](docs/CITAS.md).
 ## Estructura
 
 ```
+ios/
+├── Shared/      lógica pura y contenido verificado (compartido con las extensiones)
+│   ├── Domain/  la misma máquina de estados que en Android, portada
+│   ├── Content/ generado desde el Kotlin: el árabe es idéntico byte a byte
+│   └── Store/   App Group y Screen Time
+├── FocusDhikr/  la app SwiftUI y las seis fases
+├── FocusDhikrMonitor/       pone el escudo al cruzar el límite
+├── FocusDhikrShield/        dibuja el escudo del sistema
+└── FocusDhikrShieldAction/  responde a sus dos botones
+
 app/src/main/java/com/focusdhikr/
 ├── core/        tiempo, día lógico, permisos
 ├── data/        Room, DataStore, repositorios
@@ -95,7 +106,9 @@ app/src/main/java/com/focusdhikr/
 ejecuta en el momento más impulsivo del día se prueba en la JVM, sin emulador.
 
 ```bash
-./gradlew testDebugUnitTest      # 69 pruebas
+./gradlew testDebugUnitTest              # Android: 69 pruebas
+cd ios && xcodegen generate              # iOS: genera el proyecto
+xcodebuild test -scheme FocusDhikr ...   # y ejecuta las mismas, portadas
 ```
 
 ## Documentación
@@ -106,6 +119,7 @@ ejecuta en el momento más impulsivo del día se prueba en la JVM, sin emulador.
 | [Límites de plataforma](docs/LIMITES_PLATAFORMA.md) | Qué permite y qué no cada sistema, API por API |
 | [Instalación (Android)](docs/INSTALACION.md) | Cómo ponerlo en tu móvil |
 | [Atajo para iPhone](docs/IOS_ATAJO.md) | La versión que funciona hoy en iOS |
+| [App nativa de iOS](docs/IOS_APP.md) | Compilarla, el entitlement de Apple y sus límites |
 | [Privacidad](docs/PRIVACIDAD.md) | Qué se guarda y dónde |
 | [Citas](docs/CITAS.md) | Fuente y grado de cada texto religioso |
 
