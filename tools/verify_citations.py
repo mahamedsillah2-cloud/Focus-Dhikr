@@ -35,8 +35,21 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-QURAN_KT = ROOT / "app/src/main/java/com/focusdhikr/content/QuranLibrary.kt"
-HADITH_KT = ROOT / "app/src/main/java/com/focusdhikr/content/HadithLibrary.kt"
+
+# Both platforms are checked. The Swift copy is generated from the Kotlin one,
+# but generated files get edited by hand eventually, so CI verifies both against
+# the primary sources rather than trusting that they still agree.
+QURAN_SOURCES = [
+    ROOT / "app/src/main/java/com/focusdhikr/content/QuranLibrary.kt",
+    ROOT / "ios/Shared/Content/QuranLibrary.swift",
+]
+HADITH_SOURCES = [
+    ROOT / "app/src/main/java/com/focusdhikr/content/HadithLibrary.kt",
+    ROOT / "ios/Shared/Content/HadithLibrary.swift",
+]
+
+QURAN_KT = QURAN_SOURCES[0]
+HADITH_KT = HADITH_SOURCES[0]
 
 QURAN_API = (
     "https://api.quran.com/api/v4/verses/by_key/{key}"
@@ -161,11 +174,11 @@ def parse_entries(path: Path, ctor: str) -> list[dict]:
         body = source[start : i - 1]
 
         entry = {}
-        for key, value in re.findall(r'(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"', body):
+        for key, value in re.findall(r'(\w+)\s*[:=]\s*"((?:[^"\\]|\\.)*)"', body):
             entry[key] = unescape_kotlin(value)
-        for key, value in re.findall(r"(\w+)\s*=\s*(\d+)", body):
+        for key, value in re.findall(r"(\w+)\s*[:=]\s*(\d+)", body):
             entry.setdefault(key, int(value))
-        for key, value in re.findall(r"(\w+)\s*=\s*(true|false)", body):
+        for key, value in re.findall(r"(\w+)\s*[:=]\s*(true|false)", body):
             entry.setdefault(key, value == "true")
         if entry:
             entries.append(entry)
@@ -198,13 +211,36 @@ def fetch_text(url: str, retries: int = 3) -> str:
     raise RuntimeError(f"could not fetch {url}: {last}")
 
 
-def verify_quran() -> list[str]:
+def cross_check(sources: list[Path], ctor: str) -> list[str]:
+    """The Arabic must be byte-identical across platforms.
+
+    A citation that is right on Android and subtly wrong on iOS is worse than
+    one that is wrong on both: the mistake hides behind a passing check.
+    """
     failures = []
+    baseline = None
+    for path in sources:
+        if not path.exists():
+            failures.append(f"{path.name}: missing")
+            continue
+        arabic = [e.get("arabic", "") for e in parse_entries(path, ctor)]
+        if baseline is None:
+            baseline = (path, arabic)
+        elif arabic != baseline[1]:
+            failures.append(
+                f"{path.name} and {baseline[0].name} disagree: "
+                f"{len(arabic)} vs {len(baseline[1])} entries, or different Arabic"
+            )
+    return failures
+
+
+def verify_quran() -> list[str]:
+    failures = cross_check(QURAN_SOURCES, "QuranCitation")
     entries = parse_entries(QURAN_KT, "QuranCitation")
     if not entries:
-        return ["QuranLibrary.kt: parsed zero citations - the parser or the file changed"]
+        return failures + ["QuranLibrary.kt: parsed zero citations - the parser or the file changed"]
 
-    print(f"Qur'an: {len(entries)} citations to verify")
+    print(f"Qur'an: {len(entries)} citations to verify (across {len(QURAN_SOURCES)} platforms)")
 
     for entry in entries:
         surah = entry.get("surah")
@@ -259,12 +295,12 @@ def verify_quran() -> list[str]:
 
 
 def verify_hadith() -> list[str]:
-    failures = []
+    failures = cross_check(HADITH_SOURCES, "HadithCitation")
     entries = parse_entries(HADITH_KT, "HadithCitation")
     if not entries:
-        return ["HadithLibrary.kt: parsed zero citations - the parser or the file changed"]
+        return failures + ["HadithLibrary.kt: parsed zero citations - the parser or the file changed"]
 
-    print(f"\nHadith: {len(entries)} citations to verify")
+    print(f"\nHadith: {len(entries)} citations to verify (across {len(HADITH_SOURCES)} platforms)")
 
     for entry in entries:
         label = f"{entry.get('collection')} {entry.get('reference')}"
@@ -311,10 +347,23 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.offline:
-        quran = parse_entries(QURAN_KT, "QuranCitation")
-        hadith = parse_entries(HADITH_KT, "HadithCitation")
-        print(f"parsed {len(quran)} Qur'an and {len(hadith)} hadith citations")
-        return 0 if quran and hadith else 1
+        problems = cross_check(QURAN_SOURCES, "QuranCitation")
+        problems += cross_check(HADITH_SOURCES, "HadithCitation")
+        for path, ctor in (
+            *[(p, "QuranCitation") for p in QURAN_SOURCES],
+            *[(p, "HadithCitation") for p in HADITH_SOURCES],
+        ):
+            count = len(parse_entries(path, ctor)) if path.exists() else 0
+            print(f"  {count:>3} {ctor} in {path.relative_to(ROOT)}")
+            if count == 0:
+                problems.append(f"{path}: parsed zero citations")
+        if problems:
+            print("\nStructural problems:")
+            for problem in problems:
+                print(f"  - {problem}")
+            return 1
+        print("\nBoth platforms carry identical Arabic.")
+        return 0
 
     failures = verify_quran()
     if not args.quran_only:

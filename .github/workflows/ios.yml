@@ -1,0 +1,69 @@
+name: Build iOS
+
+# Compiles the iOS app and runs the Swift unit tests on a macOS runner, for the
+# same reason the Android APK is built in CI: the development environment has
+# neither an Android SDK nor a Mac. This is what proves the Swift actually
+# compiles rather than merely looking right.
+#
+# Note it builds for the Simulator with signing disabled. The Family Controls
+# entitlement is applied at signing time, so this verifies the code, not the
+# entitlement - that part only becomes real once Apple approves the request.
+# See docs/IOS_APP.md.
+
+on:
+  push:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "ios/**"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate the Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Build the app
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project FocusDhikr.xcodeproj \
+            -scheme FocusDhikr \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            | xcbeautify || xcodebuild build \
+                -project FocusDhikr.xcodeproj \
+                -scheme FocusDhikr \
+                -destination 'generic/platform=iOS Simulator' \
+                CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+
+      - name: Run unit tests
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project FocusDhikr.xcodeproj \
+            -scheme FocusDhikr \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
