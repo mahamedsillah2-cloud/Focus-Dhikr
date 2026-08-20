@@ -14,6 +14,7 @@ import com.focusdhikr.domain.model.ScheduleWindow
 import com.focusdhikr.domain.model.TrackedApp
 import com.focusdhikr.domain.model.UsageDay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.ZoneId
@@ -43,6 +44,10 @@ class FocusRepository(
 
     suspend fun enabledTrackedApps(): List<TrackedApp> =
         db.trackedApps().enabled().map { it.toDomain() }
+
+    /** Every tracked app, including disabled ones, for labelling history rows. */
+    suspend fun allTrackedApps(): List<TrackedApp> =
+        db.trackedApps().observeAll().first().map { it.toDomain() }
 
     suspend fun trackedApp(packageName: String): TrackedApp? =
         db.trackedApps().find(packageName)?.toDomain()
