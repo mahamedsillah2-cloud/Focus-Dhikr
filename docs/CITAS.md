@@ -17,6 +17,12 @@ Tres capas, no una:
    compara el árabe carácter a carácter sobre el esqueleto normalizado, y
    comprueba que cada referencia de hadiz resuelve en sunnah.com y contiene el
    árabe citado. **Si una cita no coincide, la build falla.**
+4. **Contraste entre plataformas.** El árabe de Android (Kotlin) y el de iOS
+   (Swift) tiene que ser **idéntico byte a byte**. El fichero de Swift se genera
+   desde el de Kotlin precisamente para eso, y el validador comprueba que sigan
+   coincidiendo: una cita correcta en Android y sutilmente mal en iOS es peor
+   que una mal en las dos, porque el error se esconde detrás de una comprobación
+   que pasa.
 
 El validador acepta las dos ortografías estándar (uthmani e imla'i), porque
 escriben la misma palabra de forma distinta —por ejemplo `مَسْـُٔولًا` frente a

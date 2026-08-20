@@ -6,16 +6,23 @@ name: Verify citations
 # against what the app ships, character by character on the normalised Arabic
 # skeleton. Every hadith reference must resolve and contain the Arabic quoted.
 # A citation that cannot be verified fails the build rather than shipping.
+#
+# Both platforms are checked, and the Android and iOS copies must carry
+# byte-identical Arabic. A citation that is right on one platform and subtly
+# wrong on the other is worse than one that is wrong on both: the mistake hides
+# behind a passing check.
 
 on:
   push:
     paths:
       - "app/src/main/java/com/focusdhikr/content/**"
+      - "ios/Shared/Content/**"
       - "tools/verify_citations.py"
       - ".github/workflows/citations.yml"
   pull_request:
     paths:
       - "app/src/main/java/com/focusdhikr/content/**"
+      - "ios/Shared/Content/**"
       - "tools/verify_citations.py"
   schedule:
     # Weekly, so an upstream correction is noticed even without a code change.
