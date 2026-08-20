@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <!--
+          Intentionally empty: we ask for no policy powers at all.
+          The only effect we want is Android's own rule that an active device
+          admin cannot be uninstalled until it is deactivated.
+        -->
+    </uses-policies>
+</device-admin>
