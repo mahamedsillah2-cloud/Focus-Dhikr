@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draselle — Panel de Control de Campañas</title>
+<meta name="description" content="Panel diario de rentabilidad de campañas de Meta Ads para Draselle.">
+<style>
+:root{
+  --negro:#111114;
+  --negro-2:#1c1c21;
+  --dorado:#c9a227;
+  --dorado-claro:#e6c65c;
+  --blanco:#ffffff;
+  --fondo:#f4f4f6;
+  --gris-linea:#e3e3e8;
+  --gris-texto:#6b6b76;
+  --texto:#22222a;
+
+  --rojo-bg:#fadbd8;   --rojo-tx:#922b21;  --rojo-bd:#e6b0aa;
+  --ambar-bg:#fdebd0;  --ambar-tx:#9c640c; --ambar-bd:#f5cba7;
+  --verde-bg:#d5f5e3;  --verde-tx:#196f3d; --verde-bd:#a9dfbf;
+
+  --sombra:0 1px 2px rgba(17,17,20,.06), 0 8px 24px rgba(17,17,20,.06);
+  --radio:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--fondo);
+  color:var(--texto);
+  font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;
+  line-height:1.45;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
+button{font-family:inherit;font-size:15px;cursor:pointer}
+input,select{font-family:inherit;font-size:16px}
+
+/* ---------- Cabecera de marca ---------- */
+.marca{
+  background:linear-gradient(135deg,#0d0d10 0%,#1c1c21 60%,#2a2118 100%);
+  color:var(--blanco);
+  padding:26px 20px 24px;
+  border-bottom:3px solid var(--dorado);
+}
+.marca .interior{max-width:1180px;margin:0 auto}
+.marca h1{
+  font-size:34px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--blanco);
+}
+.marca h1 span{color:var(--dorado)}
+.marca .sub{
+  margin-top:6px;color:#c8c8d0;font-size:14px;letter-spacing:.04em;
+}
+.marca .filete{
+  width:64px;height:2px;background:var(--dorado);margin:14px 0 0;border-radius:2px;
+}
+
+.envoltorio{max-width:1180px;margin:0 auto;padding:22px 16px 60px}
+section{margin-bottom:22px}
+.tarjeta{
+  background:var(--blanco);border:1px solid var(--gris-linea);
+  border-radius:var(--radio);box-shadow:var(--sombra);padding:20px;
+}
+.tarjeta > h2{
+  font-size:13px;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--gris-texto);margin-bottom:16px;
+}
+
+/* ---------- Barra selector de producto ---------- */
+.barra-producto{
+  display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;
+  background:var(--blanco);border:1px solid var(--gris-linea);
+  border-radius:var(--radio);box-shadow:var(--sombra);padding:16px 20px;
+}
+.barra-producto .campo{flex:1 1 260px;min-width:0}
+.barra-producto label{
+  display:block;font-size:12px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--gris-texto);margin-bottom:6px;
+}
+select,input[type=text],input[type=number],input[type=date]{
+  width:100%;padding:11px 12px;border:1px solid var(--gris-linea);
+  border-radius:10px;background:#fbfbfd;color:var(--texto);
+}
+select:focus,input:focus{outline:2px solid var(--dorado);outline-offset:1px;background:#fff}
+
+/* ---------- Veredicto gigante ---------- */
+.veredicto{
+  border-radius:18px;padding:26px 24px;border:2px solid transparent;
+  box-shadow:var(--sombra);
+}
+.veredicto .etiqueta{
+  font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.8;margin-bottom:8px;
+}
+.veredicto .titular{
+  font-size:clamp(30px,7vw,54px);font-weight:800;letter-spacing:-.02em;line-height:1.05;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.veredicto .motivo{margin-top:14px;font-size:clamp(16px,2.4vw,19px);max-width:75ch}
+.veredicto .extra{
+  margin-top:14px;padding:12px 14px;border-radius:12px;
+  background:rgba(255,255,255,.55);font-weight:600;font-size:17px;
+}
+.veredicto .datos{
+  margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;
+}
+.veredicto .datos span{
+  background:rgba(255,255,255,.6);border-radius:999px;padding:6px 12px;
+  font-size:14px;font-weight:600;
+}
+.v-rojo{background:var(--rojo-bg);color:var(--rojo-tx);border-color:var(--rojo-bd)}
+.v-ambar{background:var(--ambar-bg);color:var(--ambar-tx);border-color:var(--ambar-bd)}
+.v-verde{background:var(--verde-bg);color:var(--verde-tx);border-color:var(--verde-bd)}
+.v-neutro{background:#fff;color:var(--texto);border-color:var(--gris-linea)}
+
+/* ---------- Tarjetas resumen ---------- */
+.rejilla-cards{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+}
+.card{
+  background:var(--blanco);border:1px solid var(--gris-linea);border-radius:var(--radio);
+  padding:16px 18px;box-shadow:var(--sombra);
+}
+.card .k{
+  font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--gris-texto);
+}
+.card .v{font-size:clamp(24px,3.4vw,32px);font-weight:700;margin-top:6px;letter-spacing:-.02em}
+.card .n{font-size:12px;color:var(--gris-texto);margin-top:4px}
+.pos{color:var(--verde-tx)}
+.neg{color:var(--rojo-tx)}
+
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge{
+  border-radius:999px;padding:5px 11px;font-size:13px;font-weight:700;
+  border:1px solid transparent;white-space:nowrap;
+}
+.b-rojo{background:var(--rojo-bg);color:var(--rojo-tx);border-color:var(--rojo-bd)}
+.b-ambar{background:var(--ambar-bg);color:var(--ambar-tx);border-color:var(--ambar-bd)}
+.b-verde{background:var(--verde-bg);color:var(--verde-tx);border-color:var(--verde-bd)}
+.b-neutro{background:#f0f0f4;color:var(--gris-texto);border-color:var(--gris-linea)}
+
+/* ---------- Formulario ---------- */
+.rejilla-form{
+  display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+}
+.rejilla-form label{
+  display:block;font-size:12px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--gris-texto);margin-bottom:6px;
+}
+.pista{font-size:12px;color:var(--gris-texto);margin-top:5px}
+.acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.btn{
+  border:1px solid var(--gris-linea);background:#fff;color:var(--texto);
+  padding:11px 16px;border-radius:10px;font-weight:600;
+}
+.btn:hover{background:#f7f7fa}
+.btn-primario{
+  background:var(--negro);color:var(--blanco);border-color:var(--negro);
+}
+.btn-primario:hover{background:#2c2c34}
+.btn-oro{background:var(--dorado);border-color:var(--dorado);color:#1a1408}
+.btn-oro:hover{background:var(--dorado-claro)}
+.btn-peq{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn-peligro{color:var(--rojo-tx);border-color:var(--rojo-bd);background:var(--rojo-bg)}
+
+.errores{
+  margin-top:14px;background:var(--rojo-bg);color:var(--rojo-tx);border:1px solid var(--rojo-bd);
+  border-radius:12px;padding:12px 14px;font-weight:600;
+}
+.errores ul{margin:6px 0 0 18px;padding:0}
+
+/* ---------- Avisos ---------- */
+.aviso{
+  display:flex;gap:12px;align-items:flex-start;
+  border-radius:12px;padding:14px 16px;margin-bottom:10px;font-weight:600;
+  border:1px solid transparent;line-height:1.4;
+}
+.aviso .ico{font-size:20px;line-height:1.2}
+.a-rojo{background:var(--rojo-bg);color:var(--rojo-tx);border-color:var(--rojo-bd)}
+.a-ambar{background:var(--ambar-bg);color:var(--ambar-tx);border-color:var(--ambar-bd)}
+.a-verde{background:var(--verde-bg);color:var(--verde-tx);border-color:var(--verde-bd)}
+.a-info{background:#eef1f7;color:#34405c;border-color:#d6dceb}
+
+/* ---------- Tablas ---------- */
+.envoltorio-tabla{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:15px;min-width:720px}
+th{
+  text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--gris-texto);padding:10px 12px;border-bottom:2px solid var(--gris-linea);
+  white-space:nowrap;
+}
+th:first-child,th:nth-child(2){text-align:left}
+td{padding:12px;border-bottom:1px solid var(--gris-linea);text-align:right;white-space:nowrap}
+td:first-child,td:nth-child(2){text-align:left}
+tbody tr.fila{border-left:5px solid transparent}
+tr.f-rojo td{background:var(--rojo-bg);color:var(--rojo-tx)}
+tr.f-ambar td{background:var(--ambar-bg);color:var(--ambar-tx)}
+tr.f-verde td{background:var(--verde-bg);color:var(--verde-tx)}
+tr.f-neutro td{background:#fff}
+td .num{font-weight:700}
+.celda-prod{font-weight:600;max-width:220px;white-space:normal}
+.fila-detalle td{background:#fbfbfd;color:var(--texto);white-space:normal}
+.detalle{
+  display:grid;gap:10px 22px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  padding:4px 2px 8px;text-align:left;
+}
+.detalle .d{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dotted var(--gris-linea);padding-bottom:5px}
+.detalle .d b{font-variant-numeric:tabular-nums}
+.detalle .grupo{
+  grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--gris-texto);margin-top:6px;
+}
+.vacio{padding:34px 10px;text-align:center;color:var(--gris-texto)}
+
+.barra-herramientas{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.barra-herramientas .crece{flex:1 1 auto}
+
+canvas{max-width:100%}
+.pie{
+  text-align:center;color:var(--gris-texto);font-size:13px;padding:18px 10px 0;
+}
+.oculto{display:none !important}
+
+@media (max-width:640px){
+  .marca h1{font-size:24px;letter-spacing:.2em}
+  .envoltorio{padding:16px 12px 48px}
+  .tarjeta{padding:16px}
+  .veredicto{padding:20px 18px}
+  table{font-size:14px}
+}
+</style>
+</head>
+<body>
+<header class="marca">
+  <div class="interior">
+    <h1>Drase<span>lle</span></h1>
+    <div class="sub">Control diario de rentabilidad de campañas — Meta Ads</div>
+    <div class="filete"></div>
+  </div>
+</header>
+
+<div class="envoltorio">
+
+  <!-- ============ Selector de producto ============ -->
+  <section>
+    <div class="barra-producto">
+      <div class="campo">
+        <label for="selProducto">Producto / campaña en pantalla</label>
+        <select id="selProducto"></select>
+      </div>
+      <div class="campo" style="flex:0 1 auto">
+        <label for="btnIrForm">&nbsp;</label>
+        <button class="btn btn-oro" id="btnIrForm" type="button">+ Añadir registro de hoy</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Veredicto gigante ============ -->
+  <section id="zonaVeredicto"></section>
+
+  <!-- ============ Tarjetas resumen ============ -->
+  <section id="zonaResumen"></section>
+
+  <!-- ============ Gráfico ============ -->
+  <section class="tarjeta" id="zonaGrafico">
+    <h2>Evolución del ROAS día a día</h2>
+    <div id="avisoGrafico" class="pista oculto">
+      No se ha podido cargar Chart.js (¿sin conexión?). El resto del panel funciona igual.
+    </div>
+    <div class="lienzo" id="lienzoWrap" style="position:relative;height:320px">
+      <canvas id="grafico"></canvas>
+    </div>
+  </section>
+
+  <!-- ============ Formulario ============ -->
+  <section class="tarjeta" id="zonaFormulario">
+    <h2>Registro diario de la campaña</h2>
+    <form id="formulario" novalidate>
+      <div class="rejilla-form">
+        <div>
+          <label for="fecha">Fecha</label>
+          <input type="date" id="fecha" required>
+        </div>
+        <div>
+          <label for="producto">Producto / campaña</label>
+          <input type="text" id="producto" list="listaProductos" placeholder="Ej. Vestido Lino Beige" required>
+          <datalist id="listaProductos"></datalist>
+        </div>
+        <div>
+          <label for="precio">Precio de venta (€)</label>
+          <input type="number" id="precio" step="0.01" min="0" placeholder="29,95">
+        </div>
+        <div>
+          <label for="coste">Coste del producto (€)</label>
+          <input type="number" id="coste" step="0.01" min="0" placeholder="8,50">
+          <div class="pista">Incluye el envío del proveedor.</div>
+        </div>
+        <div>
+          <label for="gasto">Gasto en anuncios del día (€)</label>
+          <input type="number" id="gasto" step="0.01" min="0" placeholder="50">
+        </div>
+        <div>
+          <label for="impresiones">Impresiones</label>
+          <input type="number" id="impresiones" step="1" min="0" placeholder="12000">
+        </div>
+        <div>
+          <label for="clics">Clics en el enlace</label>
+          <input type="number" id="clics" step="1" min="0" placeholder="180">
+        </div>
+        <div>
+          <label for="carritos">Añadidos al carrito</label>
+          <input type="number" id="carritos" step="1" min="0" placeholder="12">
+        </div>
+        <div>
+          <label for="compras">Compras</label>
+          <input type="number" id="compras" step="1" min="0" placeholder="3">
+        </div>
+        <div>
+          <label for="comision">Comisión pasarela de pago (%)</label>
+          <input type="number" id="comision" step="0.01" min="0" max="100" value="2">
+          <div class="pista">Por defecto 2 %.</div>
+        </div>
+      </div>
+      <div class="acciones">
+        <button type="submit" class="btn btn-primario">Guardar registro y calcular</button>
+        <button type="button" class="btn" id="btnLimpiar">Limpiar formulario</button>
+        <span class="pista" id="pistaGuardado"></span>
+      </div>
+      <div id="erroresForm"></div>
+    </form>
+  </section>
+
+  <!-- ============ Avisos del mentor ============ -->
+  <section id="zonaAvisos"></section>
+
+  <!-- ============ Comparativa entre productos ============ -->
+  <section class="tarjeta">
+    <h2>Comparativa entre productos</h2>
+    <div class="envoltorio-tabla">
+      <table id="tablaComparativa">
+        <thead>
+          <tr>
+            <th>Producto</th><th>Días</th><th>Gasto</th><th>Ingresos</th>
+            <th>Beneficio</th><th>ROAS</th><th>Break-even</th><th>% Ganancia</th><th>Veredicto</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="vacioComparativa" class="vacio oculto">Todavía no hay productos registrados.</div>
+  </section>
+
+  <!-- ============ Histórico ============ -->
+  <section class="tarjeta">
+    <h2>Histórico de registros</h2>
+    <div class="barra-herramientas">
+      <div class="campo crece" style="max-width:320px">
+        <select id="filtroProducto" aria-label="Filtrar histórico por producto"></select>
+      </div>
+      <button class="btn btn-peq" id="btnCSV" type="button">Exportar CSV</button>
+      <button class="btn btn-peq" id="btnBackup" type="button">Copia de seguridad (JSON)</button>
+      <button class="btn btn-peq" id="btnRestaurar" type="button">Restaurar</button>
+      <input type="file" id="ficheroRestaurar" accept="application/json,.json" class="oculto">
+      <button class="btn btn-peq btn-peligro" id="btnBorrarTodo" type="button">Borrar todo</button>
+    </div>
+    <div class="envoltorio-tabla">
+      <table id="tablaHistorico">
+        <thead>
+          <tr>
+            <th>Fecha</th><th>Producto</th><th>Gasto</th><th>Compras</th>
+            <th>ROAS</th><th>Break-even</th><th>% Ganancia</th><th>CPA</th>
+            <th>Veredicto</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="vacioHistorico" class="vacio oculto">
+      Todavía no has guardado ningún registro. Rellena el formulario de arriba con los datos de hoy.
+    </div>
+  </section>
+
+  <p class="pie">
+    Draselle — los datos se guardan solo en este navegador (localStorage).
+    Haz copias de seguridad de vez en cuando.
+  </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ==========================================================================
+   1. ALMACENAMIENTO
+   ========================================================================== */
+var CLAVE = "roas_tracker_data";
+var CLAVE_UI = "roas_tracker_ui";
+var registros = [];
+var ui = { productoSel: "__TODOS__", filtro: "__TODOS__", expandidas: {} };
+var grafico = null;
+
+function cargar(){
+  try{
+    var crudo = localStorage.getItem(CLAVE);
+    if(!crudo) return [];
+    var datos = JSON.parse(crudo);
+    if(datos && !Array.isArray(datos) && Array.isArray(datos.registros)) datos = datos.registros;
+    if(!Array.isArray(datos)) return [];
+    return datos.map(normalizar).filter(Boolean);
+  }catch(e){
+    console.error("No se pudo leer localStorage", e);
+    return [];
+  }
+}
+function guardar(){
+  try{ localStorage.setItem(CLAVE, JSON.stringify(registros)); }
+  catch(e){ alert("No se han podido guardar los datos en este navegador: " + e.message); }
+}
+function guardarUI(){
+  try{ localStorage.setItem(CLAVE_UI, JSON.stringify({productoSel:ui.productoSel, filtro:ui.filtro})); }catch(e){}
+}
+function cargarUI(){
+  try{
+    var d = JSON.parse(localStorage.getItem(CLAVE_UI) || "{}");
+    if(d.productoSel) ui.productoSel = d.productoSel;
+    if(d.filtro) ui.filtro = d.filtro;
+  }catch(e){}
+}
+function normalizar(r){
+  if(!r || typeof r !== "object") return null;
+  var n = {
+    id: r.id || nuevoId(),
+    fecha: String(r.fecha || "").slice(0,10),
+    producto: String(r.producto || "").trim(),
+    precio: num(r.precio),
+    coste: num(r.coste),
+    gasto: num(r.gasto),
+    impresiones: num(r.impresiones),
+    clics: num(r.clics),
+    carritos: num(r.carritos),
+    compras: num(r.compras),
+    comision: num(r.comision)
+  };
+  if(!n.fecha || !n.producto) return null;
+  return n;
+}
+function num(v){ var x = parseFloat(v); return isFinite(x) ? x : 0; }
+function nuevoId(){
+  return "r" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
+
+/* ==========================================================================
+   2. FORMATO
+   ========================================================================== */
+var fEur = new Intl.NumberFormat("es-ES",{minimumFractionDigits:2, maximumFractionDigits:2});
+var fNum = new Intl.NumberFormat("es-ES");
+function eur(v){ return (v===null||v===undefined||!isFinite(v)) ? "—" : fEur.format(v) + " €"; }
+function dec(v,d){
+  if(v===null||v===undefined||!isFinite(v)) return "—";
+  return v.toLocaleString("es-ES",{minimumFractionDigits:(d===undefined?2:d), maximumFractionDigits:(d===undefined?2:d)});
+}
+function pct(v,d){ return (v===null||v===undefined||!isFinite(v)) ? "—" : dec(v,(d===undefined?1:d)) + " %"; }
+function ent(v){ return (v===null||v===undefined||!isFinite(v)) ? "—" : fNum.format(Math.round(v)); }
+function fechaCorta(iso){
+  var p = String(iso).split("-");
+  if(p.length !== 3) return iso;
+  return p[2] + "/" + p[1] + "/" + p[0].slice(2);
+}
+function hoyISO(){
+  var d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function diasEntre(isoA, isoB){
+  var a = new Date(isoA + "T00:00:00"), b = new Date(isoB + "T00:00:00");
+  return Math.round((b - a) / 86400000);
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function div(a,b){ return (b > 0) ? a/b : null; }
+
+/* ==========================================================================
+   3. CÁLCULOS DE UN REGISTRO
+   ========================================================================== */
+function calcular(r){
+  var c = {};
+  c.cpc          = div(r.gasto, r.clics);                          // 1
+  c.ctr          = r.impresiones > 0 ? (r.clics / r.impresiones) * 100 : null; // 2
+  c.cpa          = div(r.gasto, r.compras);                        // 3
+  c.margen       = r.precio > 0 ? ((r.precio - r.coste) / r.precio) * 100 : null; // 4
+  c.beRoas       = (c.margen !== null && c.margen > 0) ? 1 / (c.margen / 100) : null; // 5
+  c.ingresos     = r.precio * r.compras;                           // 6
+  c.roas         = div(c.ingresos, r.gasto);                       // 7
+  c.comisionEur  = c.ingresos * (r.comision / 100);
+  c.costeTotal   = r.coste * r.compras;
+  c.beneficio    = c.ingresos - c.costeTotal - c.comisionEur - r.gasto;  // 8
+  c.pctGanancia  = r.gasto > 0 ? (c.beneficio / r.gasto) * 100 : null;   // 9
+  c.costeCarrito = div(r.gasto, r.carritos);                       // 10
+  c.convCarrito  = r.carritos > 0 ? (r.compras / r.carritos) * 100 : null; // 11
+  c.estado       = estadoPorPct(c.pctGanancia);
+  return c;
+}
+/* Semáforo por % de ganancia sobre el gasto en ads */
+function estadoPorPct(p){
+  if(p === null || p === undefined || !isFinite(p)) return "neutro";
+  if(p < 0) return "rojo";
+  if(p < 15) return "ambar";
+  return "verde";
+}
+var ETIQUETA = { rojo:"PÉRDIDA", ambar:"VIGILAR", verde:"GANANDO", neutro:"SIN GASTO" };
+
+/* ==========================================================================
+   4. AGREGADO ACUMULADO POR PRODUCTO
+   ========================================================================== */
+function productos(){
+  var vistos = {}, salida = [];
+  registros.forEach(function(r){
+    if(!vistos[r.producto]){ vistos[r.producto] = true; salida.push(r.producto); }
+  });
+  return salida.sort(function(a,b){ return a.localeCompare(b,"es"); });
+}
+function registrosDe(prod){
+  var lista = (prod === "__TODOS__") ? registros.slice() : registros.filter(function(r){ return r.producto === prod; });
+  // más antiguo primero (para calcular acumulados y rachas)
+  return lista.sort(function(a,b){
+    if(a.fecha === b.fecha) return String(a.id).localeCompare(String(b.id));
+    return a.fecha < b.fecha ? -1 : 1;
+  });
+}
+function acumulado(prod){
+  var lista = registrosDe(prod);
+  var a = {
+    producto: prod, n: lista.length, lista: lista,
+    gasto:0, impresiones:0, clics:0, carritos:0, compras:0,
+    ingresos:0, costeTotal:0, comisionEur:0, beneficio:0,
+    dias:{rojo:0, ambar:0, verde:0, neutro:0},
+    mejor:null, peor:null
+  };
+  lista.forEach(function(r){
+    var c = calcular(r);
+    a.gasto += r.gasto; a.impresiones += r.impresiones; a.clics += r.clics;
+    a.carritos += r.carritos; a.compras += r.compras;
+    a.ingresos += c.ingresos; a.costeTotal += c.costeTotal;
+    a.comisionEur += c.comisionEur; a.beneficio += c.beneficio;
+    a.dias[c.estado]++;
+    if(a.mejor === null || c.beneficio > a.mejor.c.beneficio) a.mejor = {r:r, c:c};
+    if(a.peor  === null || c.beneficio < a.peor.c.beneficio)  a.peor  = {r:r, c:c};
+  });
+  a.cpc          = div(a.gasto, a.clics);
+  a.ctr          = a.impresiones > 0 ? (a.clics / a.impresiones) * 100 : null;
+  a.cpa          = div(a.gasto, a.compras);
+  a.roas         = div(a.ingresos, a.gasto);
+  a.pctGanancia  = a.gasto > 0 ? (a.beneficio / a.gasto) * 100 : null;
+  a.costeCarrito = div(a.gasto, a.carritos);
+  a.convCarrito  = a.carritos > 0 ? (a.compras / a.carritos) * 100 : null;
+  a.estado       = estadoPorPct(a.pctGanancia);
+  a.ultimaFecha  = lista.length ? lista[lista.length-1].fecha : null;
+
+  /* Break-even ROAS del producto: con ventas, margen real acumulado;
+     sin ventas todavía, el margen del último registro (precio/coste vigentes). */
+  if(a.ingresos > 0){
+    a.margen = ((a.ingresos - a.costeTotal) / a.ingresos) * 100;
+  }else if(lista.length){
+    a.margen = calcular(lista[lista.length-1]).margen;
+  }else{
+    a.margen = null;
+  }
+  a.beRoas = (a.margen !== null && a.margen > 0) ? 1 / (a.margen / 100) : null;
+
+  /* Reglas del mentor sobre los acumulados */
+  a.reglas = [];
+  if(a.gasto >= 10 && a.cpc !== null && a.cpc > 1){
+    a.reglas.push({
+      n:1,
+      texto:"⚠️ Regla 1: CPC alto con más de 10 € gastados. Tu mentor recomienda apagar este creativo.",
+      detalle:"Llevas " + eur(a.gasto) + " gastados y tu CPC medio es de " + eur(a.cpc) + " (por encima de 1 €)."
+    });
+  }
+  if(a.gasto >= 20 && a.carritos === 0){
+    a.reglas.push({
+      n:2,
+      texto:"⚠️ Regla 2: 20 €+ gastados sin ningún carrito. Tu mentor recomienda apagar.",
+      detalle:"Llevas " + eur(a.gasto) + " gastados y 0 añadidos al carrito."
+    });
+  }
+  if(a.gasto >= 30 && a.compras === 0){
+    a.reglas.push({
+      n:3,
+      texto:"⚠️ Regla 3: 30 €+ gastados sin ninguna venta. Tu mentor recomienda apagar.",
+      detalle:"Llevas " + eur(a.gasto) + " gastados y 0 compras."
+    });
+  }
+  a.bajoBreakEven = (a.roas !== null && a.beRoas !== null && a.roas < a.beRoas);
+
+  /* Racha: 2 registros seguidos con ≥15 % de ganancia */
+  a.racha15 = false;
+  if(lista.length >= 2){
+    var u1 = calcular(lista[lista.length-1]);
+    var u2 = calcular(lista[lista.length-2]);
+    a.racha15 = (u1.pctGanancia !== null && u1.pctGanancia >= 15 &&
+                 u2.pctGanancia !== null && u2.pctGanancia >= 15);
+    a.rachaFechas = [lista[lista.length-2].fecha, lista[lista.length-1].fecha];
+  }
+
+  /* ¿Se disparó una regla de matar y desde entonces no ha habido ninguna venta? */
+  a.reglaSinVentaDespues = null;
+  var g=0, ca=0, co=0, cl=0, disparo=-1, reglaDisparada=null;
+  for(var i=0;i<lista.length;i++){
+    g += lista[i].gasto; ca += lista[i].carritos; co += lista[i].compras; cl += lista[i].clics;
+    var cpcAcum = div(g, cl);
+    var r1 = (g >= 10 && cpcAcum !== null && cpcAcum > 1);
+    var r2 = (g >= 20 && ca === 0);
+    var r3 = (g >= 30 && co === 0);
+    if(disparo === -1 && (r1 || r2 || r3)){
+      disparo = i;
+      reglaDisparada = r3 ? 3 : (r2 ? 2 : 1);
+      break;
+    }
+  }
+  if(disparo !== -1){
+    var ventasDespues = 0;
+    for(var j=disparo+1;j<lista.length;j++) ventasDespues += lista[j].compras;
+    if(ventasDespues === 0){
+      a.reglaSinVentaDespues = { regla: reglaDisparada, desde: lista[disparo].fecha, gastoEntonces: g };
+    }
+  }
+
+  /* ROAS acumulado por debajo del break-even durante más de 2 registros seguidos y sin mejorar */
+  a.rachaBajoBE = false;
+  if(a.beRoas !== null && lista.length >= 3){
+    var serie = [], gg=0, ii=0;
+    lista.forEach(function(r){
+      var c = calcular(r);
+      gg += r.gasto; ii += c.ingresos;
+      serie.push(div(ii, gg));
+    });
+    var t = serie.slice(-3);
+    if(t.every(function(v){ return v !== null && v < a.beRoas; }) && t[2] <= t[1] && t[1] <= t[0]){
+      a.rachaBajoBE = true;
+    }
+  }
+  return a;
+}
+
+/* ==========================================================================
+   5. VEREDICTO FINAL (semáforo de decisión)
+   ========================================================================== */
+function veredicto(a){
+  if(a.n === 0){
+    return { color:"neutro", titulo:"SIN DATOS", icono:"⚪",
+      motivo:"Todavía no hay ningún registro para este producto. Añade el primero con los datos de hoy.", extra:null };
+  }
+
+  var roasTxt = a.roas !== null ? dec(a.roas,2) : "—";
+  var beTxt   = a.beRoas !== null ? dec(a.beRoas,2) : "—";
+  var extra   = a.racha15
+    ? "🚀 Además, cumples la condición para subir presupuesto (de 50 €/día a 70 €/día)."
+    : null;
+
+  /* ---------- 🔴 APÁGALO ---------- */
+  if(a.reglaSinVentaDespues){
+    var reg = a.reglaSinVentaDespues, motivo;
+    if(reg.regla === 3){
+      motivo = "Llevas " + eur(a.gasto) + " gastados sin ninguna venta. Según la regla de tu mentor " +
+               "(30 € sin compra), toca apagar este creativo.";
+    }else if(reg.regla === 2){
+      motivo = "Llevas " + eur(a.gasto) + " gastados y ni un solo añadido al carrito. Según la regla de tu mentor " +
+               "(20 € sin carritos), toca apagar este creativo.";
+    }else{
+      motivo = "Llevas " + eur(a.gasto) + " gastados con un CPC medio de " + eur(a.cpc) +
+               " (por encima de 1 €) y no ha entrado ninguna venta desde entonces. Según la regla de tu mentor " +
+               "(10 € con CPC alto), toca apagar este creativo.";
+    }
+    return { color:"rojo", titulo:"APÁGALO", icono:"🔴", motivo:motivo, extra:null };
+  }
+  if(a.rachaBajoBE){
+    return { color:"rojo", titulo:"APÁGALO", icono:"🔴",
+      motivo:"Tu ROAS acumulado (" + roasTxt + ") lleva más de 2 días seguidos por debajo de tu break-even (" +
+             beTxt + ") y no mejora. Llevas " + eur(a.gasto) + " gastados y un resultado de " +
+             eur(a.beneficio) + ". Apágalo antes de seguir quemando presupuesto.", extra:null };
+  }
+
+  /* ---------- 🟢 NO LO APAGUES ---------- */
+  var vaBien = (a.roas !== null && a.beRoas !== null && a.roas >= a.beRoas) ||
+               (a.pctGanancia !== null && a.pctGanancia > 0);
+  if(vaBien){
+    var m = "";
+    if(a.roas !== null && a.beRoas !== null && a.roas >= a.beRoas){
+      m = "Tu ROAS (" + roasTxt + ") ya supera tu punto de equilibrio (" + beTxt + "). ";
+    }
+    m += "Este producto está siendo rentable: llevas " + eur(a.gasto) + " en anuncios, " +
+         eur(a.ingresos) + " de ingresos y " + eur(a.beneficio) + " de beneficio neto (" +
+         pct(a.pctGanancia) + " sobre el gasto). Sigue corriendo.";
+    return { color:"verde", titulo:"NO LO APAGUES — VA BIEN", icono:"🟢", motivo:m, extra:extra };
+  }
+
+  /* ---------- 🟡 DÉJALO UN POCO MÁS ---------- */
+  if(a.gasto < 10){
+    return { color:"ambar", titulo:"DÉJALO UN POCO MÁS", icono:"🟡",
+      motivo:"Este producto es muy reciente: solo llevas " + eur(a.gasto) +
+             " de gasto acumulado, todavía no hay datos suficientes para decidir. " +
+             "Deja que llegue al menos a 10 € antes de juzgarlo.", extra:null };
+  }
+  if(a.compras >= 1){
+    return { color:"ambar", titulo:"DÉJALO UN POCO MÁS", icono:"🟡",
+      motivo:"Ya tienes " + ent(a.compras) + (a.compras === 1 ? " venta confirmada" : " ventas confirmadas") +
+             ", pero el ROAS acumulado (" + roasTxt + ") sigue por debajo de tu break-even (" + beTxt +
+             "). Dale un poco más de gasto antes de decidir del todo.", extra:null };
+  }
+  return { color:"ambar", titulo:"DÉJALO UN POCO MÁS", icono:"🟡",
+    motivo:"Llevas " + eur(a.gasto) + " gastados, " + ent(a.carritos) + " carritos y " + ent(a.compras) +
+           " compras. Todavía no se cumple ninguna regla de apagado, pero tampoco eres rentable: " +
+           "vigílalo de cerca en el próximo registro.", extra:null };
+}
+
+/* ==========================================================================
+   6. PINTADO: veredicto, resumen, avisos
+   ========================================================================== */
+function pintarVeredicto(a){
+  var v = veredicto(a);
+  var nombre = a.producto === "__TODOS__" ? "Todos los productos" : a.producto;
+  var datos = "";
+  if(a.n > 0){
+    datos = '<div class="datos">' +
+      '<span>Gasto: ' + eur(a.gasto) + '</span>' +
+      '<span>ROAS: ' + (a.roas !== null ? dec(a.roas,2) : "—") + '</span>' +
+      '<span>Break-even: ' + (a.beRoas !== null ? dec(a.beRoas,2) : "—") + '</span>' +
+      '<span>Beneficio: ' + eur(a.beneficio) + '</span>' +
+      '<span>' + a.n + (a.n === 1 ? " registro" : " registros") + '</span>' +
+      '</div>';
+  }
+  document.getElementById("zonaVeredicto").innerHTML =
+    '<div class="veredicto v-' + v.color + '">' +
+      '<div class="etiqueta">Recomendación para ' + esc(nombre) + '</div>' +
+      '<div class="titular"><span>' + v.icono + '</span><span>' + esc(v.titulo) + '</span></div>' +
+      '<div class="motivo">' + esc(v.motivo) + '</div>' +
+      (v.extra ? '<div class="extra">' + esc(v.extra) + '</div>' : '') +
+      datos +
+    '</div>';
+}
+
+function pintarResumen(a){
+  if(a.n === 0){ document.getElementById("zonaResumen").innerHTML = ""; return; }
+  var signo = a.beneficio >= 0 ? "pos" : "neg";
+  var html = '<div class="rejilla-cards">' +
+    tarjeta("Gasto total acumulado", eur(a.gasto), a.n + (a.n===1?" día registrado":" días registrados")) +
+    tarjeta("Ingresos acumulados", eur(a.ingresos), ent(a.compras) + " compras") +
+    tarjeta("Beneficio neto acumulado", '<span class="' + signo + '">' + eur(a.beneficio) + '</span>',
+            "% sobre ads: " + pct(a.pctGanancia)) +
+    tarjeta("ROAS medio", a.roas !== null ? dec(a.roas,2) : "—",
+            "Ingresos ÷ gasto en anuncios") +
+    tarjeta("Break-even ROAS", a.beRoas !== null ? dec(a.beRoas,2) : "—",
+            "Margen: " + pct(a.margen)) +
+    '<div class="card"><div class="k">Días por resultado</div><div class="badges">' +
+      '<span class="badge b-verde">' + a.dias.verde + ' ganando</span>' +
+      '<span class="badge b-ambar">' + a.dias.ambar + ' vigilar</span>' +
+      '<span class="badge b-rojo">' + a.dias.rojo + ' pérdida</span>' +
+      (a.dias.neutro ? '<span class="badge b-neutro">' + a.dias.neutro + ' sin gasto</span>' : '') +
+    '</div></div>' +
+  '</div>';
+
+  if(a.mejor && a.peor && a.n >= 2){
+    html += '<div class="rejilla-cards" style="margin-top:14px">' +
+      tarjeta("Mejor día", '<span class="pos">' + eur(a.mejor.c.beneficio) + '</span>',
+              "🏆 " + fechaCorta(a.mejor.r.fecha) + " · ROAS " + (a.mejor.c.roas !== null ? dec(a.mejor.c.roas,2) : "—")) +
+      tarjeta("Peor día", '<span class="neg">' + eur(a.peor.c.beneficio) + '</span>',
+              "⚠️ " + fechaCorta(a.peor.r.fecha) + " · ROAS " + (a.peor.c.roas !== null ? dec(a.peor.c.roas,2) : "—")) +
+      tarjeta("CPA medio", a.cpa !== null ? eur(a.cpa) : "—", "CPC medio: " + (a.cpc !== null ? eur(a.cpc) : "—")) +
+      tarjeta("Carrito → compra", pct(a.convCarrito), "CTR medio: " + pct(a.ctr,2)) +
+    '</div>';
+  }
+  document.getElementById("zonaResumen").innerHTML = html;
+}
+function tarjeta(k,v,n){
+  return '<div class="card"><div class="k">' + k + '</div><div class="v">' + v + '</div>' +
+         (n ? '<div class="n">' + n + '</div>' : '') + '</div>';
+}
+
+function pintarAvisos(a){
+  var zona = document.getElementById("zonaAvisos");
+  if(a.n === 0){ zona.innerHTML = ""; return; }
+  var html = "";
+
+  a.reglas.forEach(function(x){
+    html += aviso("rojo","", x.texto + " <span style=\"font-weight:500\">(" + x.detalle + ")</span>");
+  });
+  if(a.bajoBreakEven){
+    html += aviso("rojo","🔴",
+      "Estás por debajo de tu punto de equilibrio. Estás perdiendo dinero con este producto/campaña ahora mismo. " +
+      "<span style=\"font-weight:500\">(ROAS " + dec(a.roas,2) + " frente a un break-even de " + dec(a.beRoas,2) + ")</span>");
+  }
+  if(a.racha15){
+    html += aviso("verde","🚀",
+      "2 días seguidos con 15 %+ de ganancia. Según tu sistema, puedes subir el presupuesto (ej. de 50 €/día a 70 €/día). " +
+      "<span style=\"font-weight:500\">(" + fechaCorta(a.rachaFechas[0]) + " y " + fechaCorta(a.rachaFechas[1]) + ")</span>");
+  }
+  /* Recordatorio: más de 24 h sin registrar */
+  if(a.ultimaFecha){
+    var d = diasEntre(a.ultimaFecha, hoyISO());
+    if(d >= 2){
+      html += aviso("info","⏰","Llevas " + d + " días sin registrar datos de " +
+        esc(a.producto === "__TODOS__" ? "ninguna campaña" : a.producto) +
+        ". El último registro es del " + fechaCorta(a.ultimaFecha) + ".");
+    }else if(d === 1){
+      html += aviso("info","⏰","Todavía no has registrado los datos de hoy para " +
+        esc(a.producto === "__TODOS__" ? "tus campañas" : a.producto) + ".");
+    }
+  }
+  if(!html){
+    html = aviso("info","✅","Ninguna regla de apagado activada para " +
+      esc(a.producto === "__TODOS__" ? "tus campañas" : a.producto) + " con los datos acumulados de ahora mismo.");
+  }
+  zona.innerHTML = html;
+}
+function aviso(color, ico, texto){
+  return '<div class="aviso a-' + color + '">' +
+         (ico ? '<div class="ico">' + ico + '</div>' : '') +
+         '<div>' + texto + '</div></div>';
+}
+
+/* ==========================================================================
+   7. PINTADO: comparativa entre productos
+   ========================================================================== */
+function pintarComparativa(){
+  var cuerpo = document.querySelector("#tablaComparativa tbody");
+  var lista = productos();
+  document.getElementById("vacioComparativa").classList.toggle("oculto", lista.length > 0);
+  document.getElementById("tablaComparativa").classList.toggle("oculto", lista.length === 0);
+  cuerpo.innerHTML = lista.map(function(p){
+    var a = acumulado(p), v = veredicto(a);
+    return '<tr class="fila f-' + a.estado + '" data-prod="' + esc(p) + '">' +
+      '<td class="celda-prod">' + esc(p) + '</td>' +
+      '<td>' + a.n + '</td>' +
+      '<td class="num">' + eur(a.gasto) + '</td>' +
+      '<td>' + eur(a.ingresos) + '</td>' +
+      '<td class="num">' + eur(a.beneficio) + '</td>' +
+      '<td class="num">' + (a.roas !== null ? dec(a.roas,2) : "—") + '</td>' +
+      '<td>' + (a.beRoas !== null ? dec(a.beRoas,2) : "—") + '</td>' +
+      '<td class="num">' + pct(a.pctGanancia) + '</td>' +
+      '<td><span class="badge b-' + v.color + '">' + v.icono + " " + esc(v.titulo) + '</span></td>' +
+    '</tr>';
+  }).join("");
+  Array.prototype.forEach.call(cuerpo.querySelectorAll("tr"), function(tr){
+    tr.style.cursor = "pointer";
+    tr.title = "Ver este producto en el panel";
+    tr.addEventListener("click", function(){
+      ui.productoSel = tr.getAttribute("data-prod");
+      guardarUI(); pintarTodo();
+      window.scrollTo({ top:0, behavior:"smooth" });
+    });
+  });
+}
+
+/* ==========================================================================
+   8. PINTADO: histórico
+   ========================================================================== */
+function pintarHistorico(){
+  var cuerpo = document.querySelector("#tablaHistorico tbody");
+  var lista = registrosDe(ui.filtro).slice().reverse(); // más reciente arriba
+  document.getElementById("vacioHistorico").classList.toggle("oculto", lista.length > 0);
+  document.getElementById("tablaHistorico").classList.toggle("oculto", lista.length === 0);
+
+  cuerpo.innerHTML = lista.map(function(r){
+    var c = calcular(r);
+    var abierta = !!ui.expandidas[r.id];
+    var fila =
+      '<tr class="fila f-' + c.estado + '" data-id="' + r.id + '">' +
+        '<td>' + fechaCorta(r.fecha) + '</td>' +
+        '<td class="celda-prod">' + esc(r.producto) + '</td>' +
+        '<td class="num">' + eur(r.gasto) + '</td>' +
+        '<td>' + ent(r.compras) + '</td>' +
+        '<td class="num">' + (c.roas !== null ? dec(c.roas,2) : "—") + '</td>' +
+        '<td>' + (c.beRoas !== null ? dec(c.beRoas,2) : "—") + '</td>' +
+        '<td class="num">' + pct(c.pctGanancia) + '</td>' +
+        '<td>' + (c.cpa !== null ? eur(c.cpa) : "—") + '</td>' +
+        '<td><span class="badge b-' + c.estado + '">' + ETIQUETA[c.estado] + '</span></td>' +
+        '<td style="white-space:nowrap">' +
+          '<button class="btn btn-peq" data-accion="detalle" data-id="' + r.id + '">' +
+            (abierta ? "Ocultar" : "Detalle") + '</button> ' +
+          '<button class="btn btn-peq btn-peligro" data-accion="borrar" data-id="' + r.id + '">Eliminar</button>' +
+        '</td>' +
+      '</tr>';
+    if(abierta) fila += filaDetalle(r, c);
+    return fila;
+  }).join("");
+}
+
+function filaDetalle(r, c){
+  function d(k,v){ return '<div class="d"><span>' + k + '</span><b>' + v + '</b></div>'; }
+  return '<tr class="fila-detalle"><td colspan="10"><div class="detalle">' +
+    '<div class="grupo">Datos introducidos</div>' +
+    d("Precio de venta", eur(r.precio)) +
+    d("Coste del producto", eur(r.coste)) +
+    d("Gasto en anuncios", eur(r.gasto)) +
+    d("Impresiones", ent(r.impresiones)) +
+    d("Clics en el enlace", ent(r.clics)) +
+    d("Añadidos al carrito", ent(r.carritos)) +
+    d("Compras", ent(r.compras)) +
+    d("Comisión pasarela", pct(r.comision,2)) +
+    '<div class="grupo">Cálculos del día</div>' +
+    d("CPC (coste por clic)", c.cpc !== null ? eur(c.cpc) : "—") +
+    d("CTR", pct(c.ctr,2)) +
+    d("CPA (coste por adquisición)", c.cpa !== null ? eur(c.cpa) : "—") +
+    d("Margen del producto", pct(c.margen)) +
+    d("Break-even ROAS", c.beRoas !== null ? dec(c.beRoas,2) : "—") +
+    d("Ingresos totales", eur(c.ingresos)) +
+    d("ROAS real", c.roas !== null ? dec(c.roas,2) : "—") +
+    d("Coste de producto vendido", eur(c.costeTotal)) +
+    d("Comisión pagada", eur(c.comisionEur)) +
+    d("Beneficio neto", eur(c.beneficio)) +
+    d("% ganancia sobre ads", pct(c.pctGanancia)) +
+    d("Coste por añadido al carrito", c.costeCarrito !== null ? eur(c.costeCarrito) : "—") +
+    d("Conversión carrito → compra", pct(c.convCarrito)) +
+  '</div></td></tr>';
+}
+
+/* ==========================================================================
+   9. GRÁFICO
+   ========================================================================== */
+function pintarGrafico(a){
+  var lienzo = document.getElementById("grafico");
+  document.getElementById("zonaGrafico").classList.toggle("oculto", a.n < 1);
+  if(a.n < 1){ if(grafico){ grafico.destroy(); grafico = null; } return; }
+  if(typeof Chart === "undefined"){
+    document.getElementById("avisoGrafico").classList.remove("oculto");
+    document.getElementById("lienzoWrap").classList.add("oculto");
+    return;
+  }
+  var etiquetas = a.lista.map(function(r){ return fechaCorta(r.fecha); });
+  var serieRoas = a.lista.map(function(r){ var c = calcular(r); return c.roas; });
+  var serieBe   = a.lista.map(function(r){ var c = calcular(r); return c.beRoas !== null ? c.beRoas : a.beRoas; });
+  var serieBen  = a.lista.map(function(r){ return calcular(r).beneficio; });
+
+  var datos = {
+    labels: etiquetas,
+    datasets: [
+      { label:"ROAS real", data:serieRoas, borderColor:"#196f3d", backgroundColor:"rgba(25,111,61,.12)",
+        tension:.3, fill:true, pointRadius:4, borderWidth:3, yAxisID:"y" },
+      { label:"Break-even ROAS", data:serieBe, borderColor:"#c9a227", borderDash:[6,5],
+        tension:0, pointRadius:0, borderWidth:2, fill:false, yAxisID:"y" },
+      { label:"Beneficio neto (€)", data:serieBen, borderColor:"#5b6478", backgroundColor:"rgba(91,100,120,.10)",
+        tension:.3, pointRadius:3, borderWidth:2, fill:false, yAxisID:"y2" }
+    ]
+  };
+  var opciones = {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{ mode:"index", intersect:false },
+    plugins:{ legend:{ labels:{ usePointStyle:true, boxWidth:8 } } },
+    scales:{
+      y:{ title:{ display:true, text:"ROAS" }, beginAtZero:true },
+      y2:{ position:"right", title:{ display:true, text:"€" }, grid:{ drawOnChartArea:false } }
+    }
+  };
+  if(grafico){ grafico.destroy(); grafico = null; }
+
+  grafico = new Chart(lienzo.getContext("2d"), { type:"line", data:datos, options:opciones });
+}
+
+/* ==========================================================================
+   10. SELECTORES Y REPINTADO GENERAL
+   ========================================================================== */
+function pintarSelectores(){
+  var lista = productos();
+  var sel = document.getElementById("selProducto");
+  var flt = document.getElementById("filtroProducto");
+  if(lista.indexOf(ui.productoSel) === -1) ui.productoSel = "__TODOS__";
+  if(lista.indexOf(ui.filtro) === -1) ui.filtro = "__TODOS__";
+
+  function opciones(valorSel, textoTodos){
+    return ['<option value="__TODOS__"' + (valorSel === "__TODOS__" ? " selected" : "") + '>' + textoTodos + '</option>']
+      .concat(lista.map(function(p){
+        return '<option value="' + esc(p) + '"' + (p === valorSel ? " selected" : "") + '>' + esc(p) + '</option>';
+      })).join("");
+  }
+  sel.innerHTML = opciones(ui.productoSel, "Todos los productos (conjunto)");
+  flt.innerHTML = opciones(ui.filtro, "Histórico: todos los productos");
+  document.getElementById("listaProductos").innerHTML =
+    lista.map(function(p){ return '<option value="' + esc(p) + '">'; }).join("");
+}
+
+function pintarTodo(){
+  pintarSelectores();
+  var a = acumulado(ui.productoSel);
+  pintarVeredicto(a);
+  pintarResumen(a);
+  pintarAvisos(a);
+  pintarGrafico(a);
+  pintarComparativa();
+  pintarHistorico();
+}
+
+/* ==========================================================================
+   11. FORMULARIO: validación y guardado
+   ========================================================================== */
+function leerFormulario(){
+  var g = function(id){ return document.getElementById(id); };
+  return {
+    fecha: g("fecha").value,
+    producto: g("producto").value.trim(),
+    precio: g("precio").value,
+    coste: g("coste").value,
+    gasto: g("gasto").value,
+    impresiones: g("impresiones").value,
+    clics: g("clics").value,
+    carritos: g("carritos").value,
+    compras: g("compras").value,
+    comision: g("comision").value
+  };
+}
+function validar(v){
+  var e = [];
+  var n = function(x){ var y = parseFloat(String(x).replace(",", ".")); return isFinite(y) ? y : NaN; };
+
+  if(!v.fecha || !/^\d{4}-\d{2}-\d{2}$/.test(v.fecha)) e.push("Indica una fecha válida.");
+  if(!v.producto) e.push("Escribe el nombre del producto o campaña.");
+
+  var campos = [
+    ["precio","Precio de venta"], ["coste","Coste del producto"], ["gasto","Gasto en anuncios"],
+    ["impresiones","Impresiones"], ["clics","Clics"], ["carritos","Añadidos al carrito"],
+    ["compras","Compras"], ["comision","Comisión de la pasarela"]
+  ];
+  var vals = {};
+  campos.forEach(function(c){
+    var x = String(v[c[0]]).trim() === "" ? 0 : n(v[c[0]]);
+    if(isNaN(x)) e.push(c[1] + ": introduce un número válido.");
+    else if(x < 0) e.push(c[1] + " no puede ser negativo.");
+    vals[c[0]] = isNaN(x) ? 0 : x;
+  });
+  ["impresiones","clics","carritos","compras"].forEach(function(k){
+    if(vals[k] % 1 !== 0) e.push("Impresiones, clics, carritos y compras deben ser números enteros.");
+  });
+
+  if(vals.precio <= 0) e.push("El precio de venta debe ser mayor que 0.");
+  if(vals.precio > 0 && vals.coste >= vals.precio)
+    e.push("El coste del producto (" + eur(vals.coste) + ") no puede ser igual o mayor que el precio de venta (" +
+           eur(vals.precio) + "): con ese margen nunca habría break-even.");
+  if(vals.comision > 100) e.push("La comisión de la pasarela no puede superar el 100 %.");
+  if(vals.clics > vals.impresiones) e.push("Los clics (" + ent(vals.clics) + ") no pueden superar las impresiones (" + ent(vals.impresiones) + ").");
+  if(vals.carritos > vals.clics) e.push("Los añadidos al carrito (" + ent(vals.carritos) + ") no pueden superar los clics (" + ent(vals.clics) + ").");
+  if(vals.compras > vals.carritos) e.push("Las compras (" + ent(vals.compras) + ") no pueden superar los añadidos al carrito (" + ent(vals.carritos) + ").");
+
+  return { errores:e, valores:vals };
+}
+function mostrarErrores(lista){
+  var zona = document.getElementById("erroresForm");
+  if(!lista.length){ zona.innerHTML = ""; return; }
+  zona.innerHTML = '<div class="errores">Revisa estos puntos antes de guardar:<ul>' +
+    lista.map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>";
+}
+
+function enviarFormulario(ev){
+  ev.preventDefault();
+  var v = leerFormulario();
+  var res = validar(v);
+  mostrarErrores(res.errores);
+  if(res.errores.length){
+    document.getElementById("erroresForm").scrollIntoView({ behavior:"smooth", block:"center" });
+    return;
+  }
+  var reg = {
+    id: nuevoId(), fecha: v.fecha, producto: v.producto,
+    precio: res.valores.precio, coste: res.valores.coste, gasto: res.valores.gasto,
+    impresiones: res.valores.impresiones, clics: res.valores.clics,
+    carritos: res.valores.carritos, compras: res.valores.compras, comision: res.valores.comision
+  };
+  var yaExiste = registros.filter(function(r){
+    return r.fecha === reg.fecha && r.producto.toLowerCase() === reg.producto.toLowerCase();
+  });
+  if(yaExiste.length){
+    if(!confirm("Ya tienes un registro de \"" + reg.producto + "\" con fecha " + fechaCorta(reg.fecha) +
+                ".\n\nAceptar = reemplazarlo por estos datos.\nCancelar = guardar los dos registros por separado.")){
+      // se mantienen los dos
+    }else{
+      registros = registros.filter(function(r){
+        return !(r.fecha === reg.fecha && r.producto.toLowerCase() === reg.producto.toLowerCase());
+      });
+    }
+  }
+  // se respeta la grafía del producto ya existente para no duplicar campañas por mayúsculas
+  var previo = registros.filter(function(r){ return r.producto.toLowerCase() === reg.producto.toLowerCase(); });
+  if(previo.length) reg.producto = previo[previo.length-1].producto;
+
+  registros.push(reg);
+  guardar();
+  ui.productoSel = reg.producto;
+  ui.filtro = reg.producto;
+  ui.expandidas = {}; ui.expandidas[reg.id] = true;
+  guardarUI();
+  pintarTodo();
+
+  var c = calcular(reg);
+  document.getElementById("pistaGuardado").innerHTML =
+    "Guardado: " + esc(reg.producto) + " · " + fechaCorta(reg.fecha) +
+    " · ROAS " + (c.roas !== null ? dec(c.roas,2) : "—") +
+    " · beneficio " + eur(c.beneficio) + " (" + ETIQUETA[c.estado] + ").";
+  prepararFormulario(reg);
+  document.getElementById("zonaVeredicto").scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+/* Deja el formulario listo para el próximo registro del mismo producto */
+function prepararFormulario(base){
+  document.getElementById("fecha").value = hoyISO();
+  document.getElementById("gasto").value = "";
+  document.getElementById("impresiones").value = "";
+  document.getElementById("clics").value = "";
+  document.getElementById("carritos").value = "";
+  document.getElementById("compras").value = "";
+  if(base){
+    document.getElementById("producto").value = base.producto;
+    document.getElementById("precio").value = base.precio;
+    document.getElementById("coste").value = base.coste;
+    document.getElementById("comision").value = base.comision;
+  }
+  mostrarErrores([]);
+}
+/* Al elegir un producto conocido, se rellenan precio, coste y comisión del último registro */
+function autorrellenar(){
+  var nombre = document.getElementById("producto").value.trim().toLowerCase();
+  if(!nombre) return;
+  var previos = registros.filter(function(r){ return r.producto.toLowerCase() === nombre; });
+  if(!previos.length) return;
+  var ult = previos.sort(function(a,b){ return a.fecha < b.fecha ? -1 : 1; })[previos.length-1];
+  document.getElementById("precio").value = ult.precio;
+  document.getElementById("coste").value = ult.coste;
+  document.getElementById("comision").value = ult.comision;
+}
+
+/* ==========================================================================
+   12. EXPORTAR / COPIA DE SEGURIDAD / RESTAURAR
+   ========================================================================== */
+function descargar(nombre, contenido, tipo){
+  var blob = new Blob([contenido], { type: tipo });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+}
+function csvCampo(x){
+  var s = String(x === null || x === undefined ? "" : x);
+  if(/[";\n]/.test(s)) s = '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+function csvNum(v, d){
+  if(v === null || v === undefined || !isFinite(v)) return "";
+  return v.toFixed(d === undefined ? 2 : d).replace(".", ",");
+}
+function exportarCSV(){
+  if(!registros.length){ alert("Todavía no hay registros que exportar."); return; }
+  var cab = ["Fecha","Producto","Precio venta","Coste producto","Gasto ads","Impresiones","Clics",
+    "Carritos","Compras","Comision %","CPC","CTR %","CPA","Margen %","Break-even ROAS","Ingresos",
+    "ROAS","Beneficio neto","% ganancia sobre ads","Coste por carrito","Conv. carrito-compra %","Veredicto"];
+  var filas = registrosDe("__TODOS__").slice().reverse().map(function(r){
+    var c = calcular(r);
+    return [ r.fecha, r.producto, csvNum(r.precio), csvNum(r.coste), csvNum(r.gasto),
+      r.impresiones, r.clics, r.carritos, r.compras, csvNum(r.comision),
+      csvNum(c.cpc), csvNum(c.ctr), csvNum(c.cpa), csvNum(c.margen), csvNum(c.beRoas),
+      csvNum(c.ingresos), csvNum(c.roas), csvNum(c.beneficio), csvNum(c.pctGanancia),
+      csvNum(c.costeCarrito), csvNum(c.convCarrito), ETIQUETA[c.estado] ].map(csvCampo).join(";");
+  });
+  descargar("draselle-historico-" + hoyISO() + ".csv",
+    "﻿" + cab.join(";") + "\n" + filas.join("\n"), "text/csv;charset=utf-8");
+}
+function copiaSeguridad(){
+  descargar("draselle-copia-" + hoyISO() + ".json", JSON.stringify(registros, null, 2), "application/json");
+}
+function restaurar(fichero){
+  var lector = new FileReader();
+  lector.onload = function(){
+    try{
+      var datos = JSON.parse(lector.result);
+      if(datos && !Array.isArray(datos) && Array.isArray(datos.registros)) datos = datos.registros;
+      if(!Array.isArray(datos)) throw new Error("El fichero no contiene una lista de registros.");
+      var limpios = datos.map(normalizar).filter(Boolean);
+      if(!limpios.length) throw new Error("No se ha encontrado ningún registro válido en el fichero.");
+      var reemplazar = confirm("Se han leído " + limpios.length + " registros.\n\n" +
+        "Aceptar = reemplazar todos los datos actuales.\nCancelar = fusionarlos con los que ya tienes.");
+      if(reemplazar){
+        registros = limpios;
+      }else{
+        var vistos = {};
+        registros.forEach(function(r){ vistos[r.id] = true; });
+        limpios.forEach(function(r){
+          if(vistos[r.id]) r.id = nuevoId();
+          registros.push(r);
+        });
+      }
+      guardar(); ui.expandidas = {}; pintarTodo();
+      alert("Datos restaurados correctamente (" + registros.length + " registros en total).");
+    }catch(err){
+      alert("No se ha podido restaurar el fichero: " + err.message);
+    }
+  };
+  lector.readAsText(fichero);
+}
+
+/* ==========================================================================
+   13. EVENTOS
+   ========================================================================== */
+document.getElementById("formulario").addEventListener("submit", enviarFormulario);
+
+document.getElementById("btnLimpiar").addEventListener("click", function(){
+  document.getElementById("formulario").reset();
+  document.getElementById("comision").value = 2;
+  document.getElementById("fecha").value = hoyISO();
+  document.getElementById("pistaGuardado").textContent = "";
+  mostrarErrores([]);
+});
+
+document.getElementById("producto").addEventListener("change", autorrellenar);
+document.getElementById("producto").addEventListener("blur", autorrellenar);
+
+document.getElementById("selProducto").addEventListener("change", function(){
+  ui.productoSel = this.value;
+  ui.filtro = this.value;
+  guardarUI(); pintarTodo();
+});
+document.getElementById("filtroProducto").addEventListener("change", function(){
+  ui.filtro = this.value;
+  guardarUI(); pintarHistorico();
+});
+
+document.getElementById("btnIrForm").addEventListener("click", function(){
+  var zona = document.getElementById("zonaFormulario");
+  zona.scrollIntoView({ behavior:"smooth", block:"start" });
+  if(ui.productoSel !== "__TODOS__"){
+    document.getElementById("producto").value = ui.productoSel;
+    autorrellenar();
+  }
+  setTimeout(function(){ document.getElementById("gasto").focus(); }, 350);
+});
+
+document.querySelector("#tablaHistorico tbody").addEventListener("click", function(ev){
+  var b = ev.target.closest("button[data-accion]");
+  if(!b) return;
+  var id = b.getAttribute("data-id");
+  if(b.getAttribute("data-accion") === "detalle"){
+    ui.expandidas[id] = !ui.expandidas[id];
+    pintarHistorico();
+    return;
+  }
+  var r = registros.filter(function(x){ return x.id === id; })[0];
+  if(!r) return;
+  if(confirm("¿Eliminar el registro de \"" + r.producto + "\" del " + fechaCorta(r.fecha) + "?\n\nEsta acción no se puede deshacer.")){
+    registros = registros.filter(function(x){ return x.id !== id; });
+    delete ui.expandidas[id];
+    guardar(); pintarTodo();
+  }
+});
+
+document.getElementById("btnCSV").addEventListener("click", exportarCSV);
+document.getElementById("btnBackup").addEventListener("click", copiaSeguridad);
+document.getElementById("btnRestaurar").addEventListener("click", function(){
+  document.getElementById("ficheroRestaurar").click();
+});
+document.getElementById("ficheroRestaurar").addEventListener("change", function(){
+  if(this.files && this.files[0]) restaurar(this.files[0]);
+  this.value = "";
+});
+document.getElementById("btnBorrarTodo").addEventListener("click", function(){
+  if(!registros.length){ alert("No hay nada que borrar."); return; }
+  if(confirm("Vas a borrar los " + registros.length + " registros guardados en este navegador.\n\n" +
+             "Te recomendamos descargar antes una copia de seguridad. ¿Seguro que quieres continuar?")){
+    registros = []; ui.expandidas = {};
+    guardar(); pintarTodo();
+  }
+});
+
+/* ==========================================================================
+   14. ARRANQUE
+   ========================================================================== */
+registros = cargar();
+cargarUI();
+prepararFormulario(null);
+document.getElementById("comision").value = 2;
+if(ui.productoSel !== "__TODOS__") document.getElementById("producto").value = ui.productoSel;
+autorrellenar();
+pintarTodo();
+
+})();
+</script>
+</body>
+</html>
