@@ -208,6 +208,39 @@ td.strong{font-weight:700}
 .record .r-val{font-size:19px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .record .r-sub{font-size:12.5px;color:var(--muted);font-weight:600}
 
+/* ---------- calendario de gastos ---------- */
+.cal-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.cal-head .cal-title{font-weight:700;font-size:15px;letter-spacing:-.02em;min-width:150px;text-align:center}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal-dow{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center;padding-bottom:2px}
+.cal-day{
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  min-height:60px;padding:6px 7px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  font-family:inherit;text-align:left;transition:.12s;
+}
+.cal-day:hover{border-color:var(--muted-2)}
+.cal-day.empty{background:var(--surface-2);border-style:dashed;cursor:default}
+.cal-day.out{visibility:hidden;pointer-events:none}
+.cal-day.has{background:var(--neg-soft);border-color:#f2c9cb}
+.cal-day.today{box-shadow:0 0 0 2px var(--brand) inset}
+.cal-day.sel{border-color:var(--text);box-shadow:0 0 0 2px var(--text) inset}
+.cal-num{font-size:12.5px;font-weight:700;color:var(--muted)}
+.cal-day.has .cal-num{color:var(--text)}
+.cal-amt{font-size:12.5px;font-weight:750;color:var(--neg);font-variant-numeric:tabular-nums;line-height:1.2}
+.cal-cnt{font-size:10.5px;font-weight:600;color:var(--muted)}
+.tab-sep{width:1px;height:26px;background:rgba(255,255,255,.18);flex:none;margin:0 3px;align-self:center}
+.tab.tab-special{background:rgba(255,255,255,.05)}
+.tab.tab-special.active{background:var(--bg)}
+.split-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.split-row:last-child{border-bottom:0}
+.split-row .lab{color:var(--muted);font-weight:600}
+.split-row .val{font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:520px){
+  .cal-day{min-height:52px;padding:4px 5px}
+  .cal-amt{font-size:11px}
+  .cal-cnt{display:none}
+}
+
 /* ---------- modal ---------- */
 .modal-bg{
   position:fixed;inset:0;background:rgba(11,18,32,.55);backdrop-filter:blur(3px);
@@ -296,6 +329,7 @@ select.month-picker{width:auto;min-width:170px}
 <div class="wrap">
   <div class="banners" id="banners"></div>
 
+  <div id="viewBusiness">
   <section class="section-head" style="margin-top:22px">
     <div>
       <h2 id="bizTitle">Negocio</h2>
@@ -455,6 +489,124 @@ select.month-picker{width:auto;min-width:170px}
     </div>
   </section>
 
+  </div><!-- /viewBusiness -->
+
+  <!-- ============================ GASTOS DIARIOS ============================ -->
+  <div id="viewExpenses" class="hidden">
+    <section class="section-head" style="margin-top:22px">
+      <div>
+        <h2>📅 Gastos diarios</h2>
+        <div class="sub" id="expSub">Apunta aquí cualquier gasto del día a día y elige a qué negocio pertenece.</div>
+      </div>
+      <div class="spacer"></div>
+      <select class="input" id="expScope" style="width:auto;min-width:180px"></select>
+      <button class="btn btn-sm" id="btnExportExp">⬇️ Exportar CSV</button>
+    </section>
+
+    <div class="card" style="padding:18px">
+      <form id="expForm" autocomplete="off" novalidate>
+        <div class="grid-form">
+          <div class="field"><label for="gDate">Fecha</label><input class="input" type="date" id="gDate"></div>
+          <div class="field"><label for="gDesc">Descripción</label>
+            <input class="input" type="text" id="gDesc" placeholder="Ej. Envíos, packaging, muestra…" list="dlGastos">
+            <datalist id="dlGastos"></datalist>
+          </div>
+          <div class="field"><label for="gAmount">Importe</label>
+            <div class="input-money"><input class="input" type="text" inputmode="decimal" id="gAmount" placeholder="0,00"><span class="cur">€</span></div>
+          </div>
+          <div class="field"><label for="gBiz">Negocio</label><select class="input" id="gBiz"></select></div>
+        </div>
+        <div class="form-msg err hidden" id="expMsg"></div>
+        <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap">
+          <button type="submit" class="btn btn-brand btn-lg">Guardar gasto</button>
+          <button type="button" class="btn btn-lg" id="btnClearExpForm">Limpiar</button>
+          <span class="sub" style="align-self:center">Se resta del beneficio neto mensual del negocio elegido.</span>
+        </div>
+      </form>
+    </div>
+
+    <div class="section grid-2">
+      <div class="card" style="padding:16px 18px 18px">
+        <div class="cal-head">
+          <button class="btn btn-sm" id="calPrev" type="button">◀</button>
+          <div class="cal-title" id="calTitle">—</div>
+          <button class="btn btn-sm" id="calNext" type="button">▶</button>
+          <div class="spacer" style="margin-left:auto"></div>
+          <button class="btn btn-sm" id="calToday" type="button">Hoy</button>
+        </div>
+        <div class="cal" id="calGrid"></div>
+        <div id="calDetail" style="margin-top:14px"></div>
+      </div>
+      <div class="card" style="padding:16px 18px">
+        <div class="section-head" style="margin-bottom:6px">
+          <h2 style="font-size:15px">Resumen del mes</h2>
+          <div class="spacer"></div>
+          <span class="sub" id="expSummaryMonth"></span>
+        </div>
+        <div id="expSummary"></div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>📋 Todos los gastos</h2>
+        <div class="spacer"></div>
+        <span class="sub" id="expCount"></span>
+      </div>
+      <div class="card">
+        <div class="filters">
+          <div class="field"><label for="expFrom">Desde</label><input class="input" type="date" id="expFrom"></div>
+          <div class="field"><label for="expTo">Hasta</label><input class="input" type="date" id="expTo"></div>
+          <div class="field"><label for="expSearch">Buscar</label><input class="input" type="search" id="expSearch" placeholder="Descripción…"></div>
+          <div class="field"><label for="expQuick">Periodo</label>
+            <select class="input" id="expQuick">
+              <option value="all">Todo</option>
+              <option value="month">Mes del calendario</option>
+              <option value="30">Últimos 30 días</option>
+              <option value="90">Últimos 90 días</option>
+            </select>
+          </div>
+          <div class="field" style="justify-content:flex-end"><button class="btn" id="btnClearExpFilters" type="button">Limpiar filtros</button></div>
+        </div>
+        <div class="table-scroll"><table id="tblExpenses"></table></div>
+        <div id="expFooter" style="padding:12px 16px;border-top:1px solid var(--line);display:none;justify-content:center">
+          <button class="btn btn-sm" id="btnMoreExp">Ver más gastos</button>
+        </div>
+      </div>
+    </section>
+  </div><!-- /viewExpenses -->
+
+  <!-- ============================= VISIÓN GLOBAL ============================ -->
+  <div id="viewOverview" class="hidden">
+    <section class="section-head" style="margin-top:22px">
+      <div>
+        <h2>🌍 Visión global</h2>
+        <div class="sub" id="ovSub">Suma de todos tus negocios. Solo lectura: aquí no se introducen datos.</div>
+      </div>
+    </section>
+    <div class="kpis" id="ovKpis"></div>
+    <div class="section grid-2">
+      <div class="card">
+        <div class="section-head" style="padding:16px 18px 0;margin-bottom:8px">
+          <h2 style="font-size:15px">Saldo por negocio</h2>
+        </div>
+        <div class="table-scroll"><table id="tblOvBalances"></table></div>
+      </div>
+      <div class="card chart-box">
+        <div class="section-head" style="margin-bottom:6px">
+          <h2 style="font-size:15px">Evolución del saldo total</h2>
+          <div class="spacer"></div>
+          <span class="sub">Últimos 12 meses</span>
+        </div>
+        <div class="chart-holder"><canvas id="chartBalance"></canvas><div class="chart-empty hidden" id="chartBalanceEmpty"></div></div>
+      </div>
+    </div>
+    <section class="section">
+      <div class="section-head"><h2>Mes en curso por negocio</h2><div class="spacer"></div><span class="sub" id="ovMonthLabel"></span></div>
+      <div class="card table-scroll"><table id="tblOvMonth"></table></div>
+    </section>
+  </div><!-- /viewOverview -->
+
   <div class="foot">
     Los datos se guardan en el <strong>localStorage</strong> de este navegador y dispositivo. Haz una copia de seguridad de vez en cuando.
   </div>
@@ -599,23 +751,29 @@ function isHex(c) { return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(c ||
 /* ------------------------------- estado -------------------------------- */
 let state = null;
 let ui = {
+  view: 'business',            // 'business' | 'expenses' | 'overview'
   month: monthKeyOf(todayISO()),
+  expMonth: monthKeyOf(todayISO()),
+  expScope: 'all',             // negocio mostrado en Gastos Diarios ('all' o id)
+  expDay: null,                // día seleccionado en el calendario
+  expLimit: 40,
   histLimit: 60,
   dismissed: {},
   editingId: null
 };
-let charts = { daily: null, monthly: null };
+let charts = { daily: null, monthly: null, balance: null };
 
 function defaultState() {
   const now = Date.now();
   return {
     app: 'ecom-dashboard',
-    version: 2,
+    version: 3,
     activeId: null,
     businesses: [
-      { id: uid(), name: 'Draselle', color: '#C9A227', createdAt: now, orders: [], payments: makePayments('basic'), expenses: [] },
-      { id: uid(), name: 'SD Sneakers', color: '#F97316', createdAt: now + 1, orders: [], payments: makePayments('grow'), expenses: [] }
-    ]
+      { id: uid(), name: 'Draselle', color: '#C9A227', createdAt: now, orders: [], payments: makePayments('basic'), expenses: [], balance: makeBalance() },
+      { id: uid(), name: 'SD Sneakers', color: '#F97316', createdAt: now + 1, orders: [], payments: makePayments('grow'), expenses: [], balance: makeBalance() }
+    ],
+    dailyExpenses: []
   };
 }
 
@@ -632,6 +790,45 @@ function legacyPaymentsFor(name) {
   const n = String(name || '').trim().toLowerCase();
   if (n === 'sd sneakers') return makePayments('grow');
   return makePayments(DEFAULT_PLAN);
+}
+
+function makeBalance(initial, since, adjustments) {
+  return {
+    initial: clampNum(Number(initial)),
+    since: /^\d{4}-\d{2}$/.test(since) ? since : monthKeyOf(todayISO()),
+    adjustments: Array.isArray(adjustments) ? adjustments.map(sanitizeAdjustment).filter(Boolean) : []
+  };
+}
+
+function sanitizeAdjustment(a) {
+  if (!a || typeof a !== 'object') return null;
+  const amount = clampNum(Number(a.amount));
+  if (!amount) return null;
+  return {
+    id: typeof a.id === 'string' && a.id ? a.id : uid(),
+    date: validISODate(a.date) ? a.date : todayISO(),
+    amount: amount,
+    note: String(a.note || '').slice(0, 200),
+    createdAt: Number(a.createdAt) || Date.now()
+  };
+}
+
+/** Gasto diario: pertenece a un negocio concreto aunque se gestione en su sección propia. */
+function sanitizeDailyExpense(g, validIds) {
+  if (!g || typeof g !== 'object') return null;
+  const amount = Math.max(0, clampNum(Number(g.amount)));
+  const bizId = validIds && validIds.length
+    ? (validIds.indexOf(g.bizId) > -1 ? g.bizId : validIds[0])
+    : String(g.bizId || '');
+  return {
+    id: typeof g.id === 'string' && g.id ? g.id : uid(),
+    bizId: bizId,
+    date: validISODate(g.date) ? g.date : todayISO(),
+    desc: String(g.desc || '').slice(0, 200),
+    amount: amount,
+    createdAt: Number(g.createdAt) || Date.now(),
+    updatedAt: Number(g.updatedAt) || Number(g.createdAt) || Date.now()
+  };
 }
 
 function sanitizeExpense(e) {
@@ -674,11 +871,18 @@ function sanitizeState(raw) {
       ? makePayments(b.payments.plan, b.payments.rate, b.payments.fixed)
       : legacyPaymentsFor(b.name),
     expenses: Array.isArray(b.expenses) ? b.expenses.map(sanitizeExpense).filter(Boolean) : [],
+    balance: b.balance && typeof b.balance === 'object'
+      ? makeBalance(b.balance.initial, b.balance.since, b.balance.adjustments)
+      : makeBalance(0, monthKeyOf(todayISO()), []),
     orders: Array.isArray(b.orders) ? b.orders.map(sanitizeOrder).filter(Boolean) : []
   }));
   if (!businesses.length) return null;
   const activeId = businesses.some((b) => b.id === raw.activeId) ? raw.activeId : businesses[0].id;
-  return { app: 'ecom-dashboard', version: 2, activeId: activeId, businesses: businesses };
+  const ids = businesses.map((b) => b.id);
+  const dailyExpenses = Array.isArray(raw.dailyExpenses)
+    ? raw.dailyExpenses.map((g) => sanitizeDailyExpense(g, ids)).filter(Boolean)
+    : [];
+  return { app: 'ecom-dashboard', version: 3, activeId: activeId, businesses: businesses, dailyExpenses: dailyExpenses };
 }
 
 function load() {
@@ -751,18 +955,75 @@ function aggregate(orders, biz) {
   return t;
 }
 
+/** Gastos diarios de un negocio (todos, o los de un mes concreto). */
+function dailyExpensesOf(bizId, key) {
+  return (state.dailyExpenses || []).filter((g) =>
+    g.bizId === bizId && (!key || monthKeyOf(g.date) === key));
+}
+function dailyExpensesTotal(bizId, key) {
+  return round2(dailyExpensesOf(bizId, key).reduce((n, g) => n + g.amount, 0));
+}
+
 /**
- * Totales de un mes concreto, ya con los gastos fijos descontados:
- * Beneficio neto del mes = facturación − coste − ads − comisiones − gastos fijos.
+ * Totales de un mes concreto, ya con los gastos del negocio descontados:
+ * Beneficio neto = facturación − coste − ads − comisiones − gastos fijos − gastos diarios.
  */
 function monthTotals(biz, key) {
   const t = aggregate(ordersOfMonth(biz.orders, key), biz);
   t.key = key;
   t.fixed = monthlyExpenses(biz);
+  t.daily = dailyExpensesTotal(biz.id, key);
   t.grossProfit = t.profit;
-  t.profit = t.grossProfit - t.fixed;
+  t.profit = t.grossProfit - t.fixed - t.daily;
   t.margin = t.revenue > 0 ? (t.profit / t.revenue) * 100 : NaN;
   return t;
+}
+
+/** Todos los meses con movimiento (pedidos o gastos diarios) de un negocio. */
+function monthKeysOf(biz) {
+  const keys = new Set(biz.orders.map((o) => monthKeyOf(o.date)));
+  dailyExpensesOf(biz.id).forEach((g) => keys.add(monthKeyOf(g.date)));
+  return Array.from(keys).filter(Boolean).sort();
+}
+
+/** Lista de meses entre dos claves, ambas incluidas (con tope de seguridad). */
+function monthRange(from, to) {
+  const out = [];
+  if (!from || !to || from > to) return out;
+  let k = from;
+  while (k <= to && out.length < 600) { out.push(k); k = shiftMonth(k, 1); }
+  return out;
+}
+
+/**
+ * Saldo en caja: saldo inicial + beneficio neto de los meses ya cerrados
+ * posteriores a la fecha del saldo inicial + ajustes manuales.
+ * El mes en curso se muestra aparte como "proyección" para no contarlo dos veces.
+ */
+function balanceOf(biz) {
+  const bal = biz.balance || makeBalance();
+  const cur = monthKeyOf(todayISO());
+  let closed = 0;
+  monthRange(shiftMonth(bal.since, 1), shiftMonth(cur, -1)).forEach((k) => { closed += monthTotals(biz, k).profit; });
+  const adjustments = round2((bal.adjustments || []).reduce((n, a) => n + a.amount, 0));
+  const pending = bal.since < cur ? monthTotals(biz, cur).profit : 0;
+  const current = round2(bal.initial + closed + adjustments);
+  return {
+    initial: bal.initial, since: bal.since, closedProfit: round2(closed), adjustments: adjustments,
+    current: current, pending: round2(pending), projected: round2(current + pending)
+  };
+}
+
+/** Saldo acumulado al cierre de cada mes de la lista (para el gráfico de evolución). */
+function balanceSeries(biz, keys) {
+  const bal = biz.balance || makeBalance();
+  const adj = (bal.adjustments || []).slice();
+  return keys.map((k) => {
+    let v = bal.initial;
+    monthRange(shiftMonth(bal.since, 1), k).forEach((m) => { v += monthTotals(biz, m).profit; });
+    adj.forEach((a) => { if (monthKeyOf(a.date) <= k) v += a.amount; });
+    return round2(v);
+  });
 }
 
 function groupBy(orders, keyFn) {
@@ -791,8 +1052,9 @@ function statsByMonth(orders, biz) {
   map.forEach((list, key) => {
     const t = Object.assign({ key: key, orders: list }, aggregate(list, biz));
     t.fixed = fixed;
+    t.daily = dailyExpensesTotal(biz.id, key);
     t.grossProfit = t.profit;
-    t.profit = t.grossProfit - fixed;
+    t.profit = t.grossProfit - fixed - t.daily;
     t.margin = t.revenue > 0 ? (t.profit / t.revenue) * 100 : NaN;
     out.push(t);
   });
@@ -865,17 +1127,37 @@ function renderAll() {
   const biz = activeBiz();
   applyBrand(biz.color);
   renderTabs();
-  renderHeader(biz);
-  renderMonthPicker(biz);
   renderBanners();
-  renderKpis(biz);
-  renderRecords(biz);
-  renderCharts(biz);
-  renderDayTable(biz);
-  renderMonthTable(biz);
-  renderProducts(biz);
-  renderHistory(biz);
-  renderDatalists(biz);
+
+  $('#viewBusiness').classList.toggle('hidden', ui.view !== 'business');
+  $('#viewExpenses').classList.toggle('hidden', ui.view !== 'expenses');
+  $('#viewOverview').classList.toggle('hidden', ui.view !== 'overview');
+  $('.sticky-add').classList.toggle('hidden', ui.view === 'overview');
+  $('#btnJumpForm').textContent = ui.view === 'expenses' ? '➕ Añadir gasto' : '➕ Añadir pedido';
+  $('#logoSub').textContent = plural(state.businesses.length, 'negocio', 'negocios') + ' · control diario';
+
+  if (ui.view === 'business') {
+    renderHeader(biz);
+    renderMonthPicker(biz);
+    renderKpis(biz);
+    renderRecords(biz);
+    renderCharts(biz);
+    renderDayTable(biz);
+    renderMonthTable(biz);
+    renderProducts(biz);
+    renderHistory(biz);
+    renderDatalists(biz);
+  } else if (ui.view === 'expenses') {
+    renderExpensesView();
+  } else {
+    renderOverview();
+  }
+}
+
+function switchView(view) {
+  ui.view = view;
+  renderAll();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function applyBrand(color) {
@@ -892,12 +1174,26 @@ function renderTabs() {
   row.innerHTML = '';
   state.businesses.forEach((b) => {
     const btn = document.createElement('button');
-    btn.className = 'tab' + (b.id === state.activeId ? ' active' : '');
+    btn.className = 'tab' + (b.id === state.activeId && ui.view === 'business' ? ' active' : '');
     btn.type = 'button';
     btn.innerHTML = '<span class="dot" style="background:' + esc(b.color) + '"></span>' + esc(b.name);
     btn.addEventListener('click', () => switchBiz(b.id));
     row.appendChild(btn);
   });
+
+  const sep = document.createElement('span');
+  sep.className = 'tab-sep';
+  row.appendChild(sep);
+
+  [['expenses', '📅 Gastos diarios'], ['overview', '🌍 Visión global']].forEach((v) => {
+    const b = document.createElement('button');
+    b.className = 'tab tab-special' + (ui.view === v[0] ? ' active' : '');
+    b.type = 'button';
+    b.textContent = v[1];
+    b.addEventListener('click', () => switchView(v[0]));
+    row.appendChild(b);
+  });
+
   const add = document.createElement('button');
   add.className = 'tab-add';
   add.type = 'button';
@@ -907,8 +1203,11 @@ function renderTabs() {
 }
 
 function switchBiz(id) {
-  if (state.activeId === id) return;
+  const changed = state.activeId !== id;
+  if (!changed && ui.view === 'business') return;
   state.activeId = id;
+  ui.view = 'business';
+  if (!changed) { renderAll(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   ui.month = monthKeyOf(todayISO());
   ui.histLimit = 60;
   ui.editingId = null;
@@ -932,7 +1231,6 @@ function renderHeader(biz) {
   parts.push('Comisión ' + planLabel(biz));
   if (fixed > 0) parts.push('Gastos fijos ' + money(fixed) + '/mes');
   $('#bizSub').textContent = parts.join(' · ');
-  $('#logoSub').textContent = state.businesses.length + ' negocios · control diario';
 }
 
 function renderMonthPicker(biz) {
@@ -1023,11 +1321,23 @@ function renderKpis(biz) {
   const empty = cur.count === 0;
   const profitCls = (empty && !cur.fixed) ? 'neu' : signClass(cur.profit);
 
+  const bal = balanceOf(biz);
+  const balFoot = (bal.since < monthKeyOf(todayISO()) && bal.pending !== 0)
+    ? '<span class="chip ' + signClass(bal.pending) + '">mes en curso ' + (bal.pending > 0 ? '+' : '') + money(bal.pending) + '</span>' +
+      '<span class="chip neu">proyectado ' + money(bal.projected) + '</span>'
+    : '<span class="chip neu">desde ' + monthLabel(bal.since, true) + '</span>';
+
   const html = [
+    '<div class="card kpi ' + signClass(bal.current) + '">' +
+      '<div class="kpi-label">💰 Saldo en caja</div>' +
+      '<div class="kpi-value ' + signClass(bal.current) + '">' + money(bal.current, true) + '</div>' +
+      '<div class="kpi-foot">' + balFoot +
+        '<button class="btn btn-sm" id="btnAdjustBalance" style="margin-left:auto">Ajustar</button>' +
+      '</div></div>',
     kpiCard('Facturación · ' + tag, money(cur.revenue, true), empty ? 'neu' : '', delta(cur.revenue, prev.revenue)),
     kpiCard('Beneficio neto · ' + tag, money(cur.profit, true), profitCls,
       delta(cur.profit, prev.profit) +
-      '<span class="chip neu" title="Venta − coste − ads − comisiones − gastos fijos">tras comisiones y gastos fijos</span>'),
+      '<span class="chip neu" title="Venta − coste − ads − comisiones − gastos fijos − gastos diarios">tras comisiones y gastos</span>'),
     kpiCard('Ventas · ' + tag, String(cur.count), empty ? 'neu' : '', delta(cur.count, prev.count)),
     kpiCard('Ticket medio', cur.count ? money(cur.avgTicket) : '—', empty ? 'neu' : '', cur.count ? delta(cur.avgTicket, prev.avgTicket) : '<span class="chip neu">sin ventas</span>'),
     kpiCard('Margen neto', cur.count ? pct(cur.margin) : '—', profitCls,
@@ -1037,9 +1347,13 @@ function renderKpis(biz) {
     kpiCard('Gastos fijos · ' + tag, money(cur.fixed, true), 'neu',
       cur.fixed
         ? '<span class="chip neu">' + plural((biz.expenses || []).length, 'gasto recurrente', 'gastos recurrentes') + '</span>'
-        : '<span class="chip neu">Sin gastos recurrentes</span>')
+        : '<span class="chip neu">Sin gastos recurrentes</span>'),
+    kpiCard('Gastos diarios · ' + tag, money(cur.daily, true), 'neu',
+      '<span class="chip neu">' + plural(dailyExpensesOf(biz.id, key).length, 'gasto apuntado', 'gastos apuntados') + '</span>')
   ].join('');
   $('#kpis').innerHTML = html;
+  const adjBtn = $('#btnAdjustBalance');
+  if (adjBtn) adjBtn.addEventListener('click', openBalanceModal);
 }
 
 function renderRecords(biz) {
@@ -1216,15 +1530,21 @@ function renderDayTable(biz) {
       '<td class="num">' + money(d.fees) + '</td>' +
       '<td class="num strong ' + signClass(d.profit) + '-t">' + money(d.profit) + '</td></tr>').join('') +
     '</tbody><tfoot>' +
-    '<tr class="day-group"><td>' + (total.fixed > 0 ? 'Suma de días' : 'Total ' + monthLabel(ui.month, true)) + '</td>' +
+    '<tr class="day-group"><td>' + ((total.fixed > 0 || total.daily > 0) ? 'Suma de días' : 'Total ' + monthLabel(ui.month, true)) + '</td>' +
     '<td class="num">' + total.count + '</td><td class="num">' + money(total.revenue) + '</td>' +
     '<td class="num">' + money(total.cost) + '</td><td class="num">' + money(total.ads) + '</td>' +
     '<td class="num">' + money(total.fees) + '</td>' +
     '<td class="num ' + signClass(total.grossProfit) + '-t">' + money(total.grossProfit) + '</td></tr>' +
     (total.fixed > 0
       ? '<tr class="day-group"><td colspan="6">− Gastos fijos del mes</td>' +
-        '<td class="num neg-t">−' + money(total.fixed) + '</td></tr>' +
-        '<tr class="day-group"><td colspan="6">Beneficio neto de ' + monthLabel(ui.month, true) + '</td>' +
+        '<td class="num neg-t">−' + money(total.fixed) + '</td></tr>'
+      : '') +
+    (total.daily > 0
+      ? '<tr class="day-group"><td colspan="6">− Gastos diarios del mes</td>' +
+        '<td class="num neg-t">−' + money(total.daily) + '</td></tr>'
+      : '') +
+    ((total.fixed > 0 || total.daily > 0)
+      ? '<tr class="day-group"><td colspan="6">Beneficio neto de ' + monthLabel(ui.month, true) + '</td>' +
         '<td class="num ' + signClass(total.profit) + '-t">' + money(total.profit) + '</td></tr>'
       : '') + '</tfoot>';
 }
@@ -1238,7 +1558,7 @@ function renderMonthTable(biz) {
   }
   const cur = monthKeyOf(todayISO());
   t.innerHTML =
-    '<thead><tr><th>Mes</th><th class="num">Ventas</th><th class="num">Facturación</th><th class="num">Comisiones</th><th class="num">Gastos fijos</th><th class="num">Beneficio neto</th><th class="num">Margen</th></tr></thead><tbody>' +
+    '<thead><tr><th>Mes</th><th class="num">Ventas</th><th class="num">Facturación</th><th class="num">Comisiones</th><th class="num">Gastos fijos</th><th class="num">Gastos diarios</th><th class="num">Beneficio neto</th><th class="num">Margen</th></tr></thead><tbody>' +
     rows.map((m) =>
       '<tr style="cursor:pointer" data-month="' + m.key + '"><td>' + esc(monthLabel(m.key)) +
       (m.key === cur ? ' <span class="tag">en curso</span>' : '') + '</td>' +
@@ -1246,6 +1566,7 @@ function renderMonthTable(biz) {
       '<td class="num">' + money(m.revenue) + '</td>' +
       '<td class="num">' + money(m.fees) + '</td>' +
       '<td class="num">' + money(m.fixed) + '</td>' +
+      '<td class="num">' + money(m.daily) + '</td>' +
       '<td class="num strong ' + signClass(m.profit) + '-t">' + money(m.profit) + '</td>' +
       '<td class="num">' + pct(m.margin) + '</td></tr>').join('') + '</tbody>';
   $$('#tblMonths tr[data-month]').forEach((tr) => tr.addEventListener('click', () => {
@@ -1615,6 +1936,7 @@ function openBizModal(bizId) {
 function openConfigModal() {
   const biz = activeBiz();
   const pay = paymentsOf(biz);
+  const bal = biz.balance || makeBalance();
   // se trabaja sobre copias: nada se guarda hasta pulsar "Guardar configuración"
   let draftPay = { plan: pay.plan, rate: pay.rate, fixed: pay.fixed };
   let draftExp = (biz.expenses || []).map((e) => ({ id: e.id, name: e.name, amount: e.amount, freq: e.freq }));
@@ -1643,6 +1965,17 @@ function openConfigModal() {
         'del negocio (no del beneficio de cada pedido). Los gastos anuales se convierten a su equivalente mensual.</div>' +
       '<div id="cfExpBox"></div>' +
       '<button class="btn btn-sm" type="button" id="cfAddExp" style="margin-top:10px">➕ Añadir gasto</button>' +
+
+      '<h4 style="font-size:14px;margin:22px 0 4px">💰 Saldo en caja</h4>' +
+      '<div class="sub" style="margin-bottom:12px">Introduce una sola vez lo que tienes ahora en el banco para este negocio. ' +
+        'A partir del mes siguiente, la app le va sumando el beneficio neto de cada mes cerrado.</div>' +
+      '<div class="grid-form">' +
+        '<div class="field"><label for="cfBalInit">Saldo inicial</label>' +
+          '<div class="input-money"><input class="input" id="cfBalInit" inputmode="decimal" value="' + nfNum.format(bal.initial) + '"><span class="cur">€</span></div></div>' +
+        '<div class="field"><label for="cfBalSince">A fecha de (mes de referencia)</label>' +
+          '<input class="input" type="month" id="cfBalSince" value="' + esc(bal.since) + '"></div>' +
+        '<div class="field" style="justify-content:flex-end"><div class="sub" id="cfBalNow"></div></div>' +
+      '</div>' +
       '<div class="form-msg err hidden" id="cfMsg"></div>' +
     '</div>' +
     '<div class="modal-foot">' +
@@ -1687,6 +2020,13 @@ function openConfigModal() {
   function updateSummary() {
     $('#cfSummary', bg).textContent = 'Comisión: ' + planLabel({ payments: draftPay }) +
       ' · Gastos fijos: ' + money(draftFixedTotal()) + '/mes';
+    const now = $('#cfBalNow', bg);
+    if (now) {
+      const v = parseNum($('#cfBalInit', bg).value);
+      now.textContent = Number.isFinite(v)
+        ? 'Saldo calculado hoy: ' + money(balanceOf(biz).current)
+        : 'Introduce un número válido.';
+    }
   }
 
   function renderExpenses() {
@@ -1740,6 +2080,11 @@ function openConfigModal() {
     updateSummary();
   }
 
+  ['#cfBalInit', '#cfBalSince'].forEach((sel) => {
+    const el = $(sel, bg);
+    if (el) el.addEventListener('input', updateSummary);
+  });
+
   $('#cfAddExp', bg).addEventListener('click', () => {
     draftExp.push({ id: uid(), name: '', amount: 0, freq: 'monthly' });
     renderExpenses();
@@ -1759,8 +2104,13 @@ function openConfigModal() {
     }
     const bad = draftExp.find((e) => !Number.isFinite(e.amount) || e.amount < 0);
     if (bad) { msg.textContent = 'Revisa los importes de los gastos recurrentes: deben ser números iguales o mayores que 0.'; msg.classList.remove('hidden'); return; }
+    const initial = $('#cfBalInit', bg).value.trim() ? parseNum($('#cfBalInit', bg).value) : 0;
+    if (!Number.isFinite(initial)) { msg.textContent = 'El saldo inicial debe ser un número (puede ser negativo).'; msg.classList.remove('hidden'); return; }
+    const since = $('#cfBalSince', bg).value;
+    if (!/^\d{4}-\d{2}$/.test(since)) { msg.textContent = 'Elige un mes de referencia válido para el saldo inicial.'; msg.classList.remove('hidden'); return; }
     msg.classList.add('hidden');
 
+    biz.balance = makeBalance(initial, since, (biz.balance && biz.balance.adjustments) || []);
     biz.payments = pay;
     biz.expenses = draftExp
       .filter((e) => e.name.trim() !== '' || e.amount > 0)
@@ -1781,7 +2131,9 @@ function deleteBusiness() {
     alert('No puedes eliminar el único negocio. Crea otro antes de borrar este.');
     return;
   }
-  const ok = confirm('¿Eliminar el negocio «' + biz.name + '» y sus ' + biz.orders.length + ' pedidos?\n\n' +
+  const gastos = dailyExpensesOf(biz.id).length;
+  const ok = confirm('¿Eliminar el negocio «' + biz.name + '» y sus ' + biz.orders.length + ' pedidos' +
+    (gastos ? ' y ' + gastos + ' gastos diarios' : '') + '?\n\n' +
     'Se borrará todo su histórico de forma permanente. Te recomendamos hacer antes una copia de seguridad.');
   if (!ok) return;
   if (biz.orders.length > 0) {
@@ -1790,7 +2142,9 @@ function deleteBusiness() {
     if (typed.trim().toLowerCase() !== biz.name.trim().toLowerCase()) { alert('El nombre no coincide. No se ha borrado nada.'); return; }
   }
   state.businesses = state.businesses.filter((b) => b.id !== biz.id);
+  state.dailyExpenses = (state.dailyExpenses || []).filter((g) => g.bizId !== biz.id);
   state.activeId = state.businesses[0].id;
+  if (ui.expScope === biz.id) ui.expScope = 'all';
   save();
   renderAll();
   toast('🗑️ Negocio eliminado');
@@ -2075,6 +2429,527 @@ function openImportModal(mode) {
   });
 }
 
+/* ---------------------- saldo en caja (ajuste manual) ------------------- */
+function openBalanceModal() {
+  const biz = activeBiz();
+  const bal = balanceOf(biz);
+  const adjustments = (biz.balance.adjustments || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  const bg = openModal(
+    '<div class="modal-head"><h3>💰 Saldo en caja de ' + esc(biz.name) + '</h3></div>' +
+    '<div class="modal-body">' +
+      '<div class="note-box" style="margin-bottom:16px">' +
+        '<div class="split-row"><span class="lab">Saldo inicial (' + monthLabel(bal.since, true) + ')</span><span class="val">' + money(bal.initial) + '</span></div>' +
+        '<div class="split-row"><span class="lab">+ Beneficio neto de los meses cerrados</span><span class="val ' + signClass(bal.closedProfit) + '-t">' + money(bal.closedProfit) + '</span></div>' +
+        '<div class="split-row"><span class="lab">+ Ajustes manuales</span><span class="val ' + signClass(bal.adjustments) + '-t">' + money(bal.adjustments) + '</span></div>' +
+        '<div class="split-row"><span class="lab" style="color:var(--text)">= Saldo actual</span><span class="val ' + signClass(bal.current) + '-t" style="font-size:16px">' + money(bal.current) + '</span></div>' +
+        (bal.pending !== 0
+          ? '<div class="split-row"><span class="lab">Mes en curso (aún sin cerrar)</span><span class="val ' + signClass(bal.pending) + '-t">' + money(bal.pending) + '</span></div>'
+          : '') +
+      '</div>' +
+      '<div class="field"><label for="baReal">Saldo real que tienes en el banco</label>' +
+        '<div class="input-money"><input class="input" id="baReal" inputmode="decimal" value="' + nfNum.format(bal.current) + '"><span class="cur">€</span></div>' +
+        '<span class="hint">Se guardará solo la diferencia como ajuste, sin tocar ni recalcular tu histórico.</span></div>' +
+      '<div class="field" style="margin-top:12px"><label for="baNote">Motivo del ajuste <span class="hint">(opcional)</span></label>' +
+        '<input class="input" id="baNote" placeholder="Ej. cobro pendiente de Shopify, devolución…"></div>' +
+      '<div class="note-box" id="baPreview" style="margin-top:12px"></div>' +
+      (adjustments.length
+        ? '<h4 style="font-size:14px;margin:20px 0 8px">Ajustes anteriores</h4>' +
+          '<div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Motivo</th><th class="num">Importe</th><th></th></tr></thead><tbody>' +
+          adjustments.map((a) =>
+            '<tr><td class="mono">' + esc(a.date.split('-').reverse().join('/')) + '</td>' +
+            '<td>' + (esc(a.note) || '<span style="color:var(--muted-2)">—</span>') + '</td>' +
+            '<td class="num ' + signClass(a.amount) + '-t">' + (a.amount > 0 ? '+' : '') + money(a.amount) + '</td>' +
+            '<td><button class="icon-btn" data-adel="' + a.id + '" title="Eliminar ajuste">🗑️</button></td></tr>').join('') +
+          '</tbody></table></div>'
+        : '') +
+      '<div class="form-msg err hidden" id="baMsg"></div>' +
+    '</div>' +
+    '<div class="modal-foot">' +
+      '<span class="sub" style="margin-right:auto">El saldo inicial se cambia en ⚙️ Configuración.</span>' +
+      '<button class="btn" id="baCancel">Cancelar</button>' +
+      '<button class="btn btn-brand" id="baSave">Guardar ajuste</button>' +
+    '</div>', { wide: true });
+
+  function preview() {
+    const real = parseNum($('#baReal', bg).value);
+    const box = $('#baPreview', bg);
+    if (!Number.isFinite(real)) { box.textContent = 'Introduce el saldo real para calcular el ajuste.'; return; }
+    const diff = round2(real - bal.current);
+    box.innerHTML = diff === 0
+      ? 'El saldo calculado ya coincide con el real: no hace falta ningún ajuste.'
+      : 'Se guardará un ajuste de <strong class="' + signClass(diff) + '-t">' + (diff > 0 ? '+' : '') + money(diff) +
+        '</strong> con fecha de hoy para dejar el saldo en <strong>' + money(real) + '</strong>.';
+  }
+  $('#baReal', bg).addEventListener('input', preview);
+  preview();
+
+  $$('#modalRoot [data-adel]', bg).forEach((b) => b.addEventListener('click', () => {
+    const aid = b.getAttribute('data-adel');
+    if (!confirm('¿Eliminar este ajuste manual? El saldo se recalculará sin él.')) return;
+    biz.balance.adjustments = biz.balance.adjustments.filter((a) => a.id !== aid);
+    save();
+    closeModal();
+    renderAll();
+    toast('🗑️ Ajuste eliminado');
+  }));
+
+  $('#baCancel', bg).addEventListener('click', closeModal);
+  $('#baSave', bg).addEventListener('click', () => {
+    const real = parseNum($('#baReal', bg).value);
+    const msg = $('#baMsg', bg);
+    if (!Number.isFinite(real)) { msg.textContent = 'El saldo real debe ser un número.'; msg.classList.remove('hidden'); return; }
+    const diff = round2(real - bal.current);
+    if (diff === 0) { closeModal(); toast('El saldo ya coincide, no se ha guardado ningún ajuste.'); return; }
+    const adj = sanitizeAdjustment({ id: uid(), date: todayISO(), amount: diff, note: $('#baNote', bg).value.trim(), createdAt: Date.now() });
+    if (adj) biz.balance.adjustments.push(adj);
+    save();
+    closeModal();
+    renderAll();
+    toast('💰 Saldo ajustado a ' + money(real));
+  });
+}
+
+/* ============================ VISIÓN GLOBAL ============================= */
+function renderOverview() {
+  const cur = monthKeyOf(todayISO());
+  $('#ovMonthLabel').textContent = monthLabel(cur);
+
+  const rows = state.businesses.map((b) => {
+    const bal = balanceOf(b);
+    const month = monthTotals(b, cur);
+    return { biz: b, bal: bal, month: month };
+  });
+  const totalBalance = round2(rows.reduce((n, r) => n + r.bal.current, 0));
+  const totalProjected = round2(rows.reduce((n, r) => n + r.bal.projected, 0));
+  const totalProfit = round2(rows.reduce((n, r) => n + r.month.profit, 0));
+  const totalRevenue = round2(rows.reduce((n, r) => n + r.month.revenue, 0));
+  const totalDaily = round2(rows.reduce((n, r) => n + r.month.daily, 0));
+  const totalFixed = round2(rows.reduce((n, r) => n + r.month.fixed, 0));
+  const totalFees = round2(rows.reduce((n, r) => n + r.month.fees, 0));
+  const totalSales = rows.reduce((n, r) => n + r.month.count, 0);
+
+  $('#ovSub').textContent = 'Suma de ' + plural(state.businesses.length, 'negocio', 'negocios') +
+    ' · saldo total ' + money(totalBalance, true) + ' · solo lectura';
+
+  $('#ovKpis').innerHTML = [
+    '<div class="card kpi ' + signClass(totalBalance) + '" style="grid-column:span 2">' +
+      '<div class="kpi-label">💰 Saldo total combinado</div>' +
+      '<div class="kpi-value ' + signClass(totalBalance) + '" style="font-size:38px">' + money(totalBalance, true) + '</div>' +
+      '<div class="kpi-foot"><span class="chip neu">proyectado con el mes en curso ' + money(totalProjected, true) + '</span></div>' +
+    '</div>',
+    kpiCard('Beneficio neto · ' + monthLabel(cur, true), money(totalProfit, true), signClass(totalProfit),
+      '<span class="chip neu">' + plural(totalSales, 'venta', 'ventas') + ' · ' + money(totalRevenue, true) + ' facturados</span>'),
+    kpiCard('Gastos diarios · ' + monthLabel(cur, true), money(totalDaily, true), 'neu',
+      '<span class="chip neu">de todos los negocios</span>'),
+    kpiCard('Gastos fijos · ' + monthLabel(cur, true), money(totalFixed, true), 'neu',
+      '<span class="chip neu">comisiones ' + money(totalFees, true) + '</span>')
+  ].join('');
+
+  // --- saldo por negocio ---
+  const tBal = $('#tblOvBalances');
+  tBal.innerHTML =
+    '<thead><tr><th>Negocio</th><th class="num">Saldo inicial</th><th class="num">Ajustes</th><th class="num">Saldo actual</th><th class="num">% del total</th></tr></thead><tbody>' +
+    rows.map((r) => {
+      const share = totalBalance !== 0 ? (r.bal.current / totalBalance) * 100 : NaN;
+      return '<tr style="cursor:pointer" data-biz="' + r.biz.id + '">' +
+        '<td><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + esc(r.biz.color) +
+          ';margin-right:8px"></span>' + esc(r.biz.name) + '</td>' +
+        '<td class="num">' + money(r.bal.initial) + '</td>' +
+        '<td class="num">' + money(r.bal.adjustments) + '</td>' +
+        '<td class="num strong ' + signClass(r.bal.current) + '-t">' + money(r.bal.current) + '</td>' +
+        '<td class="num">' + (Number.isFinite(share) ? pct(share) : '—') + '</td></tr>';
+    }).join('') +
+    '</tbody><tfoot><tr class="day-group"><td>Total</td>' +
+    '<td class="num">' + money(round2(rows.reduce((n, r) => n + r.bal.initial, 0))) + '</td>' +
+    '<td class="num">' + money(round2(rows.reduce((n, r) => n + r.bal.adjustments, 0))) + '</td>' +
+    '<td class="num ' + signClass(totalBalance) + '-t">' + money(totalBalance) + '</td>' +
+    '<td class="num">' + (totalBalance !== 0 ? '100,0%' : '—') + '</td></tr></tfoot>';
+  $$('#tblOvBalances tr[data-biz]').forEach((tr) => tr.addEventListener('click', () => switchBiz(tr.getAttribute('data-biz'))));
+
+  // --- mes en curso por negocio ---
+  const tMonth = $('#tblOvMonth');
+  tMonth.innerHTML =
+    '<thead><tr><th>Negocio</th><th class="num">Ventas</th><th class="num">Facturación</th><th class="num">Comisiones</th>' +
+    '<th class="num">Gastos fijos</th><th class="num">Gastos diarios</th><th class="num">Beneficio neto</th></tr></thead><tbody>' +
+    rows.map((r) =>
+      '<tr style="cursor:pointer" data-biz="' + r.biz.id + '">' +
+      '<td><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + esc(r.biz.color) +
+        ';margin-right:8px"></span>' + esc(r.biz.name) + '</td>' +
+      '<td class="num">' + r.month.count + '</td>' +
+      '<td class="num">' + money(r.month.revenue) + '</td>' +
+      '<td class="num">' + money(r.month.fees) + '</td>' +
+      '<td class="num">' + money(r.month.fixed) + '</td>' +
+      '<td class="num">' + money(r.month.daily) + '</td>' +
+      '<td class="num strong ' + signClass(r.month.profit) + '-t">' + money(r.month.profit) + '</td></tr>').join('') +
+    '</tbody><tfoot><tr class="day-group"><td>Total</td><td class="num">' + totalSales + '</td>' +
+    '<td class="num">' + money(totalRevenue) + '</td><td class="num">' + money(totalFees) + '</td>' +
+    '<td class="num">' + money(totalFixed) + '</td><td class="num">' + money(totalDaily) + '</td>' +
+    '<td class="num ' + signClass(totalProfit) + '-t">' + money(totalProfit) + '</td></tr></tfoot>';
+  $$('#tblOvMonth tr[data-biz]').forEach((tr) => tr.addEventListener('click', () => switchBiz(tr.getAttribute('data-biz'))));
+
+  renderBalanceChart(rows, cur);
+}
+
+function renderBalanceChart(rows, cur) {
+  const holder = $('#chartBalanceEmpty');
+  const canvas = $('#chartBalance');
+  if (charts.balance) { charts.balance.destroy(); charts.balance = null; }
+  if (!chartsAvailable()) {
+    holder.classList.remove('hidden');
+    holder.textContent = 'El gráfico necesita conexión a internet (Chart.js vía CDN). El resto del resumen funciona sin conexión.';
+    canvas.style.display = 'none';
+    return;
+  }
+  const keys = [];
+  for (let i = 11; i >= 0; i--) keys.push(shiftMonth(cur, -i));
+  const series = state.businesses.map((b) => balanceSeries(b, keys));
+  const totals = keys.map((k, i) => round2(series.reduce((n, s) => n + s[i], 0)));
+
+  if (!totals.some((v) => v !== 0)) {
+    holder.classList.remove('hidden');
+    holder.textContent = 'Añade tu saldo inicial en ⚙️ Configuración de cada negocio para ver aquí la evolución del saldo total.';
+    canvas.style.display = 'none';
+    return;
+  }
+  holder.classList.add('hidden');
+  canvas.style.display = '';
+
+  const brand = activeBiz().color;
+  const datasets = [{
+    label: 'Saldo total', data: totals, borderColor: brand, backgroundColor: hexToRgba(brand, .14),
+    fill: true, tension: .32, pointRadius: 3, pointBackgroundColor: brand, borderWidth: 2.5
+  }];
+  if (state.businesses.length > 1) {
+    state.businesses.forEach((b, i) => datasets.push({
+      label: b.name, data: series[i], borderColor: b.color, backgroundColor: 'transparent',
+      fill: false, tension: .32, pointRadius: 2, borderWidth: 1.5, borderDash: [5, 4]
+    }));
+  }
+  charts.balance = new Chart(canvas, {
+    type: 'line',
+    data: { labels: keys.map((k) => monthLabel(k, true)), datasets: datasets },
+    options: baseOpts({ legend: true, tooltipLabel: (ctx) => ctx.dataset.label + ': ' + money(ctx.parsed.y) })
+  });
+}
+
+/* ======================= GASTOS DIARIOS (sección propia) ================ */
+const DOW = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+function bizById(id) { return state.businesses.find((b) => b.id === id) || null; }
+function bizName(id) { const b = bizById(id); return b ? b.name : 'Negocio eliminado'; }
+function bizColor(id) { const b = bizById(id); return b ? b.color : '#8b95a7'; }
+
+function renderExpensesView() {
+  fillBizSelects();
+  renderCalendar();
+  renderExpenseSummary();
+  renderExpenseTable();
+  const list = state.dailyExpenses || [];
+  const total = round2(list.reduce((n, g) => n + g.amount, 0));
+  $('#expSub').textContent = list.length
+    ? plural(list.length, 'gasto registrado', 'gastos registrados') + ' · ' + money(total, true) + ' en total'
+    : 'Apunta aquí cualquier gasto del día a día y elige a qué negocio pertenece.';
+  const descs = Array.from(new Set(list.map((g) => g.desc).filter(Boolean))).slice(0, 200);
+  $('#dlGastos').innerHTML = descs.map((d) => '<option value="' + esc(d) + '"></option>').join('');
+}
+
+function fillBizSelects() {
+  const scope = $('#expScope');
+  if (!state.businesses.some((b) => b.id === ui.expScope)) {
+    if (ui.expScope !== 'all') ui.expScope = 'all';
+  }
+  scope.innerHTML = '<option value="all">Todos los negocios</option>' +
+    state.businesses.map((b) => '<option value="' + b.id + '"' + (b.id === ui.expScope ? ' selected' : '') + '>' + esc(b.name) + '</option>').join('');
+
+  const gBiz = $('#gBiz');
+  const wanted = gBiz.value && state.businesses.some((b) => b.id === gBiz.value)
+    ? gBiz.value
+    : (ui.expScope !== 'all' ? ui.expScope : state.activeId);
+  gBiz.innerHTML = state.businesses.map((b) => '<option value="' + b.id + '"' + (b.id === wanted ? ' selected' : '') + '>' + esc(b.name) + '</option>').join('');
+}
+
+/** Gastos del mes visible, filtrados por el negocio seleccionado arriba. */
+function scopedExpenses(key) {
+  return (state.dailyExpenses || []).filter((g) =>
+    (ui.expScope === 'all' || g.bizId === ui.expScope) && (!key || monthKeyOf(g.date) === key));
+}
+
+function renderCalendar() {
+  const key = ui.expMonth;
+  $('#calTitle').textContent = monthLabel(key);
+  const grid = $('#calGrid');
+  const [y, m] = key.split('-').map(Number);
+  const nDays = daysInMonth(key);
+  const firstDow = (new Date(y, m - 1, 1).getDay() + 6) % 7; // lunes = 0
+
+  const byDay = new Map();
+  scopedExpenses(key).forEach((g) => {
+    if (!byDay.has(g.date)) byDay.set(g.date, { total: 0, count: 0 });
+    const d = byDay.get(g.date);
+    d.total += g.amount; d.count++;
+  });
+
+  let html = DOW.map((d) => '<div class="cal-dow">' + d + '</div>').join('');
+  for (let i = 0; i < firstDow; i++) html += '<div class="cal-day out"></div>';
+  for (let d = 1; d <= nDays; d++) {
+    const iso = key + '-' + String(d).padStart(2, '0');
+    const info = byDay.get(iso);
+    const cls = ['cal-day'];
+    if (info) cls.push('has'); else cls.push('empty');
+    if (iso === todayISO()) cls.push('today');
+    if (iso === ui.expDay) cls.push('sel');
+    html += '<button type="button" class="' + cls.join(' ') + '" data-day="' + iso + '">' +
+      '<span class="cal-num">' + d + '</span>' +
+      (info ? '<span class="cal-amt">−' + money(info.total, true) + '</span>' +
+              '<span class="cal-cnt">' + plural(info.count, 'gasto', 'gastos') + '</span>' : '') +
+      '</button>';
+  }
+  grid.innerHTML = html;
+  $$('#calGrid [data-day]', grid).forEach((b) => b.addEventListener('click', () => {
+    const iso = b.getAttribute('data-day');
+    ui.expDay = ui.expDay === iso ? null : iso;
+    renderCalendar();
+    renderCalendarDetail();
+  }));
+  renderCalendarDetail();
+}
+
+function renderCalendarDetail() {
+  const box = $('#calDetail');
+  if (!ui.expDay) {
+    const key = ui.expMonth;
+    const n = scopedExpenses(key).length;
+    box.innerHTML = '<div class="note-box">' + (n
+      ? 'Haz clic en un día resaltado para ver el detalle de lo que se gastó.'
+      : 'Sin gastos apuntados en ' + monthLabel(key) + '. Los días sin gasto quedan en gris.') + '</div>';
+    return;
+  }
+  const list = (state.dailyExpenses || [])
+    .filter((g) => g.date === ui.expDay && (ui.expScope === 'all' || g.bizId === ui.expScope))
+    .sort((a, b) => b.amount - a.amount);
+  const total = round2(list.reduce((n, g) => n + g.amount, 0));
+  box.innerHTML =
+    '<div class="note-box" style="padding:0;overflow:hidden">' +
+    '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)">' +
+      '<strong style="color:var(--text)">' + esc(dayLabel(ui.expDay)) + '</strong>' +
+      '<span class="spacer" style="margin-left:auto"></span>' +
+      '<strong class="neg-t">−' + money(total) + '</strong>' +
+    '</div>' +
+    (list.length
+      ? list.map((g) =>
+          '<div class="split-row" style="padding:9px 14px">' +
+            '<span class="lab"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' +
+              esc(bizColor(g.bizId)) + ';margin-right:7px"></span>' +
+            (esc(g.desc) || 'Gasto sin descripción') + ' <span class="tag">' + esc(bizName(g.bizId)) + '</span></span>' +
+            '<span class="val">' + money(g.amount) +
+              ' <button class="icon-btn" data-gedit="' + g.id + '" title="Editar">✏️</button>' +
+              '<button class="icon-btn" data-gdel="' + g.id + '" title="Eliminar">🗑️</button></span>' +
+          '</div>').join('')
+      : '<div style="padding:12px 14px;color:var(--muted);font-weight:600">Sin gastos este día.</div>') +
+    '</div>';
+  bindExpenseRowActions(box);
+}
+
+function bindExpenseRowActions(root) {
+  $$('[data-gedit]', root).forEach((b) => b.addEventListener('click', () => openExpenseModal(b.getAttribute('data-gedit'))));
+  $$('[data-gdel]', root).forEach((b) => b.addEventListener('click', () => deleteDailyExpense(b.getAttribute('data-gdel'))));
+}
+
+function renderExpenseSummary() {
+  const key = ui.expMonth;
+  $('#expSummaryMonth').textContent = monthLabel(key);
+  const list = scopedExpenses(key);
+  const total = round2(list.reduce((n, g) => n + g.amount, 0));
+  const isCurrent = key === monthKeyOf(todayISO());
+  const daysElapsed = isCurrent ? new Date().getDate() : daysInMonth(key);
+  const avg = daysElapsed > 0 ? total / daysElapsed : 0;
+  const daysWith = new Set(list.map((g) => g.date)).size;
+
+  const top = list.slice().sort((a, b) => b.amount - a.amount).slice(0, 5);
+  const byBiz = state.businesses.map((b) => ({
+    name: b.name, color: b.color,
+    total: round2(list.filter((g) => g.bizId === b.id).reduce((n, g) => n + g.amount, 0))
+  })).filter((x) => x.total > 0).sort((a, b) => b.total - a.total);
+
+  $('#expSummary').innerHTML =
+    '<div class="kpi-label" style="margin-top:4px">Total gastado</div>' +
+    '<div class="kpi-value ' + (total > 0 ? 'neg' : 'neu') + '">' + (total > 0 ? '−' : '') + money(total, true) + '</div>' +
+    '<div class="sub" style="margin:10px 0 14px">' + plural(list.length, 'gasto', 'gastos') + ' en ' +
+      plural(daysWith, 'día', 'días') + ' · media diaria ' + money(avg) +
+      (isCurrent ? ' (sobre ' + plural(daysElapsed, 'día transcurrido', 'días transcurridos') + ')' : '') + '</div>' +
+    (byBiz.length
+      ? '<div class="kpi-label">Por negocio</div>' +
+        byBiz.map((b) =>
+          '<div class="split-row"><span class="lab"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' +
+          esc(b.color) + ';margin-right:8px"></span>' + esc(b.name) + '</span>' +
+          '<span class="val neg-t">−' + money(b.total) + '</span></div>').join('') +
+        (top.length
+          ? '<div class="kpi-label" style="margin-top:18px">Mayores gastos del mes</div>' +
+            top.map((g) =>
+              '<div class="split-row"><span class="lab">' + (esc(g.desc) || 'Sin descripción') +
+              ' <span class="tag">' + esc(g.date.split('-').reverse().slice(0, 2).join('/')) + '</span></span>' +
+              '<span class="val">' + money(g.amount) + '</span></div>').join('')
+          : '')
+      : '<div class="note-box">Sin gastos este mes. Este apartado es opcional: si no apuntas nada, todo queda a 0 € y no afecta a ningún cálculo.</div>');
+}
+
+function filteredExpenses() {
+  const from = $('#expFrom').value, to = $('#expTo').value;
+  const q = $('#expSearch').value.trim().toLowerCase();
+  const quick = $('#expQuick').value;
+  let list = (state.dailyExpenses || []).filter((g) => ui.expScope === 'all' || g.bizId === ui.expScope);
+  if (quick === 'month') list = list.filter((g) => monthKeyOf(g.date) === ui.expMonth);
+  else if (quick !== 'all') {
+    const limit = isoOf(new Date(Date.now() - (Number(quick) - 1) * DAY_MS));
+    list = list.filter((g) => g.date >= limit);
+  }
+  if (validISODate(from)) list = list.filter((g) => g.date >= from);
+  if (validISODate(to)) list = list.filter((g) => g.date <= to);
+  if (q) list = list.filter((g) => (g.desc || '').toLowerCase().includes(q) || bizName(g.bizId).toLowerCase().includes(q));
+  list.sort((a, b) => (a.date === b.date ? (b.createdAt || 0) - (a.createdAt || 0) : (a.date < b.date ? 1 : -1)));
+  return list;
+}
+
+function renderExpenseTable() {
+  const list = filteredExpenses();
+  const t = $('#tblExpenses');
+  const total = round2(list.reduce((n, g) => n + g.amount, 0));
+  $('#expCount').textContent = list.length + ' de ' + (state.dailyExpenses || []).length + ' gastos · ' + money(total, true);
+
+  if (!list.length) {
+    t.innerHTML = '<tbody><tr><td><div class="empty"><span class="big">🧾</span>No hay gastos que coincidan con los filtros</div></td></tr></tbody>';
+    $('#expFooter').style.display = 'none';
+    return;
+  }
+  const shown = list.slice(0, ui.expLimit);
+  t.innerHTML =
+    '<thead><tr><th>Fecha</th><th>Descripción</th><th>Negocio</th><th class="num">Importe</th><th></th></tr></thead><tbody>' +
+    shown.map((g) =>
+      '<tr>' +
+      '<td class="mono">' + esc(g.date.split('-').reverse().join('/')) + '</td>' +
+      '<td>' + (esc(g.desc) || '<span style="color:var(--muted-2)">—</span>') + '</td>' +
+      '<td><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + esc(bizColor(g.bizId)) +
+        ';margin-right:7px"></span>' + esc(bizName(g.bizId)) + '</td>' +
+      '<td class="num strong neg-t">−' + money(g.amount) + '</td>' +
+      '<td><div class="row-actions">' +
+        '<button class="icon-btn" data-gedit="' + g.id + '" title="Editar">✏️</button>' +
+        '<button class="icon-btn" data-gdel="' + g.id + '" title="Eliminar">🗑️</button>' +
+      '</div></td></tr>').join('') +
+    '</tbody><tfoot><tr class="day-group"><td colspan="3">Total mostrado</td>' +
+    '<td class="num neg-t">−' + money(total) + '</td><td></td></tr></tfoot>';
+  bindExpenseRowActions(t);
+
+  const foot = $('#expFooter');
+  if (list.length > shown.length) {
+    foot.style.display = 'flex';
+    $('#btnMoreExp').textContent = 'Ver más gastos (' + (list.length - shown.length) + ' restantes)';
+  } else {
+    foot.style.display = 'none';
+  }
+}
+
+function validateExpenseInput(v) {
+  if (!validISODate(v.date)) return 'Introduce una fecha válida.';
+  if (!Number.isFinite(v.amount)) return 'El importe debe ser un número (por ejemplo 12,90).';
+  if (v.amount < 0) return 'El importe no puede ser negativo.';
+  if (v.amount === 0) return 'El importe tiene que ser mayor que 0.';
+  if (!bizById(v.bizId)) return 'Elige el negocio al que pertenece el gasto.';
+  return null;
+}
+
+function submitExpense(e) {
+  e.preventDefault();
+  const v = {
+    date: $('#gDate').value,
+    desc: $('#gDesc').value.trim(),
+    amount: parseNum($('#gAmount').value),
+    bizId: $('#gBiz').value
+  };
+  const msg = $('#expMsg');
+  const err = validateExpenseInput(v);
+  if (err) { msg.textContent = err; msg.classList.remove('hidden'); return; }
+  msg.classList.add('hidden');
+
+  const g = sanitizeDailyExpense(Object.assign({ id: uid(), createdAt: Date.now(), updatedAt: Date.now() }, v),
+    state.businesses.map((b) => b.id));
+  state.dailyExpenses.push(g);
+  save();
+
+  const keepDate = $('#gDate').value;
+  const keepBiz = $('#gBiz').value;
+  $('#expForm').reset();
+  $('#gDate').value = keepDate;
+  $('#gBiz').value = keepBiz;
+  ui.expMonth = monthKeyOf(g.date);
+  ui.expDay = g.date;
+  renderExpensesView();
+  $('#gDesc').focus();
+  toast('✅ Gasto guardado · ' + money(g.amount) + ' en ' + bizName(g.bizId));
+}
+
+function openExpenseModal(id) {
+  const g = (state.dailyExpenses || []).find((x) => x.id === id);
+  if (!g) return;
+  const bg = openModal(
+    '<div class="modal-head"><h3>✏️ Editar gasto</h3></div>' +
+    '<div class="modal-body"><div class="grid-form">' +
+      '<div class="field"><label>Fecha</label><input class="input" type="date" id="mgDate" value="' + esc(g.date) + '"></div>' +
+      '<div class="field"><label>Descripción</label><input class="input" type="text" id="mgDesc" value="' + esc(g.desc) + '"></div>' +
+      '<div class="field"><label>Importe</label><div class="input-money"><input class="input" inputmode="decimal" id="mgAmount" value="' +
+        nfNum.format(g.amount) + '"><span class="cur">€</span></div></div>' +
+      '<div class="field"><label>Negocio</label><select class="input" id="mgBiz">' +
+        state.businesses.map((b) => '<option value="' + b.id + '"' + (b.id === g.bizId ? ' selected' : '') + '>' + esc(b.name) + '</option>').join('') +
+      '</select></div>' +
+    '</div><div class="form-msg err hidden" id="mgMsg"></div></div>' +
+    '<div class="modal-foot"><button class="btn btn-danger" id="mgDelete">🗑️ Eliminar</button>' +
+    '<span style="flex:1"></span><button class="btn" id="mgCancel">Cancelar</button>' +
+    '<button class="btn btn-brand" id="mgSave">Guardar cambios</button></div>');
+
+  $('#mgCancel', bg).addEventListener('click', closeModal);
+  $('#mgDelete', bg).addEventListener('click', () => { closeModal(); deleteDailyExpense(id); });
+  $('#mgSave', bg).addEventListener('click', () => {
+    const v = {
+      date: $('#mgDate', bg).value,
+      desc: $('#mgDesc', bg).value.trim(),
+      amount: parseNum($('#mgAmount', bg).value),
+      bizId: $('#mgBiz', bg).value
+    };
+    const err = validateExpenseInput(v);
+    if (err) { const m = $('#mgMsg', bg); m.textContent = err; m.classList.remove('hidden'); return; }
+    Object.assign(g, sanitizeDailyExpense(Object.assign({}, g, v, { updatedAt: Date.now() }), state.businesses.map((b) => b.id)));
+    save();
+    closeModal();
+    renderAll();
+    toast('✅ Gasto actualizado');
+  });
+}
+
+function deleteDailyExpense(id) {
+  const i = (state.dailyExpenses || []).findIndex((x) => x.id === id);
+  if (i < 0) return;
+  const g = state.dailyExpenses[i];
+  if (!confirm('¿Eliminar este gasto?\n\n' + (g.desc || 'Sin descripción') + ' · ' + money(g.amount) + ' · ' + g.date +
+    '\n\nEsta acción no se puede deshacer.')) return;
+  state.dailyExpenses.splice(i, 1);
+  save();
+  renderAll();
+  toast('🗑️ Gasto eliminado');
+}
+
+function exportExpensesCsv() {
+  const list = filteredExpenses();
+  if (!list.length) { toast('No hay gastos que exportar con los filtros actuales.'); return; }
+  const lines = [['Fecha', 'Descripción', 'Negocio', 'Importe'].join(';')];
+  list.slice().reverse().forEach((g) => {
+    lines.push([g.date, g.desc, bizName(g.bizId), numCsv(g.amount)].map(csvCell).join(';'));
+  });
+  const total = round2(list.reduce((n, g) => n + g.amount, 0));
+  lines.push(['TOTAL', plural(list.length, 'gasto', 'gastos'), '', numCsv(total)].map(csvCell).join(';'));
+  downloadBlob('\ufeff' + lines.join('\r\n'), 'gastos-diarios-' + todayISO() + '.csv', 'text/csv;charset=utf-8');
+  toast('⬇️ CSV exportado (' + plural(list.length, 'gasto', 'gastos') + ')');
+}
+
 /* ============================ EXPORTACIÓN ============================== */
 function downloadBlob(content, filename, type) {
   const blob = new Blob([content], { type: type });
@@ -2114,9 +2989,11 @@ function exportCsv() {
   lines.push(['TOTAL', '', list.length + ' pedidos', numCsv(agg.revenue), numCsv(agg.cost), numCsv(agg.ads), numCsv(agg.fees), numCsv(agg.profit),
     numCsv(Number.isFinite(agg.margin) ? agg.margin : 0), ''].map(csvCell).join(';'));
   const fixed = monthlyExpenses(biz);
-  if (fixed > 0) {
-    lines.push(['', '', 'Gastos fijos (equivalente mensual)', '', '', '', '', numCsv(-fixed), '', ''].map(csvCell).join(';'));
-    lines.push(['', '', 'Nota', 'Los gastos fijos se descuentan una vez al mes, no por pedido.', '', '', '', '', '', ''].map(csvCell).join(';'));
+  const dailyTotal = round2(dailyExpensesOf(biz.id).reduce((n, g) => n + g.amount, 0));
+  if (fixed > 0 || dailyTotal > 0) {
+    if (fixed > 0) lines.push(['', '', 'Gastos fijos (equivalente mensual)', '', '', '', '', numCsv(-fixed), '', ''].map(csvCell).join(';'));
+    if (dailyTotal > 0) lines.push(['', '', 'Gastos diarios (histórico completo)', '', '', '', '', numCsv(-dailyTotal), '', ''].map(csvCell).join(';'));
+    lines.push(['', '', 'Nota', 'Los gastos fijos y diarios se descuentan del beneficio mensual, no de cada pedido.', '', '', '', '', '', ''].map(csvCell).join(';'));
   }
   downloadBlob('\ufeff' + lines.join('\r\n'), 'historico-' + slug(biz.name) + '-' + todayISO() + '.csv', 'text/csv;charset=utf-8');
   toast('⬇️ CSV exportado (' + plural(list.length, 'pedido', 'pedidos') + ')');
@@ -2125,10 +3002,11 @@ function exportCsv() {
 function backup() {
   const payload = {
     app: 'ecom-dashboard',
-    version: 2,
+    version: 3,
     exportedAt: new Date().toISOString(),
     activeId: state.activeId,
-    businesses: state.businesses
+    businesses: state.businesses,
+    dailyExpenses: state.dailyExpenses || []
   };
   downloadBlob(JSON.stringify(payload, null, 2), 'copia-panel-financiero-' + todayISO() + '.json', 'application/json');
   toast('💾 Copia de seguridad descargada');
@@ -2143,13 +3021,18 @@ function restoreFrom(file) {
     const clean = sanitizeState(data);
     if (!clean) { alert('El archivo no contiene una copia válida de este panel.'); return; }
     const totalOrders = clean.businesses.reduce((n, b) => n + b.orders.length, 0);
-    const ok = confirm('Restaurar la copia:\n\n' + clean.businesses.length + ' negocios · ' + totalOrders + ' pedidos\n' +
+    const ok = confirm('Restaurar la copia:\n\n' + clean.businesses.length + ' negocios · ' + totalOrders + ' pedidos · ' +
+      clean.dailyExpenses.length + ' gastos diarios\n' +
       clean.businesses.map((b) => ' · ' + b.name + ' (' + b.orders.length + ')').join('\n') +
       '\n\n⚠️ Se sustituirán TODOS los datos actuales de este navegador.');
     if (!ok) return;
     state = clean;
     ui.month = monthKeyOf(todayISO());
+    ui.expMonth = monthKeyOf(todayISO());
+    ui.expScope = 'all';
+    ui.expDay = null;
     ui.histLimit = 60;
+    ui.expLimit = 40;
     save();
     renderAll();
     toast('↩️ Copia restaurada correctamente');
@@ -2195,6 +3078,41 @@ function bindEvents() {
   });
   $('#btnMoreRows').addEventListener('click', () => { ui.histLimit += 100; renderHistory(activeBiz()); });
 
+  // --- gastos diarios ---
+  $('#expForm').addEventListener('submit', submitExpense);
+  $('#expForm').addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); $('#expForm').requestSubmit(); }
+  });
+  $('#btnClearExpForm').addEventListener('click', () => {
+    const d = $('#gDate').value, b = $('#gBiz').value;
+    $('#expForm').reset();
+    $('#gDate').value = d || todayISO();
+    $('#gBiz').value = b;
+    $('#expMsg').classList.add('hidden');
+  });
+  $('#expScope').addEventListener('change', (e) => {
+    ui.expScope = e.target.value;
+    ui.expDay = null;
+    if (ui.expScope !== 'all') $('#gBiz').value = ui.expScope;
+    renderExpensesView();
+  });
+  $('#calPrev').addEventListener('click', () => { ui.expMonth = shiftMonth(ui.expMonth, -1); ui.expDay = null; renderExpensesView(); });
+  $('#calNext').addEventListener('click', () => { ui.expMonth = shiftMonth(ui.expMonth, 1); ui.expDay = null; renderExpensesView(); });
+  $('#calToday').addEventListener('click', () => { ui.expMonth = monthKeyOf(todayISO()); ui.expDay = todayISO(); renderExpensesView(); });
+  ['#expFrom', '#expTo', '#expQuick'].forEach((sel) => $(sel).addEventListener('change', () => { ui.expLimit = 40; renderExpenseTable(); }));
+  let expSearchTimer = null;
+  $('#expSearch').addEventListener('input', () => {
+    clearTimeout(expSearchTimer);
+    expSearchTimer = setTimeout(() => { ui.expLimit = 40; renderExpenseTable(); }, 180);
+  });
+  $('#btnClearExpFilters').addEventListener('click', () => {
+    $('#expFrom').value = ''; $('#expTo').value = ''; $('#expSearch').value = ''; $('#expQuick').value = 'all';
+    ui.expLimit = 40;
+    renderExpenseTable();
+  });
+  $('#btnMoreExp').addEventListener('click', () => { ui.expLimit += 100; renderExpenseTable(); });
+  $('#btnExportExp').addEventListener('click', exportExpensesCsv);
+
   $('#btnExportCsv').addEventListener('click', exportCsv);
   $('#btnBackup').addEventListener('click', backup);
   $('#btnRestore').addEventListener('click', () => $('#fileRestore').click());
@@ -2204,6 +3122,12 @@ function bindEvents() {
     e.target.value = '';
   });
   $('#btnJumpForm').addEventListener('click', () => {
+    if (ui.view === 'expenses') {
+      $('#expForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => $('#gDesc').focus(), 400);
+      return;
+    }
+    if (ui.view !== 'business') switchView('business');
     $('#orderForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
     setTimeout(() => $('#fProduct').focus(), 400);
   });
@@ -2225,7 +3149,9 @@ function bindEvents() {
 function init() {
   load();
   $('#fDate').value = todayISO();
+  $('#gDate').value = todayISO();
   ui.month = monthKeyOf(todayISO());
+  ui.expMonth = monthKeyOf(todayISO());
   bindEvents();
   updateLivePreview();
   renderAll();
