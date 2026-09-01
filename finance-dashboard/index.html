@@ -226,11 +226,12 @@ td.strong{font-weight:700}
 .swatch{width:34px;height:34px;border-radius:9px;border:2px solid transparent;cursor:pointer;transition:.15s}
 .swatch:hover{transform:scale(1.08)}
 .swatch.sel{border-color:var(--text);box-shadow:0 0 0 3px #fff inset}
-.month-picker{width:auto;min-width:170px}
+select.month-picker{width:auto;min-width:170px}
 .seg{display:inline-flex;background:var(--line);padding:3px;border-radius:10px;gap:3px}
 .seg button{border:0;background:transparent;padding:7px 13px;border-radius:8px;font-weight:650;color:var(--muted);font-size:13.5px}
 .seg button.on{background:#fff;color:var(--text);box-shadow:var(--shadow)}
-.paste-table input{border:1px solid var(--line);border-radius:6px;padding:6px 7px;width:100%;font-size:13.5px}
+.paste-table input,.paste-table select{border:1px solid var(--line);border-radius:6px;padding:6px 7px;width:100%;font-size:13.5px;background:#fff}
+.paste-table input.err{border-color:var(--neg);background:var(--neg-soft)}
 .paste-table td{padding:4px 5px}
 .mono{font-family:var(--mono);font-size:12.5px}
 .note-box{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--muted);font-weight:500}
@@ -252,7 +253,7 @@ td.strong{font-weight:700}
 @media (max-width:560px){
   .topbar-actions .btn-lbl{display:none}
   .topbar-actions .btn{padding:8px 10px;font-size:15px}
-  .month-picker{flex:1 1 100%;width:100%;min-width:0}
+  select.month-picker{flex:1 1 100%;width:100%;min-width:0}
 }
 @media (max-width:640px){
   .wrap{padding:0 12px 90px}
@@ -302,6 +303,7 @@ td.strong{font-weight:700}
     </div>
     <div class="spacer"></div>
     <select class="input month-picker" id="monthPicker"></select>
+    <button class="btn btn-sm" id="btnConfigBiz">⚙️ Configuración</button>
     <button class="btn btn-sm" id="btnRenameBiz">✏️ Renombrar</button>
     <button class="btn btn-sm btn-danger" id="btnDeleteBiz">🗑️ Eliminar</button>
   </section>
@@ -373,6 +375,7 @@ td.strong{font-weight:700}
           </div>
           <div class="field" style="justify-content:flex-end">
             <div class="live-profit"><span class="lbl">Beneficio</span><span id="livePreview" class="neu-t">—</span></div>
+            <div class="sub" id="liveFee">Comisión Shopify: —</div>
           </div>
         </div>
         <div class="form-msg err hidden" id="formMsg"></div>
@@ -482,6 +485,16 @@ const PALETTE = [
   { name: 'Rojo',      hex: '#DC2626' },
   { name: 'Grafito',   hex: '#334155' }
 ];
+
+/* Tarifas de Shopify Payments por plan: % sobre el precio de venta + cuota fija por pedido. */
+const PLANS = {
+  basic:    { label: 'Basic',         rate: 2.1, fixed: 0.30 },
+  grow:     { label: 'Grow',          rate: 1.8, fixed: 0.30 },
+  advanced: { label: 'Advanced',      rate: 1.6, fixed: 0.30 },
+  custom:   { label: 'Personalizado', rate: 0,   fixed: 0 }
+};
+const DEFAULT_PLAN = 'basic';
+const FREQ = { monthly: 'Mensual', yearly: 'Anual' };
 
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const WEEKDAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -597,12 +610,38 @@ function defaultState() {
   const now = Date.now();
   return {
     app: 'ecom-dashboard',
-    version: 1,
+    version: 2,
     activeId: null,
     businesses: [
-      { id: uid(), name: 'Draselle', color: '#C9A227', createdAt: now, orders: [] },
-      { id: uid(), name: 'SD Sneakers', color: '#F97316', createdAt: now + 1, orders: [] }
+      { id: uid(), name: 'Draselle', color: '#C9A227', createdAt: now, orders: [], payments: makePayments('basic'), expenses: [] },
+      { id: uid(), name: 'SD Sneakers', color: '#F97316', createdAt: now + 1, orders: [], payments: makePayments('grow'), expenses: [] }
     ]
+  };
+}
+
+function makePayments(plan, rate, fixed) {
+  const key = PLANS[plan] ? plan : DEFAULT_PLAN;
+  if (key === 'custom') {
+    return { plan: 'custom', rate: Math.max(0, clampNum(Number(rate))), fixed: Math.max(0, clampNum(Number(fixed))) };
+  }
+  return { plan: key, rate: PLANS[key].rate, fixed: PLANS[key].fixed };
+}
+
+/** Plan por defecto al migrar datos antiguos que aún no tenían comisiones guardadas. */
+function legacyPaymentsFor(name) {
+  const n = String(name || '').trim().toLowerCase();
+  if (n === 'sd sneakers') return makePayments('grow');
+  return makePayments(DEFAULT_PLAN);
+}
+
+function sanitizeExpense(e) {
+  if (!e || typeof e !== 'object') return null;
+  const amount = Math.max(0, clampNum(Number(e.amount)));
+  return {
+    id: typeof e.id === 'string' && e.id ? e.id : uid(),
+    name: String(e.name || '').slice(0, 80),
+    amount: amount,
+    freq: e.freq === 'yearly' ? 'yearly' : 'monthly'
   };
 }
 
@@ -631,22 +670,28 @@ function sanitizeState(raw) {
     name: String(b.name || 'Negocio ' + (i + 1)).slice(0, 60) || 'Negocio',
     color: isHex(b.color) ? b.color : PALETTE[i % PALETTE.length].hex,
     createdAt: Number(b.createdAt) || Date.now(),
+    payments: b.payments && typeof b.payments === 'object'
+      ? makePayments(b.payments.plan, b.payments.rate, b.payments.fixed)
+      : legacyPaymentsFor(b.name),
+    expenses: Array.isArray(b.expenses) ? b.expenses.map(sanitizeExpense).filter(Boolean) : [],
     orders: Array.isArray(b.orders) ? b.orders.map(sanitizeOrder).filter(Boolean) : []
   }));
   if (!businesses.length) return null;
   const activeId = businesses.some((b) => b.id === raw.activeId) ? raw.activeId : businesses[0].id;
-  return { app: 'ecom-dashboard', version: 1, activeId: activeId, businesses: businesses };
+  return { app: 'ecom-dashboard', version: 2, activeId: activeId, businesses: businesses };
 }
 
 function load() {
   let parsed = null;
+  let raw = null;
   try {
-    const raw = localStorage.getItem(STORE_KEY);
+    raw = localStorage.getItem(STORE_KEY);
     if (raw) parsed = sanitizeState(JSON.parse(raw));
   } catch (e) { console.warn('No se pudo leer el almacenamiento:', e); }
   state = parsed || defaultState();
   if (!state.activeId) state.activeId = state.businesses[0].id;
-  if (!parsed) save();
+  // guarda si no había datos o si el saneado ha migrado algo (p. ej. comisiones de versiones anteriores)
+  if (!parsed || raw !== JSON.stringify(state)) save();
 }
 
 function save() {
@@ -665,16 +710,58 @@ function activeBiz() {
 }
 
 /* ------------------------------ cálculos ------------------------------- */
-function orderProfit(o) { return o.price - o.cost - o.ads; }
+const round2 = (n) => Math.round((clampNum(n) + Number.EPSILON) * 100) / 100;
 
-function aggregate(orders) {
-  const t = { count: 0, revenue: 0, cost: 0, ads: 0, profit: 0, margin: NaN, avgTicket: NaN };
+function paymentsOf(biz) {
+  return (biz && biz.payments) ? biz.payments : makePayments(DEFAULT_PLAN);
+}
+function planLabel(biz) {
+  const p = paymentsOf(biz);
+  const name = (PLANS[p.plan] || PLANS[DEFAULT_PLAN]).label;
+  return name + ' · ' + pct(p.rate, 2).replace(',00', '') + ' + ' + money(p.fixed) + '/pedido';
+}
+
+/** Comisión de Shopify Payments de un pedido: (precio × %) + cuota fija. */
+function orderFee(o, biz) {
+  const price = clampNum(Number(o && o.price));
+  if (price <= 0) return 0;
+  const p = paymentsOf(biz);
+  return round2(price * (clampNum(p.rate) / 100) + clampNum(p.fixed));
+}
+
+/** Beneficio del pedido = venta − coste − ads − comisión de Shopify Payments. */
+function orderProfit(o, biz) { return o.price - o.cost - o.ads - orderFee(o, biz); }
+
+/** Gastos recurrentes del negocio convertidos a su equivalente mensual. */
+function monthlyExpenses(biz) {
+  const list = (biz && biz.expenses) || [];
+  return round2(list.reduce((sum, e) => sum + (e.freq === 'yearly' ? e.amount / 12 : e.amount), 0));
+}
+
+/** Totales de un conjunto de pedidos (sin gastos fijos: esos son mensuales). */
+function aggregate(orders, biz) {
+  const t = { count: 0, revenue: 0, cost: 0, ads: 0, fees: 0, profit: 0, margin: NaN, avgTicket: NaN };
   for (const o of orders) {
-    t.count++; t.revenue += o.price; t.cost += o.cost; t.ads += o.ads;
+    t.count++; t.revenue += o.price; t.cost += o.cost; t.ads += o.ads; t.fees += orderFee(o, biz);
   }
-  t.profit = t.revenue - t.cost - t.ads;
+  t.fees = round2(t.fees);
+  t.profit = t.revenue - t.cost - t.ads - t.fees;
   t.margin = t.revenue > 0 ? (t.profit / t.revenue) * 100 : NaN;
   t.avgTicket = t.count > 0 ? t.revenue / t.count : NaN;
+  return t;
+}
+
+/**
+ * Totales de un mes concreto, ya con los gastos fijos descontados:
+ * Beneficio neto del mes = facturación − coste − ads − comisiones − gastos fijos.
+ */
+function monthTotals(biz, key) {
+  const t = aggregate(ordersOfMonth(biz.orders, key), biz);
+  t.key = key;
+  t.fixed = monthlyExpenses(biz);
+  t.grossProfit = t.profit;
+  t.profit = t.grossProfit - t.fixed;
+  t.margin = t.revenue > 0 ? (t.profit / t.revenue) * 100 : NaN;
   return t;
 }
 
@@ -689,17 +776,26 @@ function groupBy(orders, keyFn) {
 }
 
 /** Devuelve los grupos en orden cronológico ascendente (del más antiguo al más reciente). */
-function statsByDay(orders) {
+function statsByDay(orders, biz) {
   const map = groupBy(orders, (o) => o.date);
   const out = [];
-  map.forEach((list, key) => out.push(Object.assign({ key: key, orders: list }, aggregate(list))));
+  map.forEach((list, key) => out.push(Object.assign({ key: key, orders: list }, aggregate(list, biz))));
   out.sort((a, b) => (a.key < b.key ? -1 : 1));
   return out;
 }
-function statsByMonth(orders) {
+/** Los meses incluyen además los gastos fijos del negocio. */
+function statsByMonth(orders, biz) {
   const map = groupBy(orders, (o) => monthKeyOf(o.date));
+  const fixed = monthlyExpenses(biz);
   const out = [];
-  map.forEach((list, key) => out.push(Object.assign({ key: key, orders: list }, aggregate(list))));
+  map.forEach((list, key) => {
+    const t = Object.assign({ key: key, orders: list }, aggregate(list, biz));
+    t.fixed = fixed;
+    t.grossProfit = t.profit;
+    t.profit = t.grossProfit - fixed;
+    t.margin = t.revenue > 0 ? (t.profit / t.revenue) * 100 : NaN;
+    out.push(t);
+  });
   out.sort((a, b) => (a.key < b.key ? -1 : 1));
   return out;
 }
@@ -717,8 +813,8 @@ function bestWorst(list) {
 }
 
 function records(biz) {
-  const days = statsByDay(biz.orders);
-  const months = statsByMonth(biz.orders);
+  const days = statsByDay(biz.orders, biz);
+  const months = statsByMonth(biz.orders, biz);
   const curKey = monthKeyOf(todayISO());
   const bestDay = days.length ? days.reduce((a, b) => (b.profit > a.profit ? b : a)) : null;
   const closedMonths = months.filter((m) => m.key !== curKey);
@@ -734,18 +830,19 @@ function lastActivity(biz) {
   return last;
 }
 
-function productStats(orders) {
+function productStats(orders, biz) {
   const map = new Map();
   for (const o of orders) {
     const raw = (o.product || '').trim();
     const key = raw ? raw.toLowerCase() : '(sin nombre)';
-    if (!map.has(key)) map.set(key, { name: raw || 'Sin nombre', units: 0, revenue: 0, cost: 0, ads: 0, profit: 0 });
+    if (!map.has(key)) map.set(key, { name: raw || 'Sin nombre', units: 0, revenue: 0, cost: 0, ads: 0, fees: 0, profit: 0 });
     const p = map.get(key);
-    p.units++; p.revenue += o.price; p.cost += o.cost; p.ads += o.ads;
+    p.units++; p.revenue += o.price; p.cost += o.cost; p.ads += o.ads; p.fees += orderFee(o, biz);
   }
   const out = [];
   map.forEach((p) => {
-    p.profit = p.revenue - p.cost - p.ads;
+    p.fees = round2(p.fees);
+    p.profit = p.revenue - p.cost - p.ads - p.fees;
     p.margin = p.revenue > 0 ? (p.profit / p.revenue) * 100 : NaN;
     p.avgPrice = p.units ? p.revenue / p.units : 0;
     out.push(p);
@@ -823,14 +920,17 @@ function switchBiz(id) {
 
 function renderHeader(biz) {
   $('#bizTitle').textContent = biz.name;
-  const total = aggregate(biz.orders);
+  const total = aggregate(biz.orders, biz);
   const last = lastActivity(biz);
+  const fixed = monthlyExpenses(biz);
   const parts = [];
-  parts.push(biz.orders.length + ' ' + (biz.orders.length === 1 ? 'pedido registrado' : 'pedidos registrados'));
+  parts.push(plural(biz.orders.length, 'pedido registrado', 'pedidos registrados'));
   if (biz.orders.length) {
     parts.push('Beneficio histórico ' + money(total.profit, true));
     parts.push('Último registro: ' + (last ? new Date(last).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'));
   }
+  parts.push('Comisión ' + planLabel(biz));
+  if (fixed > 0) parts.push('Gastos fijos ' + money(fixed) + '/mes');
   $('#bizSub').textContent = parts.join(' · ');
   $('#logoSub').textContent = state.businesses.length + ' negocios · control diario';
 }
@@ -907,9 +1007,9 @@ function kpiCard(label, valueHtml, cls, footHtml) {
 
 function renderKpis(biz) {
   const key = ui.month;
-  const cur = aggregate(ordersOfMonth(biz.orders, key));
+  const cur = monthTotals(biz, key);
   const prevKey = shiftMonth(key, -1);
-  const prev = aggregate(ordersOfMonth(biz.orders, prevKey));
+  const prev = monthTotals(biz, prevKey);
   const tag = monthLabel(key, true).replace(/\s+/g, ' ').trim();
 
   function delta(curVal, prevVal) {
@@ -921,15 +1021,23 @@ function renderKpis(biz) {
   }
 
   const empty = cur.count === 0;
-  const profitCls = empty ? 'neu' : signClass(cur.profit);
+  const profitCls = (empty && !cur.fixed) ? 'neu' : signClass(cur.profit);
 
   const html = [
     kpiCard('Facturación · ' + tag, money(cur.revenue, true), empty ? 'neu' : '', delta(cur.revenue, prev.revenue)),
-    kpiCard('Beneficio neto · ' + tag, money(cur.profit, true), profitCls, delta(cur.profit, prev.profit)),
+    kpiCard('Beneficio neto · ' + tag, money(cur.profit, true), profitCls,
+      delta(cur.profit, prev.profit) +
+      '<span class="chip neu" title="Venta − coste − ads − comisiones − gastos fijos">tras comisiones y gastos fijos</span>'),
     kpiCard('Ventas · ' + tag, String(cur.count), empty ? 'neu' : '', delta(cur.count, prev.count)),
     kpiCard('Ticket medio', cur.count ? money(cur.avgTicket) : '—', empty ? 'neu' : '', cur.count ? delta(cur.avgTicket, prev.avgTicket) : '<span class="chip neu">sin ventas</span>'),
-    kpiCard('Margen medio', cur.count ? pct(cur.margin) : '—', empty ? 'neu' : signClass(cur.profit),
-      'Coste ' + money(cur.cost, true) + ' · Ads ' + money(cur.ads, true))
+    kpiCard('Margen neto', cur.count ? pct(cur.margin) : '—', profitCls,
+      'Coste ' + money(cur.cost, true) + ' · Ads ' + money(cur.ads, true)),
+    kpiCard('Comisiones · ' + tag, money(cur.fees, true), empty ? 'neu' : '',
+      '<span class="chip brand">' + esc(planLabel(biz)) + '</span>'),
+    kpiCard('Gastos fijos · ' + tag, money(cur.fixed, true), 'neu',
+      cur.fixed
+        ? '<span class="chip neu">' + plural((biz.expenses || []).length, 'gasto recurrente', 'gastos recurrentes') + '</span>'
+        : '<span class="chip neu">Sin gastos recurrentes</span>')
   ].join('');
   $('#kpis').innerHTML = html;
 }
@@ -955,7 +1063,7 @@ function renderRecords(biz) {
   }
 
   const monthOrders = ordersOfMonth(biz.orders, ui.month);
-  const dayStats = statsByDay(monthOrders);
+  const dayStats = statsByDay(monthOrders, biz);
   const bw = bestWorst(dayStats);
   if (bw.best) {
     cards.push('<div class="card record"><span class="r-ico">📈</span><div>' +
@@ -1006,7 +1114,7 @@ function renderCharts(biz) {
   // --- diario del mes seleccionado ---
   const monthOrders = ordersOfMonth(biz.orders, ui.month);
   const nDays = daysInMonth(ui.month);
-  const byDay = new Map(statsByDay(monthOrders).map((d) => [d.key, d]));
+  const byDay = new Map(statsByDay(monthOrders, biz).map((d) => [d.key, d]));
   const labels = [], data = [], colors = [], counts = [];
   for (let i = 1; i <= nDays; i++) {
     const iso = ui.month + '-' + String(i).padStart(2, '0');
@@ -1033,7 +1141,7 @@ function renderCharts(biz) {
   }
 
   // --- mensual (últimos 12 meses con datos + relleno) ---
-  const months = statsByMonth(biz.orders);
+  const months = statsByMonth(biz.orders, biz);
   if (charts.monthly) charts.monthly.destroy();
   if (!months.length) {
     chartFallback('chartMonthly', 'chartMonthlyEmpty', 'Aquí verás la tendencia mes a mes cuando tengas datos.');
@@ -1049,6 +1157,7 @@ function renderCharts(biz) {
   const mMap = new Map(months.map((m) => [m.key, m]));
   const mLabels = useKeys.map((k) => monthLabel(k, true));
   const profitData = useKeys.map((k) => (mMap.has(k) ? Number(mMap.get(k).profit.toFixed(2)) : 0));
+  const monthlyProfitLabel = 'Beneficio neto';
   const revData = useKeys.map((k) => (mMap.has(k) ? Number(mMap.get(k).revenue.toFixed(2)) : 0));
 
   charts.monthly = new Chart($('#chartMonthly'), {
@@ -1057,7 +1166,7 @@ function renderCharts(biz) {
       labels: mLabels,
       datasets: [
         { label: 'Facturación', data: revData, borderColor: brand, backgroundColor: hexToRgba(brand, .12), fill: true, tension: .32, pointRadius: 3, pointBackgroundColor: brand, borderWidth: 2 },
-        { label: 'Beneficio', data: profitData, borderColor: '#0f9d58', backgroundColor: 'rgba(15,157,88,.10)', fill: true, tension: .32, pointRadius: 3, pointBackgroundColor: '#0f9d58', borderWidth: 2 }
+        { label: monthlyProfitLabel, data: profitData, borderColor: '#0f9d58', backgroundColor: 'rgba(15,157,88,.10)', fill: true, tension: .32, pointRadius: 3, pointBackgroundColor: '#0f9d58', borderWidth: 2 }
       ]
     },
     options: baseOpts({ legend: true, tooltipLabel: (ctx) => ctx.dataset.label + ': ' + money(ctx.parsed.y) })
@@ -1089,30 +1198,39 @@ function baseOpts(cfg) {
 /* ------------------------- tablas día / mes ---------------------------- */
 function renderDayTable(biz) {
   $('#daySummaryLabel').textContent = monthLabel(ui.month);
-  const rows = statsByDay(ordersOfMonth(biz.orders, ui.month)).reverse(); // más reciente arriba
+  const rows = statsByDay(ordersOfMonth(biz.orders, ui.month), biz).reverse(); // más reciente arriba
   const t = $('#tblDays');
   if (!rows.length) {
     t.innerHTML = '<tbody><tr><td><div class="empty"><span class="big">🗓️</span>Sin pedidos en ' + monthLabel(ui.month) + '</div></td></tr></tbody>';
     return;
   }
-  const total = aggregate(ordersOfMonth(biz.orders, ui.month));
+  const total = monthTotals(biz, ui.month);
   t.innerHTML =
-    '<thead><tr><th>Día</th><th class="num">Ventas</th><th class="num">Facturación</th><th class="num">Coste</th><th class="num">Ads</th><th class="num">Beneficio</th></tr></thead><tbody>' +
+    '<thead><tr><th>Día</th><th class="num">Ventas</th><th class="num">Facturación</th><th class="num">Coste</th><th class="num">Ads</th><th class="num">Comisión</th><th class="num">Beneficio</th></tr></thead><tbody>' +
     rows.map((d) =>
       '<tr><td>' + esc(dayLabel(d.key)) + '</td>' +
       '<td class="num">' + d.count + '</td>' +
       '<td class="num">' + money(d.revenue) + '</td>' +
       '<td class="num">' + money(d.cost) + '</td>' +
       '<td class="num">' + money(d.ads) + '</td>' +
+      '<td class="num">' + money(d.fees) + '</td>' +
       '<td class="num strong ' + signClass(d.profit) + '-t">' + money(d.profit) + '</td></tr>').join('') +
-    '</tbody><tfoot><tr class="day-group"><td>Total ' + monthLabel(ui.month, true) + '</td>' +
+    '</tbody><tfoot>' +
+    '<tr class="day-group"><td>' + (total.fixed > 0 ? 'Suma de días' : 'Total ' + monthLabel(ui.month, true)) + '</td>' +
     '<td class="num">' + total.count + '</td><td class="num">' + money(total.revenue) + '</td>' +
     '<td class="num">' + money(total.cost) + '</td><td class="num">' + money(total.ads) + '</td>' +
-    '<td class="num ' + signClass(total.profit) + '-t">' + money(total.profit) + '</td></tr></tfoot>';
+    '<td class="num">' + money(total.fees) + '</td>' +
+    '<td class="num ' + signClass(total.grossProfit) + '-t">' + money(total.grossProfit) + '</td></tr>' +
+    (total.fixed > 0
+      ? '<tr class="day-group"><td colspan="6">− Gastos fijos del mes</td>' +
+        '<td class="num neg-t">−' + money(total.fixed) + '</td></tr>' +
+        '<tr class="day-group"><td colspan="6">Beneficio neto de ' + monthLabel(ui.month, true) + '</td>' +
+        '<td class="num ' + signClass(total.profit) + '-t">' + money(total.profit) + '</td></tr>'
+      : '') + '</tfoot>';
 }
 
 function renderMonthTable(biz) {
-  const rows = statsByMonth(biz.orders).slice().reverse();
+  const rows = statsByMonth(biz.orders, biz).slice().reverse();
   const t = $('#tblMonths');
   if (!rows.length) {
     t.innerHTML = '<tbody><tr><td><div class="empty"><span class="big">📊</span>Todavía sin histórico mensual</div></td></tr></tbody>';
@@ -1120,12 +1238,14 @@ function renderMonthTable(biz) {
   }
   const cur = monthKeyOf(todayISO());
   t.innerHTML =
-    '<thead><tr><th>Mes</th><th class="num">Ventas</th><th class="num">Facturación</th><th class="num">Beneficio</th><th class="num">Margen</th></tr></thead><tbody>' +
+    '<thead><tr><th>Mes</th><th class="num">Ventas</th><th class="num">Facturación</th><th class="num">Comisiones</th><th class="num">Gastos fijos</th><th class="num">Beneficio neto</th><th class="num">Margen</th></tr></thead><tbody>' +
     rows.map((m) =>
       '<tr style="cursor:pointer" data-month="' + m.key + '"><td>' + esc(monthLabel(m.key)) +
       (m.key === cur ? ' <span class="tag">en curso</span>' : '') + '</td>' +
       '<td class="num">' + m.count + '</td>' +
       '<td class="num">' + money(m.revenue) + '</td>' +
+      '<td class="num">' + money(m.fees) + '</td>' +
+      '<td class="num">' + money(m.fixed) + '</td>' +
       '<td class="num strong ' + signClass(m.profit) + '-t">' + money(m.profit) + '</td>' +
       '<td class="num">' + pct(m.margin) + '</td></tr>').join('') + '</tbody>';
   $$('#tblMonths tr[data-month]').forEach((tr) => tr.addEventListener('click', () => {
@@ -1139,7 +1259,7 @@ function renderProducts(biz) {
   const scope = $('#prodScope').value;
   const orders = scope === 'month' ? ordersOfMonth(biz.orders, ui.month) : biz.orders;
   const sortBy = $('#prodSort').value;
-  const stats = productStats(orders);
+  const stats = productStats(orders, biz);
   stats.sort((a, b) => {
     if (sortBy === 'revenue') return b.revenue - a.revenue;
     if (sortBy === 'profit') return b.profit - a.profit;
@@ -1153,16 +1273,17 @@ function renderProducts(biz) {
   }
   const top = stats.slice(0, 15);
   t.innerHTML =
-    '<thead><tr><th>#</th><th>Producto</th><th class="num">Uds.</th><th class="num">Precio medio</th><th class="num">Facturación</th><th class="num">Beneficio</th><th class="num">Margen medio</th></tr></thead><tbody>' +
+    '<thead><tr><th>#</th><th>Producto</th><th class="num">Uds.</th><th class="num">Precio medio</th><th class="num">Facturación</th><th class="num">Comisiones</th><th class="num">Beneficio</th><th class="num">Margen medio</th></tr></thead><tbody>' +
     top.map((p, i) =>
       '<tr><td class="num" style="width:36px;color:var(--muted)">' + (i + 1) + '</td>' +
       '<td class="strong">' + esc(p.name) + '</td>' +
       '<td class="num">' + p.units + '</td>' +
       '<td class="num">' + money(p.avgPrice) + '</td>' +
       '<td class="num">' + money(p.revenue) + '</td>' +
+      '<td class="num">' + money(p.fees) + '</td>' +
       '<td class="num strong ' + signClass(p.profit) + '-t">' + money(p.profit) + '</td>' +
       '<td class="num ' + signClass(p.profit) + '-t">' + pct(p.margin) + '</td></tr>').join('') +
-    '</tbody>' + (stats.length > top.length ? '<tfoot><tr class="day-group"><td colspan="7">Mostrando 15 de ' + stats.length + ' productos</td></tr></tfoot>' : '');
+    '</tbody>' + (stats.length > top.length ? '<tfoot><tr class="day-group"><td colspan="8">Mostrando 15 de ' + stats.length + ' productos</td></tr></tfoot>' : '');
 }
 
 /* ------------------------------ histórico ------------------------------ */
@@ -1194,9 +1315,10 @@ function filteredOrders(biz) {
 function renderHistory(biz) {
   const list = filteredOrders(biz);
   const t = $('#tblHistory');
-  const agg = aggregate(list);
+  const agg = aggregate(list, biz);
   $('#histCount').textContent = list.length + ' de ' + biz.orders.length + ' pedidos · ' +
-    money(agg.revenue, true) + ' facturados · ' + money(agg.profit, true) + ' de beneficio';
+    money(agg.revenue, true) + ' facturados · ' + money(agg.fees, true) + ' de comisiones · ' +
+    money(agg.profit, true) + ' de beneficio';
 
   if (!list.length) {
     t.innerHTML = '<tbody><tr><td><div class="empty"><span class="big">🔎</span>No hay pedidos que coincidan con los filtros</div></td></tr></tbody>';
@@ -1204,16 +1326,20 @@ function renderHistory(biz) {
     return;
   }
   const shown = list.slice(0, ui.histLimit);
-  let html = '<thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th class="num">Venta</th><th class="num">Coste</th><th class="num">Ads</th><th class="num">Beneficio</th><th class="num">Margen</th><th>Notas</th><th></th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th class="num">Venta</th><th class="num">Coste</th><th class="num">Ads</th>' +
+    '<th class="num" title="Comisión de Shopify Payments: ' + esc(planLabel(biz)) + '">Comisión</th>' +
+    '<th class="num">Beneficio</th><th class="num">Margen</th><th>Notas</th><th></th></tr></thead><tbody>';
   let lastDate = null;
   shown.forEach((o) => {
     if (o.date !== lastDate) {
       lastDate = o.date;
-      const dayAgg = aggregate(list.filter((x) => x.date === o.date));
-      html += '<tr class="day-group"><td colspan="10">' + esc(dayLabel(o.date)) + ' — ' + ventas(dayAgg.count) + ' · ' +
-        money(dayAgg.revenue) + ' · beneficio <span class="' + signClass(dayAgg.profit) + '-t">' + money(dayAgg.profit) + '</span></td></tr>';
+      const dayAgg = aggregate(list.filter((x) => x.date === o.date), biz);
+      html += '<tr class="day-group"><td colspan="11">' + esc(dayLabel(o.date)) + ' — ' + ventas(dayAgg.count) + ' · ' +
+        money(dayAgg.revenue) + ' · comisiones ' + money(dayAgg.fees) +
+        ' · beneficio <span class="' + signClass(dayAgg.profit) + '-t">' + money(dayAgg.profit) + '</span></td></tr>';
     }
-    const p = orderProfit(o);
+    const fee = orderFee(o, biz);
+    const p = orderProfit(o, biz);
     const m = o.price > 0 ? (p / o.price) * 100 : NaN;
     html += '<tr>' +
       '<td class="mono">' + esc(o.date.split('-').reverse().join('/')) + '</td>' +
@@ -1222,6 +1348,7 @@ function renderHistory(biz) {
       '<td class="num">' + money(o.price) + '</td>' +
       '<td class="num">' + money(o.cost) + '</td>' +
       '<td class="num">' + (o.ads ? money(o.ads) : '<span style="color:var(--muted-2)">—</span>') + '</td>' +
+      '<td class="num" style="color:var(--muted)">' + (fee ? '−' + money(fee) : '<span style="color:var(--muted-2)">—</span>') + '</td>' +
       '<td class="num strong ' + signClass(p) + '-t">' + money(p) + '</td>' +
       '<td class="num ' + signClass(p) + '-t">' + pct(m) + '</td>' +
       '<td style="max-width:220px;color:var(--muted)">' + esc(o.notes) + '</td>' +
@@ -1295,11 +1422,19 @@ function updateLivePreview() {
   const cost = $('#fCost').value.trim() ? parseNum($('#fCost').value) : 0;
   const ads = $('#fAds').value.trim() ? parseNum($('#fAds').value) : 0;
   const el = $('#livePreview');
-  if (!Number.isFinite(price)) { el.textContent = '—'; el.className = 'neu-t'; return; }
-  const p = price - (Number.isFinite(cost) ? cost : 0) - (Number.isFinite(ads) ? ads : 0);
+  const feeEl = $('#liveFee');
+  if (!Number.isFinite(price)) {
+    el.textContent = '—'; el.className = 'neu-t';
+    feeEl.textContent = 'Comisión Shopify: ' + planLabel(activeBiz());
+    return;
+  }
+  const biz = activeBiz();
+  const fee = orderFee({ price: price }, biz);
+  const p = price - (Number.isFinite(cost) ? cost : 0) - (Number.isFinite(ads) ? ads : 0) - fee;
   const m = price > 0 ? (p / price) * 100 : NaN;
   el.textContent = money(p) + (Number.isFinite(m) ? '  (' + pct(m) + ')' : '');
   el.className = signClass(p) + '-t';
+  feeEl.textContent = 'Comisión Shopify: −' + money(fee) + ' (' + planLabel(biz) + ')';
 }
 
 function submitOrder(e) {
@@ -1338,7 +1473,7 @@ function submitOrder(e) {
   ui.month = monthKeyOf(order.date);
   renderAll();
   $('#fCustomer').focus();
-  toast('✅ Pedido guardado · beneficio ' + money(orderProfit(order)));
+  toast('✅ Pedido guardado · comisión ' + money(orderFee(order, biz)) + ' · beneficio ' + money(orderProfit(order, biz)));
 }
 
 function openEditModal(id) {
@@ -1357,6 +1492,7 @@ function openEditModal(id) {
         '<div class="field"><label>Publicidad</label><div class="input-money"><input class="input" inputmode="decimal" id="eAds" value="' + nfNum.format(o.ads) + '"><span class="cur">€</span></div></div>' +
       '</div>' +
       '<div class="field" style="margin-top:12px"><label>Notas</label><textarea class="input" id="eNotes" rows="2">' + esc(o.notes) + '</textarea></div>' +
+      '<div class="note-box" id="eBreak" style="margin-top:14px"></div>' +
       '<div class="form-msg err hidden" id="eMsg"></div>' +
     '</div>' +
     '<div class="modal-foot">' +
@@ -1365,6 +1501,26 @@ function openEditModal(id) {
       '<button class="btn" id="eCancel">Cancelar</button>' +
       '<button class="btn btn-brand" id="eSave">Guardar cambios</button>' +
     '</div>');
+
+  function refreshBreak() {
+    const price = parseNum($('#ePrice', bg).value);
+    const cost = $('#eCost', bg).value.trim() ? parseNum($('#eCost', bg).value) : 0;
+    const ads = $('#eAds', bg).value.trim() ? parseNum($('#eAds', bg).value) : 0;
+    const box = $('#eBreak', bg);
+    if (!Number.isFinite(price)) { box.textContent = 'Introduce un precio de venta para ver el desglose.'; return; }
+    const fee = orderFee({ price: price }, biz);
+    const p = price - (Number.isFinite(cost) ? cost : 0) - (Number.isFinite(ads) ? ads : 0) - fee;
+    box.innerHTML =
+      '<div style="display:flex;justify-content:space-between;gap:10px"><span>Precio de venta</span><strong>' + money(price) + '</strong></div>' +
+      '<div style="display:flex;justify-content:space-between;gap:10px"><span>− Coste del producto</span><strong>' + money(Number.isFinite(cost) ? cost : 0) + '</strong></div>' +
+      '<div style="display:flex;justify-content:space-between;gap:10px"><span>− Publicidad</span><strong>' + money(Number.isFinite(ads) ? ads : 0) + '</strong></div>' +
+      '<div style="display:flex;justify-content:space-between;gap:10px"><span>− Comisión Shopify Payments (' + esc(planLabel(biz)) + ')</span><strong>' + money(fee) + '</strong></div>' +
+      '<div style="display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);margin-top:7px;padding-top:7px">' +
+      '<span style="color:var(--text);font-weight:700">Beneficio del pedido</span>' +
+      '<strong class="' + signClass(p) + '-t" style="font-size:16px">' + money(p) + '</strong></div>';
+  }
+  ['#ePrice', '#eCost', '#eAds'].forEach((sel) => $(sel, bg).addEventListener('input', refreshBreak));
+  refreshBreak();
 
   $('#eCancel', bg).addEventListener('click', closeModal);
   $('#eDelete', bg).addEventListener('click', () => { closeModal(); deleteOrder(id); });
@@ -1453,6 +1609,170 @@ function openBizModal(bizId) {
     closeModal();
     renderAll();
   });
+}
+
+/* --------------------- configuración del negocio ----------------------- */
+function openConfigModal() {
+  const biz = activeBiz();
+  const pay = paymentsOf(biz);
+  // se trabaja sobre copias: nada se guarda hasta pulsar "Guardar configuración"
+  let draftPay = { plan: pay.plan, rate: pay.rate, fixed: pay.fixed };
+  let draftExp = (biz.expenses || []).map((e) => ({ id: e.id, name: e.name, amount: e.amount, freq: e.freq }));
+
+  const bg = openModal(
+    '<div class="modal-head"><h3>⚙️ Configuración de ' + esc(biz.name) + '</h3></div>' +
+    '<div class="modal-body">' +
+      '<h4 style="font-size:14px;margin-bottom:4px">💳 Comisión de Shopify Payments</h4>' +
+      '<div class="sub" style="margin-bottom:12px">Se descuenta en cada pedido: (precio de venta × %) + cuota fija.</div>' +
+      '<div class="grid-form">' +
+        '<div class="field"><label for="cfPlan">Plan de Shopify</label>' +
+          '<select class="input" id="cfPlan">' +
+            Object.keys(PLANS).map((k) => '<option value="' + k + '"' + (k === draftPay.plan ? ' selected' : '') + '>' +
+              PLANS[k].label + (k === 'custom' ? '' : ' — ' + pct(PLANS[k].rate, 1) + ' + ' + money(PLANS[k].fixed)) +
+              '</option>').join('') +
+          '</select></div>' +
+        '<div class="field"><label for="cfRate">Comisión (%)</label>' +
+          '<div class="input-money"><input class="input" id="cfRate" inputmode="decimal" value="' + nfNum.format(draftPay.rate) + '"><span class="cur">%</span></div></div>' +
+        '<div class="field"><label for="cfFixed">Cuota fija por pedido</label>' +
+          '<div class="input-money"><input class="input" id="cfFixed" inputmode="decimal" value="' + nfNum.format(draftPay.fixed) + '"><span class="cur">€</span></div></div>' +
+      '</div>' +
+      '<div class="note-box" id="cfExample" style="margin-top:12px"></div>' +
+
+      '<h4 style="font-size:14px;margin:22px 0 4px">🧾 Gastos recurrentes</h4>' +
+      '<div class="sub" style="margin-bottom:12px">Apps, plan de Shopify, dominio… Se restan una vez al mes del beneficio neto ' +
+        'del negocio (no del beneficio de cada pedido). Los gastos anuales se convierten a su equivalente mensual.</div>' +
+      '<div id="cfExpBox"></div>' +
+      '<button class="btn btn-sm" type="button" id="cfAddExp" style="margin-top:10px">➕ Añadir gasto</button>' +
+      '<div class="form-msg err hidden" id="cfMsg"></div>' +
+    '</div>' +
+    '<div class="modal-foot">' +
+      '<span class="sub" id="cfSummary" style="margin-right:auto"></span>' +
+      '<button class="btn" id="cfCancel">Cancelar</button>' +
+      '<button class="btn btn-brand" id="cfSave">Guardar configuración</button>' +
+    '</div>', { wide: true });
+
+  const planSel = $('#cfPlan', bg), rateIn = $('#cfRate', bg), fixedIn = $('#cfFixed', bg);
+
+  function readPay() {
+    return makePayments(planSel.value, parseNum(rateIn.value), parseNum(fixedIn.value));
+  }
+  function syncPay(fromPlan) {
+    const isCustom = planSel.value === 'custom';
+    rateIn.readOnly = !isCustom;
+    fixedIn.readOnly = !isCustom;
+    rateIn.style.background = isCustom ? '#fff' : 'var(--surface-2)';
+    fixedIn.style.background = isCustom ? '#fff' : 'var(--surface-2)';
+    if (fromPlan && !isCustom) {
+      rateIn.value = nfNum.format(PLANS[planSel.value].rate);
+      fixedIn.value = nfNum.format(PLANS[planSel.value].fixed);
+    }
+    draftPay = readPay();
+    const demo = { plan: draftPay.plan, rate: draftPay.rate, fixed: draftPay.fixed };
+    const fee50 = orderFee({ price: 50 }, { payments: demo });
+    const fee100 = orderFee({ price: 100 }, { payments: demo });
+    $('#cfExample', bg).innerHTML = 'Ejemplo con esta configuración: un pedido de <strong>' + money(50) + '</strong> paga <strong>' +
+      money(fee50) + '</strong> de comisión y uno de <strong>' + money(100) + '</strong> paga <strong>' + money(fee100) + '</strong>.' +
+      '<br>Se aplica también a los pedidos que ya tenías guardados, para que todo el histórico use el mismo criterio.';
+    updateSummary();
+  }
+  planSel.addEventListener('change', () => syncPay(true));
+  [rateIn, fixedIn].forEach((el) => el.addEventListener('input', () => {
+    if (planSel.value !== 'custom') return;
+    syncPay(false);
+  }));
+
+  function expMonthly(e) { return e.freq === 'yearly' ? clampNum(e.amount) / 12 : clampNum(e.amount); }
+  function draftFixedTotal() { return round2(draftExp.reduce((n, e) => n + expMonthly(e), 0)); }
+
+  function updateSummary() {
+    $('#cfSummary', bg).textContent = 'Comisión: ' + planLabel({ payments: draftPay }) +
+      ' · Gastos fijos: ' + money(draftFixedTotal()) + '/mes';
+  }
+
+  function renderExpenses() {
+    const box = $('#cfExpBox', bg);
+    if (!draftExp.length) {
+      box.innerHTML = '<div class="note-box">Todavía no hay gastos recurrentes. Añade por ejemplo el plan de Shopify, ' +
+        'una app de reviews o el dominio.</div>';
+      updateSummary();
+      return;
+    }
+    box.innerHTML =
+      '<div class="table-scroll"><table class="paste-table"><thead><tr>' +
+      '<th>Concepto</th><th class="num" style="width:120px">Importe €</th><th style="width:130px">Frecuencia</th>' +
+      '<th class="num" style="width:110px">Equiv. mensual</th><th style="width:40px"></th></tr></thead><tbody>' +
+      draftExp.map((e, i) =>
+        '<tr data-i="' + i + '">' +
+        '<td><input data-f="name" value="' + esc(e.name) + '" placeholder="Ej. App de reviews"></td>' +
+        '<td><input data-f="amount" inputmode="decimal" value="' + (Number.isFinite(e.amount) ? nfNum.format(e.amount) : '') + '"></td>' +
+        '<td><select data-f="freq">' +
+          '<option value="monthly"' + (e.freq === 'monthly' ? ' selected' : '') + '>Mensual</option>' +
+          '<option value="yearly"' + (e.freq === 'yearly' ? ' selected' : '') + '>Anual</option>' +
+        '</select></td>' +
+        '<td class="num mono" data-eq="' + i + '">' + money(expMonthly(e)) + '</td>' +
+        '<td><button class="icon-btn" type="button" data-rm="' + i + '" title="Eliminar gasto">🗑️</button></td></tr>').join('') +
+      '</tbody><tfoot><tr class="day-group"><td colspan="3">Total mensual de gastos fijos</td>' +
+      '<td class="num">' + money(draftFixedTotal()) + '</td><td></td></tr></tfoot></table></div>';
+
+    $$('#cfExpBox [data-f]', box).forEach((el) => {
+      const evt = el.tagName === 'SELECT' ? 'change' : 'input';
+      el.addEventListener(evt, () => {
+        const i = Number(el.closest('tr').getAttribute('data-i'));
+        const f = el.getAttribute('data-f');
+        if (f === 'amount') {
+          const n = parseNum(el.value);
+          draftExp[i].amount = el.value.trim() === '' ? 0 : n;
+          el.classList.toggle('err', el.value.trim() !== '' && (!Number.isFinite(n) || n < 0));
+        } else {
+          draftExp[i][f] = el.value;
+        }
+        const eq = $('[data-eq="' + i + '"]', box);
+        if (eq) eq.textContent = money(expMonthly(draftExp[i]));
+        const foot = $('tfoot .num', box);
+        if (foot) foot.textContent = money(draftFixedTotal());
+        updateSummary();
+      });
+    });
+    $$('#cfExpBox [data-rm]', box).forEach((b) => b.addEventListener('click', () => {
+      draftExp.splice(Number(b.getAttribute('data-rm')), 1);
+      renderExpenses();
+    }));
+    updateSummary();
+  }
+
+  $('#cfAddExp', bg).addEventListener('click', () => {
+    draftExp.push({ id: uid(), name: '', amount: 0, freq: 'monthly' });
+    renderExpenses();
+    const inputs = $$('#cfExpBox [data-f="name"]', bg);
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+
+  $('#cfCancel', bg).addEventListener('click', closeModal);
+  $('#cfSave', bg).addEventListener('click', () => {
+    const msg = $('#cfMsg', bg);
+    const pay = readPay();
+    if (!Number.isFinite(pay.rate) || pay.rate < 0 || pay.rate > 100) {
+      msg.textContent = 'La comisión debe ser un porcentaje entre 0 y 100.'; msg.classList.remove('hidden'); return;
+    }
+    if (!Number.isFinite(pay.fixed) || pay.fixed < 0) {
+      msg.textContent = 'La cuota fija por pedido no puede ser negativa.'; msg.classList.remove('hidden'); return;
+    }
+    const bad = draftExp.find((e) => !Number.isFinite(e.amount) || e.amount < 0);
+    if (bad) { msg.textContent = 'Revisa los importes de los gastos recurrentes: deben ser números iguales o mayores que 0.'; msg.classList.remove('hidden'); return; }
+    msg.classList.add('hidden');
+
+    biz.payments = pay;
+    biz.expenses = draftExp
+      .filter((e) => e.name.trim() !== '' || e.amount > 0)
+      .map((e) => sanitizeExpense({ id: e.id, name: e.name.trim() || 'Gasto sin nombre', amount: e.amount, freq: e.freq }));
+    save();
+    closeModal();
+    renderAll();
+    toast('⚙️ Configuración guardada · comisión ' + planLabel(biz) + ' · gastos fijos ' + money(monthlyExpenses(biz)) + '/mes');
+  });
+
+  syncPay(false);
+  renderExpenses();
 }
 
 function deleteBusiness() {
@@ -1663,9 +1983,10 @@ function openImportModal(mode) {
   function updateFoot() {
     const valid = rows.filter((r) => Number.isFinite(r.price) && r.price >= 0);
     $('#impSave', bg).disabled = valid.length === 0;
-    const agg = aggregate(valid.map((r) => ({ price: r.price || 0, cost: r.cost || 0, ads: r.ads || 0 })));
+    const agg = aggregate(valid.map((r) => ({ price: r.price || 0, cost: r.cost || 0, ads: r.ads || 0 })), activeBiz());
     $('#impSummary', bg).textContent = valid.length
-      ? plural(valid.length, 'pedido', 'pedidos') + ' · ' + money(agg.revenue) + ' · beneficio ' + money(agg.profit)
+      ? plural(valid.length, 'pedido', 'pedidos') + ' · ' + money(agg.revenue) + ' · comisiones ' + money(agg.fees) +
+        ' · beneficio ' + money(agg.profit)
       : '';
   }
 
@@ -1780,17 +2101,23 @@ function exportCsv() {
   const biz = activeBiz();
   const list = filteredOrders(biz);
   if (!list.length) { toast('No hay pedidos que exportar con los filtros actuales.'); return; }
-  const head = ['Fecha', 'Cliente', 'Producto', 'Precio venta', 'Coste producto', 'Publicidad', 'Beneficio', 'Margen %', 'Notas'];
+  const head = ['Fecha', 'Cliente', 'Producto', 'Precio venta', 'Coste producto', 'Publicidad', 'Comisión Shopify', 'Beneficio', 'Margen %', 'Notas'];
   const lines = [head.join(';')];
   list.slice().reverse().forEach((o) => {
-    const p = orderProfit(o);
+    const fee = orderFee(o, biz);
+    const p = orderProfit(o, biz);
     const m = o.price > 0 ? (p / o.price) * 100 : 0;
-    lines.push([o.date, o.customer, o.product, numCsv(o.price), numCsv(o.cost), numCsv(o.ads), numCsv(p), numCsv(m), (o.notes || '').replace(/\r?\n/g, ' ')]
-      .map(csvCell).join(';'));
+    lines.push([o.date, o.customer, o.product, numCsv(o.price), numCsv(o.cost), numCsv(o.ads), numCsv(fee), numCsv(p), numCsv(m),
+      (o.notes || '').replace(/\r?\n/g, ' ')].map(csvCell).join(';'));
   });
-  const agg = aggregate(list);
-  lines.push(['TOTAL', '', list.length + ' pedidos', numCsv(agg.revenue), numCsv(agg.cost), numCsv(agg.ads), numCsv(agg.profit),
+  const agg = aggregate(list, biz);
+  lines.push(['TOTAL', '', list.length + ' pedidos', numCsv(agg.revenue), numCsv(agg.cost), numCsv(agg.ads), numCsv(agg.fees), numCsv(agg.profit),
     numCsv(Number.isFinite(agg.margin) ? agg.margin : 0), ''].map(csvCell).join(';'));
+  const fixed = monthlyExpenses(biz);
+  if (fixed > 0) {
+    lines.push(['', '', 'Gastos fijos (equivalente mensual)', '', '', '', '', numCsv(-fixed), '', ''].map(csvCell).join(';'));
+    lines.push(['', '', 'Nota', 'Los gastos fijos se descuentan una vez al mes, no por pedido.', '', '', '', '', '', ''].map(csvCell).join(';'));
+  }
   downloadBlob('\ufeff' + lines.join('\r\n'), 'historico-' + slug(biz.name) + '-' + todayISO() + '.csv', 'text/csv;charset=utf-8');
   toast('⬇️ CSV exportado (' + plural(list.length, 'pedido', 'pedidos') + ')');
 }
@@ -1798,7 +2125,7 @@ function exportCsv() {
 function backup() {
   const payload = {
     app: 'ecom-dashboard',
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     activeId: state.activeId,
     businesses: state.businesses
@@ -1845,6 +2172,7 @@ function bindEvents() {
   });
 
   $('#monthPicker').addEventListener('change', (e) => { ui.month = e.target.value; renderAll(); });
+  $('#btnConfigBiz').addEventListener('click', openConfigModal);
   $('#btnRenameBiz').addEventListener('click', () => openBizModal(state.activeId));
   $('#btnDeleteBiz').addEventListener('click', deleteBusiness);
 
